@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundamentos de PHP Avanzado - Documentación</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1 class="header-title">Fundamentos de PHP Avanzado</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <nav class="nav">
+                <div class="nav-section">
+                    <h2 class="nav-title">Fundamentos de PHP Avanzado</h2>
+                    
+                    <div class="nav-category">
+                        <button class="nav-category-title active" data-category="sintaxis">
+                            <span class="chevron">›</span>
+                            Sintaxis y Tipos de Datos
+                        </button>
+                        <ul class="nav-items active">
+                            <li><a href="#declaracion-variables" class="nav-link active">Declaración de Variables y Constantes</a></li>
+                            <li><a href="#tipos-escalares" class="nav-link">Tipos Escalares y Compuestos</a></li>
+                            <li><a href="#coercion-tipos" class="nav-link">Coerción de Tipos y Comparaciones Estrictas</a></li>
+                            <li><a href="#operadores" class="nav-link">Operadores Aritméticos, Lógicos y de Comparación</a></li>
+                            <li><a href="#estructuras-control" class="nav-link">Estructuras de Control (If/Else, Switch, Bucles)</a></li>
+                            <li><a href="#funciones-anonimas" class="nav-link">Funciones Anónimas, Arrow Functions y Closures</a></li>
+                            <li><a href="#namespaces" class="nav-link">Namespaces y Autoloading (PSR-4)</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="errores">
+                            <span class="chevron">›</span>
+                            Gestión de Errores y Excepciones
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#manejo-errores-tradicional" class="nav-link">Manejo de Errores Tradicional (trigger_error)</a></li>
+                            <li><a href="#clases-excepciones" class="nav-link">Clases de Excepciones Estándar</a></li>
+                            <li><a href="#excepciones-personalizadas" class="nav-link">Creación de Excepciones Personalizadas</a></li>
+                            <li><a href="#bloques-try-catch" class="nav-link">Bloques try-catch-finally</a></li>
+                            <li><a href="#errores-fatales" class="nav-link">Manejo de Errores Fatales y Shutdown Functions</a></li>
+                            <li><a href="#logging-errores" class="nav-link">Logging de Errores y Stack Traces</a></li>
+                            <li><a href="#xdebug" class="nav-link">Depuración con Xdebug</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="oop">
+                            <span class="chevron">›</span>
+                            Programación Orientada a Objetos (OOP)
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#clases-objetos" class="nav-link">Clases, Objetos, Propiedades y Métodos</a></li>
+                            <li><a href="#constructores" class="nav-link">Constructores, Destructores y Autoloading</a></li>
+                            <li><a href="#herencia" class="nav-link">Herencia, Abstracción e Interfaces</a></li>
+                            <li><a href="#traits" class="nav-link">Traits y Clases Anónimas</a></li>
+                            <li><a href="#encapsulamiento" class="nav-link">Encapsulamiento (público, protegido, privado)</a></li>
+                            <li><a href="#polimorfismo" class="nav-link">Polimorfismo y Type Hinting</a></li>
+                            <li><a href="#clases-finales" class="nav-link">Clases Finales y Métodos Finales</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Nueva Jerarquía: Patrones de Diseño -->
+                <div class="nav-section">
+                    <h2 class="nav-title">Patrones de Diseño y Principios de Ingeniería de Software</h2>
+                    
+                    <!-- Características Modernas de PHP -->
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="caracteristicas-modernas">
+                            <span class="chevron">›</span>
+                            Características Modernas de PHP
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#match-expression" class="nav-link">Match Expression (PHP 8+)</a></li>
+                            <li><a href="#operador-nullsafe" class="nav-link">Operador Nullsafe (PHP 8+)</a></li>
+                            <li><a href="#named-arguments" class="nav-link">Named Arguments (PHP 8+)</a></li>
+                            <li><a href="#declaraciones-tipos" class="nav-link">Declaraciones de Tipos Escalares y de Retorno</a></li>
+                            <li><a href="#propiedades-promocionadas" class="nav-link">Propiedades Promocionadas en Constructores (PHP 8+)</a></li>
+                            <li><a href="#atributos" class="nav-link">Atributos (PHP 8+) y su uso</a></li>
+                            <li><a href="#enumeraciones" class="nav-link">Enumeraciones (Enums) (PHP 8.1+)</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Principios SOLID -->
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="solid">
+                            <span class="chevron">›</span>
+                            Principios SOLID
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#principio-srp" class="nav-link">Principio de Responsabilidad Única (SRP)</a></li>
+                            <li><a href="#principio-ocp" class="nav-link">Principio Abierto/Cerrado (OCP)</a></li>
+                            <li><a href="#principio-lsp" class="nav-link">Principio de Sustitución de Liskov (LSP)</a></li>
+                            <li><a href="#principio-isp" class="nav-link">Principio de Segregación de Interfaces (ISP)</a></li>
+                            <li><a href="#principio-dip" class="nav-link">Principio de Inversión de Dependencias (DIP)</a></li>
+                            <li><a href="#aplicacion-solid" class="nav-link">Aplicación de SOLID en PHP</a></li>
+                            <li><a href="#refactoring-solid" class="nav-link">Refactoring Basado en SOLID</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Patrones Creacionales -->
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="creacionales">
+                            <span class="chevron">›</span>
+                            Patrones de Diseño Creacionales
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#patron-singleton" class="nav-link">Patrón Singleton</a></li>
+                            <li><a href="#patron-factory" class="nav-link">Patrón Factory Method</a></li>
+                            <li><a href="#patron-abstract-factory" class="nav-link">Patrón Abstract Factory</a></li>
+                            <li><a href="#patron-builder" class="nav-link">Patrón Builder</a></li>
+                            <li><a href="#patron-prototype" class="nav-link">Patrón Prototype</a></li>
+                            <li><a href="#inyeccion-dependencias" class="nav-link">Inyección de Dependencias (DI) y Contenedores DI</a></li>
+                            <li><a href="#service-locator" class="nav-link">Service Locator</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Patrones Estructurales -->
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="estructurales">
+                            <span class="chevron">›</span>
+                            Patrones de Diseño Estructurales
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#patron-adapter" class="nav-link">Patrón Adapter</a></li>
+                            <li><a href="#patron-decorator" class="nav-link">Patrón Decorator</a></li>
+                            <li><a href="#patron-facade" class="nav-link">Patrón Facade</a></li>
+                            <li><a href="#patron-bridge" class="nav-link">Patrón Bridge</a></li>
+                            <li><a href="#patron-composite" class="nav-link">Patrón Composite</a></li>
+                            <li><a href="#patron-proxy" class="nav-link">Patrón Proxy</a></li>
+                            <li><a href="#patron-flyweight" class="nav-link">Patrón Flyweight</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+            <div id="content"></div>
+        </main>
+    </div>
+
+    <!-- Highlight.js y estilos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    
+    <!-- Contenido -->
+    <script src="contenido/sintaxis-tipos-datos.js"></script>
+    <script src="contenido/gestion-errores.js"></script>
+    <script src="contenido/oop.js"></script>
+    <script src="contenido/patrones-diseno.js"></script>
+    <script src="contenido/loader.js"></script>
+    
+    <!-- Script principal -->
+    <script src="script.js"></script>
+</body>
+</html>
