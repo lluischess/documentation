@@ -1,15 +1,15 @@
 // Contenido: Programación Orientada a Objetos
 const oop = {
     'clases-objetos': `
-        <h1>Clases, Objetos, Propiedades y Métodos</h1>
+        <h1>Clases, Objetos, Propiedades y Métodos en PHP 8+</h1>
         
-        <p>La Programación Orientada a Objetos (OOP) es un paradigma que organiza el código en objetos que contienen datos (propiedades) y comportamiento (métodos).</p>
+        <p>La <strong>Programación Orientada a Objetos (OOP)</strong> es un paradigma que organiza el código en objetos que contienen datos (propiedades) y comportamiento (métodos). PHP 8+ ha introducido mejoras significativas que hacen el código más limpio y seguro.</p>
 
-        <h3>Definición de Clases</h3>
+        <h3>Definición Básica de Clases</h3>
         <div class="code-block"><pre><code>&lt;?php
-// Clase básica
+// Clase básica con PHP 8+
 class Usuario {
-    // Propiedades (atributos)
+    // Propiedades con tipos (PHP 7.4+)
     public string $nombre;
     public string $email;
     private string $password;
@@ -18,9 +18,13 @@ class Usuario {
     // Propiedad estática
     public static int $contador = 0;
     
-    // Constante de clase
-    const ROLE_ADMIN = 'admin';
-    const ROLE_USER = 'user';
+    // Constantes públicas
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_USER = 'user';
+    public const ROLE_GUEST = 'guest';
+    
+    // Constante privada (PHP 8.1+)
+    private const MAX_LOGIN_ATTEMPTS = 3;
 }
 
 // Crear objeto (instancia)
@@ -29,6 +33,84 @@ $usuario->nombre = "Juan";
 $usuario->email = "juan@example.com";
 
 echo $usuario->nombre;  // "Juan"
+echo Usuario::ROLE_ADMIN;  // "admin"
+Usuario::$contador++;
+?&gt;</code></pre></div>
+
+        <h3>Typed Properties (PHP 7.4+)</h3>
+        <p>Las propiedades tipadas garantizan que solo se asignen valores del tipo correcto:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+class Producto {
+    // Tipos escalares
+    public string $nombre;
+    public int $stock;
+    public float $precio;
+    public bool $disponible;
+    
+    // Tipos compuestos
+    public array $categorias;
+    public ?string $descripcion;  // Nullable (puede ser null)
+    
+    // Tipos de clase
+    public DateTime $fechaCreacion;
+    public ?Usuario $creador = null;
+    
+    // Union types (PHP 8.0+)
+    public int|float $descuento;
+    
+    // Mixed type (PHP 8.0+)
+    public mixed $metadata;
+}
+
+$producto = new Producto();
+$producto->nombre = "Laptop";
+$producto->stock = 10;
+$producto->precio = 999.99;
+$producto->disponible = true;
+$producto->categorias = ['Electrónica', 'Computadoras'];
+$producto->descripcion = null;  // OK, es nullable
+$producto->fechaCreacion = new DateTime();
+$producto->descuento = 15;  // int
+$producto->descuento = 15.5;  // float - ambos válidos
+
+// Error: TypeError
+// $producto->stock = "diez";  // ❌ Espera int, recibe string
+?&gt;</code></pre></div>
+
+        <h3>Readonly Properties (PHP 8.1+)</h3>
+        <p>Las propiedades <code>readonly</code> solo pueden asignarse una vez:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+class Pedido {
+    // Readonly: solo se puede asignar una vez
+    public readonly string $id;
+    public readonly DateTime $fechaCreacion;
+    public readonly Usuario $cliente;
+    
+    // Propiedad normal (mutable)
+    public string $estado;
+    
+    public function __construct(string $id, Usuario $cliente) {
+        $this->id = $id;  // ✅ OK: primera asignación
+        $this->fechaCreacion = new DateTime();
+        $this->cliente = $cliente;
+        $this->estado = 'pendiente';
+    }
+    
+    public function cambiarEstado(string $nuevoEstado): void {
+        $this->estado = $nuevoEstado;  // ✅ OK: propiedad normal
+        
+        // ❌ Error: no se puede modificar readonly
+        // $this->id = 'nuevo-id';
+    }
+}
+
+$pedido = new Pedido('PED-001', $usuario);
+echo $pedido->id;  // "PED-001"
+
+// ❌ Error: no se puede modificar desde fuera
+// $pedido->id = 'PED-002';
 ?&gt;</code></pre></div>
 
         <h3>Métodos</h3>
@@ -168,7 +250,7 @@ class CuentaBancaria {
 }
 
 // Uso
-$cuenta = new Cuenta BancariaBancaria();
+$cuenta = new CuentaBancaria();
 $cuenta->setTitular("Juan Pérez")
        ->setActiva(true)  // Chainable
        ->depositar(1000);
@@ -176,13 +258,24 @@ $cuenta->setTitular("Juan Pérez")
 echo $cuenta->getSaldo();  // 1000
 ?&gt;</code></pre></div>
 
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Propiedades privadas</strong>: Usa <code>private</code> y accede con getters/setters<br>
+            • <strong>Typed properties</strong>: Siempre declara tipos para mayor seguridad<br>
+            • <strong>Readonly</strong>: Usa <code>readonly</code> para datos inmutables<br>
+            • <strong>Validación en setters</strong>: Valida datos antes de asignar<br>
+            • <strong>Return types</strong>: Declara tipos de retorno en todos los métodos<br>
+            • <strong>Nombres descriptivos</strong>: <code>calcularTotal()</code> mejor que <code>calc()</code>
+        </div>
+
         <div class="info-box">
-            <strong>💡 Buenas Prácticas:</strong><br>
-            • Usa propiedades privadas y accede a través de getters/setters<br>
-            • Valida datos en los setters<br>
-            • Usa type hinting en parámetros y return types<br>
-            • Los métodos públicos son tu API, manténlos estables<br>
-            • Usa nombres descriptivos: <code>calcularTotal()</code> mejor que <code>calc()</code>
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Typed properties</strong>: Declara tipos en todas las propiedades<br>
+            • <strong>Readonly</strong>: Propiedades inmutables (PHP 8.1+)<br>
+            • <strong>Union types</strong>: <code>int|float</code>, <code>string|null</code><br>
+            • <strong>Visibilidad</strong>: public, private, protected<br>
+            • <strong>Métodos estáticos</strong>: Pertenecen a la clase, no a instancias<br>
+            • <strong>$this</strong>: Instancia actual, <strong>self::</strong> clase actual, <strong>static::</strong> late binding
         </div>
     `,
 

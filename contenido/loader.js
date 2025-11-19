@@ -3861,107 +3861,3333 @@ xdebug.mode=off
     ...oop,
     
     'herencia': `
-        <h1>Herencia, Abstracción e Interfaces</h1>
-        <h3>Herencia</h3>
+        <h1>Herencia, Abstracción e Interfaces en PHP 8+</h1>
+        
+        <p>La <strong>herencia</strong>, <strong>abstracción</strong> e <strong>interfaces</strong> son pilares fundamentales de la OOP que permiten crear código reutilizable, extensible y mantenible.</p>
+
+        <h3>Herencia Básica</h3>
+        <p>La herencia permite que una clase (hija) herede propiedades y métodos de otra clase (padre):</p>
+        
         <div class="code-block"><pre><code>&lt;?php
+// Clase padre (base)
 class Animal {
     protected string $nombre;
+    protected int $edad;
     
-    public function __construct(string $nombre) {
+    public function __construct(string $nombre, int $edad) {
         $this->nombre = $nombre;
+        $this->edad = $edad;
+    }
+    
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    public function comer(): void {
+        echo "{$this->nombre} está comiendo\\n";
+    }
+    
+    public function dormir(): void {
+        echo "{$this->nombre} está durmiendo\\n";
     }
 }
 
+// Clase hija (derivada)
 class Perro extends Animal {
+    private string $raza;
+    
+    public function __construct(string $nombre, int $edad, string $raza) {
+        // Llamar al constructor del padre
+        parent::__construct($nombre, $edad);
+        $this->raza = $raza;
+    }
+    
+    // Método propio
     public function ladrar(): void {
-        echo "Guau!";
+        echo "{$this->nombre} dice: ¡Guau guau!\\n";
+    }
+    
+    public function getRaza(): string {
+        return $this->raza;
     }
 }
+
+class Gato extends Animal {
+    private bool $esCallejero;
+    
+    public function __construct(string $nombre, int $edad, bool $esCallejero = false) {
+        parent::__construct($nombre, $edad);
+        $this->esCallejero = $esCallejero;
+    }
+    
+    public function maullar(): void {
+        echo "{$this->nombre} dice: ¡Miau!\\n";
+    }
+}
+
+// Uso
+$perro = new Perro("Max", 3, "Labrador");
+$perro->comer();      // Heredado de Animal
+$perro->ladrar();     // Propio de Perro
+echo $perro->getNombre();  // "Max"
+
+$gato = new Gato("Michi", 2, true);
+$gato->dormir();      // Heredado de Animal
+$gato->maullar();     // Propio de Gato
 ?&gt;</code></pre></div>
-        <h3>Interfaces</h3>
+
+        <h3>Sobrescritura de Métodos (Override)</h3>
+        <p>Las clases hijas pueden sobrescribir métodos del padre:</p>
+        
         <div class="code-block"><pre><code>&lt;?php
+class Vehiculo {
+    protected string $marca;
+    protected int $velocidadMaxima;
+    
+    public function __construct(string $marca, int $velocidadMaxima) {
+        $this->marca = $marca;
+        $this->velocidadMaxima = $velocidadMaxima;
+    }
+    
+    public function acelerar(): string {
+        return "El vehículo acelera";
+    }
+    
+    public function getInfo(): string {
+        return "{$this->marca} - Velocidad máxima: {$this->velocidadMaxima} km/h";
+    }
+}
+
+class Coche extends Vehiculo {
+    private int $numeroPuertas;
+    
+    public function __construct(string $marca, int $velocidadMaxima, int $numeroPuertas) {
+        parent::__construct($marca, $velocidadMaxima);
+        $this->numeroPuertas = $numeroPuertas;
+    }
+    
+    // Sobrescribir método del padre
+    public function acelerar(): string {
+        return "El coche {$this->marca} acelera rápidamente";
+    }
+    
+    // Sobrescribir y extender
+    public function getInfo(): string {
+        // Llamar al método del padre
+        $infoBase = parent::getInfo();
+        return "{$infoBase}, Puertas: {$this->numeroPuertas}";
+    }
+}
+
+class Moto extends Vehiculo {
+    private string $tipo;
+    
+    public function __construct(string $marca, int $velocidadMaxima, string $tipo) {
+        parent::__construct($marca, $velocidadMaxima);
+        $this->tipo = $tipo;
+    }
+    
+    public function acelerar(): string {
+        return "La moto {$this->marca} acelera con agilidad";
+    }
+    
+    public function hacerCaballito(): string {
+        return "¡Haciendo caballito!";
+    }
+}
+
+// Uso
+$coche = new Coche("Toyota", 180, 4);
+echo $coche->acelerar();  // "El coche Toyota acelera rápidamente"
+echo $coche->getInfo();   // "Toyota - Velocidad máxima: 180 km/h, Puertas: 4"
+
+$moto = new Moto("Yamaha", 220, "Deportiva");
+echo $moto->acelerar();   // "La moto Yamaha acelera con agilidad"
+?&gt;</code></pre></div>
+
+        <h3>Clases Abstractas</h3>
+        <p>Las clases abstractas no se pueden instanciar directamente y pueden contener métodos abstractos (sin implementación):</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Clase abstracta
+abstract class Forma {
+    protected string $color;
+    
+    public function __construct(string $color) {
+        $this->color = $color;
+    }
+    
+    // Método abstracto (sin implementación)
+    abstract public function calcularArea(): float;
+    abstract public function calcularPerimetro(): float;
+    
+    // Método concreto (con implementación)
+    public function getColor(): string {
+        return $this->color;
+    }
+    
+    public function describir(): string {
+        return "Forma de color {$this->color} con área " . $this->calcularArea();
+    }
+}
+
+class Rectangulo extends Forma {
+    private float $ancho;
+    private float $alto;
+    
+    public function __construct(string $color, float $ancho, float $alto) {
+        parent::__construct($color);
+        $this->ancho = $ancho;
+        $this->alto = $alto;
+    }
+    
+    // Implementar métodos abstractos (obligatorio)
+    public function calcularArea(): float {
+        return $this->ancho * $this->alto;
+    }
+    
+    public function calcularPerimetro(): float {
+        return 2 * ($this->ancho + $this->alto);
+    }
+}
+
+class Circulo extends Forma {
+    private float $radio;
+    
+    public function __construct(string $color, float $radio) {
+        parent::__construct($color);
+        $this->radio = $radio;
+    }
+    
+    public function calcularArea(): float {
+        return pi() * pow($this->radio, 2);
+    }
+    
+    public function calcularPerimetro(): float {
+        return 2 * pi() * $this->radio;
+    }
+}
+
+// Uso
+// $forma = new Forma("rojo");  // ❌ Error: no se puede instanciar clase abstracta
+
+$rectangulo = new Rectangulo("azul", 10, 5);
+echo $rectangulo->calcularArea();  // 50
+echo $rectangulo->describir();     // "Forma de color azul con área 50"
+
+$circulo = new Circulo("rojo", 7);
+echo $circulo->calcularArea();     // 153.94
+echo $circulo->calcularPerimetro();  // 43.98
+?&gt;</code></pre></div>
+
+        <h3>Interfaces</h3>
+        <p>Las interfaces definen un contrato que las clases deben cumplir. Solo contienen declaraciones de métodos públicos:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Definir interface
 interface Autenticable {
     public function autenticar(string $password): bool;
+    public function cerrarSesion(): void;
+    public function estaAutenticado(): bool;
 }
 
+interface Notificable {
+    public function enviarNotificacion(string $mensaje): void;
+    public function getEmailNotificacion(): string;
+}
+
+// Implementar una interface
 class Usuario implements Autenticable {
+    private string $email;
+    private string $passwordHash;
+    private bool $autenticado = false;
+    
+    public function __construct(string $email, string $password) {
+        $this->email = $email;
+        $this->passwordHash = password_hash($password, PASSWORD_ARGON2ID);
+    }
+    
+    // Implementar todos los métodos de la interface (obligatorio)
     public function autenticar(string $password): bool {
-        return true;
+        if (password_verify($password, $this->passwordHash)) {
+            $this->autenticado = true;
+            return true;
+        }
+        return false;
+    }
+    
+    public function cerrarSesion(): void {
+        $this->autenticado = false;
+    }
+    
+    public function estaAutenticado(): bool {
+        return $this->autenticado;
     }
 }
+
+// Implementar múltiples interfaces
+class Admin implements Autenticable, Notificable {
+    private string $email;
+    private string $passwordHash;
+    private bool $autenticado = false;
+    
+    public function __construct(string $email, string $password) {
+        $this->email = $email;
+        $this->passwordHash = password_hash($password, PASSWORD_ARGON2ID);
+    }
+    
+    // Métodos de Autenticable
+    public function autenticar(string $password): bool {
+        if (password_verify($password, $this->passwordHash)) {
+            $this->autenticado = true;
+            $this->enviarNotificacion("Inicio de sesión exitoso");
+            return true;
+        }
+        return false;
+    }
+    
+    public function cerrarSesion(): void {
+        $this->autenticado = false;
+        $this->enviarNotificacion("Sesión cerrada");
+    }
+    
+    public function estaAutenticado(): bool {
+        return $this->autenticado;
+    }
+    
+    // Métodos de Notificable
+    public function enviarNotificacion(string $mensaje): void {
+        echo "Notificación a {$this->email}: {$mensaje}\\n";
+    }
+    
+    public function getEmailNotificacion(): string {
+        return $this->email;
+    }
+}
+
+// Uso
+$usuario = new Usuario("juan@example.com", "secreto123");
+$usuario->autenticar("secreto123");  // true
+echo $usuario->estaAutenticado();    // true
+
+$admin = new Admin("admin@example.com", "admin123");
+$admin->autenticar("admin123");
+// Output: "Notificación a admin@example.com: Inicio de sesión exitoso"
 ?&gt;</code></pre></div>
+
+        <h3>Interfaces con Constantes y Herencia</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Interface con constantes
+interface Pagable {
+    public const IVA = 0.16;
+    public const DESCUENTO_MAYORISTA = 0.10;
+    
+    public function calcularTotal(): float;
+    public function aplicarDescuento(float $porcentaje): void;
+}
+
+// Interface puede extender otra interface
+interface PagableConFactura extends Pagable {
+    public function generarFactura(): string;
+    public function getNumeroFactura(): string;
+}
+
+class Producto implements PagableConFactura {
+    private float $precio;
+    private float $descuento = 0;
+    private string $numeroFactura;
+    
+    public function __construct(float $precio) {
+        $this->precio = $precio;
+        $this->numeroFactura = 'FAC-' . uniqid();
+    }
+    
+    public function calcularTotal(): float {
+        $subtotal = $this->precio * (1 - $this->descuento);
+        return $subtotal * (1 + self::IVA);
+    }
+    
+    public function aplicarDescuento(float $porcentaje): void {
+        $this->descuento = $porcentaje;
+    }
+    
+    public function generarFactura(): string {
+        return "Factura {$this->numeroFactura}: Total \${$this->calcularTotal()}";
+    }
+    
+    public function getNumeroFactura(): string {
+        return $this->numeroFactura;
+    }
+}
+
+$producto = new Producto(1000);
+$producto->aplicarDescuento(Pagable::DESCUENTO_MAYORISTA);
+echo $producto->calcularTotal();  // 1044 (1000 - 10% + 16% IVA)
+echo $producto->generarFactura();
+?&gt;</code></pre></div>
+
+        <h3>Type Hinting con Interfaces</h3>
+        <p>Las interfaces permiten polimorfismo mediante type hinting:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+interface Exportable {
+    public function exportar(): string;
+}
+
+class ReporteJSON implements Exportable {
+    private array $datos;
+    
+    public function __construct(array $datos) {
+        $this->datos = $datos;
+    }
+    
+    public function exportar(): string {
+        return json_encode($this->datos, JSON_PRETTY_PRINT);
+    }
+}
+
+class ReporteCSV implements Exportable {
+    private array $datos;
+    
+    public function __construct(array $datos) {
+        $this->datos = $datos;
+    }
+    
+    public function exportar(): string {
+        $csv = '';
+        foreach ($this->datos as $fila) {
+            $csv .= implode(',', $fila) . "\\n";
+        }
+        return $csv;
+    }
+}
+
+class ReporteXML implements Exportable {
+    private array $datos;
+    
+    public function __construct(array $datos) {
+        $this->datos = $datos;
+    }
+    
+    public function exportar(): string {
+        $xml = "&lt;datos&gt;\\n";
+        foreach ($this->datos as $key => $value) {
+            $xml .= "  &lt;item&gt;{$value}&lt;/item&gt;\\n";
+        }
+        $xml .= "&lt;/datos&gt;";
+        return $xml;
+    }
+}
+
+// Función que acepta cualquier clase que implemente Exportable
+function guardarReporte(Exportable $reporte, string $archivo): void {
+    $contenido = $reporte->exportar();
+    file_put_contents($archivo, $contenido);
+    echo "Reporte guardado en {$archivo}\\n";
+}
+
+// Uso - Polimorfismo
+$datos = ['nombre' => 'Juan', 'edad' => 30, 'ciudad' => 'Madrid'];
+
+$reporteJSON = new ReporteJSON($datos);
+guardarReporte($reporteJSON, 'reporte.json');
+
+$reporteCSV = new ReporteCSV([['Juan', 30, 'Madrid']]);
+guardarReporte($reporteCSV, 'reporte.csv');
+
+$reporteXML = new ReporteXML($datos);
+guardarReporte($reporteXML, 'reporte.xml');
+
+// Todos funcionan porque implementan la misma interface
+?&gt;</code></pre></div>
+
+        <h3>Diferencias: Clase Abstracta vs Interface</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// CLASE ABSTRACTA:
+// - Puede tener propiedades
+// - Puede tener métodos concretos (con implementación)
+// - Puede tener métodos abstractos (sin implementación)
+// - Una clase solo puede extender una clase abstracta (herencia simple)
+// - Usa 'extends'
+
+abstract class Empleado {
+    protected string $nombre;  // ✅ Propiedad
+    protected float $salario;
+    
+    public function __construct(string $nombre, float $salario) {
+        $this->nombre = $nombre;
+        $this->salario = $salario;
+    }
+    
+    // ✅ Método concreto
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    // ✅ Método abstracto
+    abstract public function calcularSalarioNeto(): float;
+}
+
+// INTERFACE:
+// - NO puede tener propiedades (solo constantes)
+// - Solo declaraciones de métodos públicos
+// - Una clase puede implementar múltiples interfaces
+// - Usa 'implements'
+
+interface Trabajador {
+    // const SALARIO_MINIMO = 1000;  // ✅ Constante OK
+    // private $nombre;  // ❌ Error: no puede tener propiedades
+    
+    public function trabajar(): void;
+    public function tomarDescanso(): void;
+}
+
+interface Evaluable {
+    public function evaluar(): float;
+    public function getCalificacion(): string;
+}
+
+// Clase que extiende abstracta e implementa interfaces
+class Desarrollador extends Empleado implements Trabajador, Evaluable {
+    private string $lenguaje;
+    private float $calificacion = 0;
+    
+    public function __construct(string $nombre, float $salario, string $lenguaje) {
+        parent::__construct($nombre, $salario);
+        $this->lenguaje = $lenguaje;
+    }
+    
+    // Implementar método abstracto de Empleado
+    public function calcularSalarioNeto(): float {
+        return $this->salario * 0.85;  // Después de impuestos
+    }
+    
+    // Implementar métodos de Trabajador
+    public function trabajar(): void {
+        echo "{$this->nombre} está programando en {$this->lenguaje}\\n";
+    }
+    
+    public function tomarDescanso(): void {
+        echo "{$this->nombre} está tomando un descanso\\n";
+    }
+    
+    // Implementar métodos de Evaluable
+    public function evaluar(): float {
+        $this->calificacion = rand(70, 100) / 10;
+        return $this->calificacion;
+    }
+    
+    public function getCalificacion(): string {
+        return match(true) {
+            $this->calificacion >= 9 => 'Excelente',
+            $this->calificacion >= 7 => 'Bueno',
+            $this->calificacion >= 5 => 'Regular',
+            default => 'Necesita mejorar'
+        };
+    }
+}
+
+$dev = new Desarrollador("Ana", 50000, "PHP");
+$dev->trabajar();
+echo $dev->calcularSalarioNeto();  // 42500
+echo $dev->getCalificacion();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Pagos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Interface para métodos de pago
+interface MetodoPago {
+    public function procesarPago(float $monto): bool;
+    public function reembolsar(float $monto): bool;
+    public function getNombre(): string;
+}
+
+// Clase abstracta base
+abstract class PagoElectronico implements MetodoPago {
+    protected string $numeroTransaccion;
+    protected float $comision;
+    
+    public function __construct(float $comision = 0.03) {
+        $this->comision = $comision;
+        $this->numeroTransaccion = 'TXN-' . uniqid();
+    }
+    
+    public function getNumeroTransaccion(): string {
+        return $this->numeroTransaccion;
+    }
+    
+    protected function calcularComision(float $monto): float {
+        return $monto * $this->comision;
+    }
+    
+    // Método abstracto que las clases hijas deben implementar
+    abstract protected function validarPago(float $monto): bool;
+}
+
+class PagoTarjeta extends PagoElectronico {
+    private string $numeroTarjeta;
+    private string $titular;
+    
+    public function __construct(string $numeroTarjeta, string $titular) {
+        parent::__construct(0.025);  // 2.5% comisión
+        $this->numeroTarjeta = $numeroTarjeta;
+        $this->titular = $titular;
+    }
+    
+    protected function validarPago(float $monto): bool {
+        // Validar tarjeta, fondos, etc.
+        return strlen($this->numeroTarjeta) === 16 && $monto > 0;
+    }
+    
+    public function procesarPago(float $monto): bool {
+        if (!$this->validarPago($monto)) {
+            return false;
+        }
+        
+        $comision = $this->calcularComision($monto);
+        $total = $monto + $comision;
+        
+        echo "Procesando pago con tarjeta: \${$total}\\n";
+        echo "Comisión: \${$comision}\\n";
+        return true;
+    }
+    
+    public function reembolsar(float $monto): bool {
+        echo "Reembolsando \${$monto} a tarjeta {$this->numeroTarjeta}\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return "Tarjeta de crédito";
+    }
+}
+
+class PagoPayPal extends PagoElectronico {
+    private string $email;
+    
+    public function __construct(string $email) {
+        parent::__construct(0.035);  // 3.5% comisión
+        $this->email = $email;
+    }
+    
+    protected function validarPago(float $monto): bool {
+        return filter_var($this->email, FILTER_VALIDATE_EMAIL) && $monto > 0;
+    }
+    
+    public function procesarPago(float $monto): bool {
+        if (!$this->validarPago($monto)) {
+            return false;
+        }
+        
+        $comision = $this->calcularComision($monto);
+        $total = $monto + $comision;
+        
+        echo "Procesando pago con PayPal: \${$total}\\n";
+        echo "Email: {$this->email}\\n";
+        return true;
+    }
+    
+    public function reembolsar(float $monto): bool {
+        echo "Reembolsando \${$monto} a PayPal {$this->email}\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return "PayPal";
+    }
+}
+
+class PagoEfectivo implements MetodoPago {
+    private float $montoPagado;
+    
+    public function procesarPago(float $monto): bool {
+        echo "Pago en efectivo: \${$monto}\\n";
+        $this->montoPagado = $monto;
+        return true;
+    }
+    
+    public function reembolsar(float $monto): bool {
+        echo "Reembolso en efectivo: \${$monto}\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return "Efectivo";
+    }
+    
+    public function calcularCambio(float $montoPagado): float {
+        return $montoPagado - $this->montoPagado;
+    }
+}
+
+// Procesador de pagos que acepta cualquier método
+class ProcesadorPagos {
+    public function procesar(MetodoPago $metodo, float $monto): bool {
+        echo "Procesando con: {$metodo->getNombre()}\\n";
+        return $metodo->procesarPago($monto);
+    }
+}
+
+// Uso - Polimorfismo en acción
+$procesador = new ProcesadorPagos();
+
+$tarjeta = new PagoTarjeta("1234567890123456", "Juan Pérez");
+$procesador->procesar($tarjeta, 100);
+
+$paypal = new PagoPayPal("juan@example.com");
+$procesador->procesar($paypal, 200);
+
+$efectivo = new PagoEfectivo();
+$procesador->procesar($efectivo, 50);
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Herencia</strong>: Usa cuando hay relación "es un" (Perro ES UN Animal)<br>
+            • <strong>Interfaces</strong>: Usa cuando hay relación "puede hacer" (Usuario PUEDE autenticarse)<br>
+            • <strong>Clases abstractas</strong>: Usa para compartir código entre clases relacionadas<br>
+            • <strong>Múltiples interfaces</strong>: Una clase puede implementar varias interfaces<br>
+            • <strong>parent::</strong>: Llama a métodos del padre en sobrescritura<br>
+            • <strong>Type hinting</strong>: Usa interfaces para polimorfismo<br>
+            • <strong>Favor composición sobre herencia</strong>: No abuses de la herencia profunda
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • NO crear jerarquías de herencia muy profundas (max 3-4 niveles)<br>
+            • NO usar herencia solo para reutilizar código (usa composición)<br>
+            • NO olvidar implementar TODOS los métodos de una interface<br>
+            • NO instanciar clases abstractas directamente<br>
+            • NO confundir <code>extends</code> (herencia) con <code>implements</code> (interface)<br>
+            • SIEMPRE llamar a <code>parent::__construct()</code> si el padre tiene constructor
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Herencia</strong>: <code>extends</code> - Una clase hereda de otra<br>
+            • <strong>Clase abstracta</strong>: <code>abstract class</code> - No se puede instanciar<br>
+            • <strong>Método abstracto</strong>: <code>abstract function</code> - Sin implementación<br>
+            • <strong>Interface</strong>: <code>interface</code> - Contrato de métodos públicos<br>
+            • <strong>Implementar</strong>: <code>implements</code> - Cumplir contrato de interface<br>
+            • <strong>parent::</strong>: Acceder a métodos/propiedades del padre<br>
+            • <strong>Polimorfismo</strong>: Diferentes clases, misma interface
+        </div>
     `,
     'traits': `
-        <h1>Traits y Clases Anónimas</h1>
-        <h3>Traits</h3>
+        <h1>Traits y Clases Anónimas en PHP 8+</h1>
+        
+        <p>Los <strong>Traits</strong> permiten reutilizar código en múltiples clases sin usar herencia. Las <strong>Clases Anónimas</strong> son útiles para objetos de un solo uso.</p>
+
+        <h3>¿Qué son los Traits?</h3>
+        <p>Los Traits son mecanismos de reutilización de código que permiten incluir métodos en múltiples clases. Resuelven el problema de la herencia simple en PHP.</p>
+        
+        <div class="info-box">
+            <strong>💡 Cuándo usar Traits:</strong><br>
+            • Cuando necesitas compartir funcionalidad entre clases no relacionadas<br>
+            • Para evitar duplicación de código sin usar herencia<br>
+            • Cuando una clase necesita comportamientos de múltiples fuentes<br>
+            • Para implementar "mixins" o composición horizontal
+        </div>
+
+        <h3>Trait Básico</h3>
         <div class="code-block"><pre><code>&lt;?php
+// Definir un trait
 trait Timestamps {
-    public DateTime $createdAt;
-    public DateTime $updatedAt;
+    private DateTime $createdAt;
+    private DateTime $updatedAt;
+    
+    public function initTimestamps(): void {
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
+    }
+    
+    public function touch(): void {
+        $this->updatedAt = new DateTime();
+    }
+    
+    public function getCreatedAt(): DateTime {
+        return $this->createdAt;
+    }
+    
+    public function getUpdatedAt(): DateTime {
+        return $this->updatedAt;
+    }
+}
+
+// Usar el trait
+class Post {
+    use Timestamps;
+    
+    public function __construct(
+        private string $titulo,
+        private string $contenido
+    ) {
+        $this->initTimestamps();
+    }
+    
+    public function getTitulo(): string {
+        return $this->titulo;
+    }
+}
+
+class Usuario {
+    use Timestamps;
+    
+    public function __construct(
+        private string $nombre,
+        private string $email
+    ) {
+        $this->initTimestamps();
+    }
+}
+
+// Uso
+$post = new Post("Mi primer post", "Contenido...");
+echo $post->getCreatedAt()->format('Y-m-d H:i:s');
+
+$post->touch();  // Actualizar timestamp
+echo $post->getUpdatedAt()->format('Y-m-d H:i:s');
+?&gt;</code></pre></div>
+
+        <h3>Múltiples Traits</h3>
+        <p>Una clase puede usar múltiples traits:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+trait Loggable {
+    private array $logs = [];
+    
+    public function log(string $mensaje): void {
+        $this->logs[] = [
+            'timestamp' => new DateTime(),
+            'mensaje' => $mensaje
+        ];
+    }
+    
+    public function getLogs(): array {
+        return $this->logs;
+    }
+}
+
+trait Cacheable {
+    private array $cache = [];
+    
+    public function setCache(string $key, mixed $value): void {
+        $this->cache[$key] = $value;
+    }
+    
+    public function getCache(string $key): mixed {
+        return $this->cache[$key] ?? null;
+    }
+    
+    public function hasCache(string $key): bool {
+        return isset($this->cache[$key]);
+    }
+    
+    public function clearCache(): void {
+        $this->cache = [];
+    }
+}
+
+trait Validable {
+    private array $errores = [];
+    
+    public function addError(string $campo, string $mensaje): void {
+        $this->errores[$campo][] = $mensaje;
+    }
+    
+    public function getErrors(): array {
+        return $this->errores;
+    }
+    
+    public function hasErrors(): bool {
+        return !empty($this->errores);
+    }
+    
+    public function isValid(): bool {
+        return empty($this->errores);
+    }
+}
+
+// Usar múltiples traits
+class Producto {
+    use Loggable, Cacheable, Validable;
+    
+    public function __construct(
+        private string $nombre,
+        private float $precio
+    ) {
+        $this->log("Producto creado: {$nombre}");
+    }
+    
+    public function setPrecio(float $precio): void {
+        if ($precio < 0) {
+            $this->addError('precio', 'El precio no puede ser negativo');
+            return;
+        }
+        
+        $this->precio = $precio;
+        $this->clearCache();  // Limpiar cache al cambiar precio
+        $this->log("Precio actualizado a {$precio}");
+    }
+    
+    public function getPrecioConDescuento(float $descuento): float {
+        $cacheKey = "precio_descuento_{$descuento}";
+        
+        if ($this->hasCache($cacheKey)) {
+            return $this->getCache($cacheKey);
+        }
+        
+        $precioFinal = $this->precio * (1 - $descuento);
+        $this->setCache($cacheKey, $precioFinal);
+        
+        return $precioFinal;
+    }
+}
+
+// Uso
+$producto = new Producto("Laptop", 1000);
+$producto->setPrecio(-100);  // Error
+
+if ($producto->hasErrors()) {
+    print_r($producto->getErrors());
+}
+
+echo $producto->getPrecioConDescuento(0.1);  // 900 (calculado)
+echo $producto->getPrecioConDescuento(0.1);  // 900 (desde cache)
+
+print_r($producto->getLogs());
+?&gt;</code></pre></div>
+
+        <h3>Resolución de Conflictos</h3>
+        <p>Cuando dos traits tienen métodos con el mismo nombre, debes resolver el conflicto:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+trait Logger {
+    public function log(string $mensaje): void {
+        echo "[LOG] {$mensaje}\\n";
+    }
+    
+    public function info(string $mensaje): void {
+        echo "[INFO] {$mensaje}\\n";
+    }
+}
+
+trait FileLogger {
+    public function log(string $mensaje): void {
+        file_put_contents('app.log', "[FILE] {$mensaje}\\n", FILE_APPEND);
+    }
+    
+    public function debug(string $mensaje): void {
+        file_put_contents('debug.log', "[DEBUG] {$mensaje}\\n", FILE_APPEND);
+    }
+}
+
+class Aplicacion {
+    // Usar ambos traits
+    use Logger, FileLogger {
+        // Resolver conflicto: usar log() de FileLogger
+        FileLogger::log insteadof Logger;
+        
+        // Crear alias para log() de Logger
+        Logger::log as consoleLog;
+        
+        // Cambiar visibilidad de debug
+        FileLogger::debug as private;
+    }
+    
+    public function ejecutar(): void {
+        $this->log("Guardado en archivo");      // FileLogger::log
+        $this->consoleLog("Mostrado en consola");  // Logger::log (alias)
+        $this->info("Información");             // Logger::info
+        // $this->debug("Debug");  // ❌ Error: es privado ahora
+    }
+}
+
+$app = new Aplicacion();
+$app->ejecutar();
+?&gt;</code></pre></div>
+
+        <h3>Traits con Propiedades y Métodos Abstractos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+trait Serializable {
+    // Método abstracto que la clase debe implementar
+    abstract protected function getData(): array;
+    
+    public function toJSON(): string {
+        return json_encode($this->getData(), JSON_PRETTY_PRINT);
+    }
+    
+    public function toArray(): array {
+        return $this->getData();
+    }
+    
+    public function toXML(): string {
+        $data = $this->getData();
+        $xml = "&lt;?xml version=\\"1.0\\"?&gt;\\n&lt;root&gt;\\n";
+        
+        foreach ($data as $key => $value) {
+            $xml .= "  &lt;{$key}&gt;{$value}&lt;/{$key}&gt;\\n";
+        }
+        
+        $xml .= "&lt;/root&gt;";
+        return $xml;
+    }
+}
+
+class Usuario {
+    use Serializable;
+    
+    public function __construct(
+        private int $id,
+        private string $nombre,
+        private string $email
+    ) {}
+    
+    // Implementar método abstracto del trait
+    protected function getData(): array {
+        return [
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'email' => $this->email
+        ];
+    }
+}
+
+class Producto {
+    use Serializable;
+    
+    public function __construct(
+        private string $nombre,
+        private float $precio,
+        private int $stock
+    ) {}
+    
+    protected function getData(): array {
+        return [
+            'nombre' => $this->nombre,
+            'precio' => $this->precio,
+            'stock' => $this->stock
+        ];
+    }
+}
+
+// Uso
+$usuario = new Usuario(1, "Juan", "juan@example.com");
+echo $usuario->toJSON();
+echo $usuario->toXML();
+
+$producto = new Producto("Laptop", 999.99, 10);
+print_r($producto->toArray());
+?&gt;</code></pre></div>
+
+        <h3>Traits que Usan Otros Traits</h3>
+        <div class="code-block"><pre><code>&lt;?php
+trait HasId {
+    private int $id;
+    
+    public function getId(): int {
+        return $this->id;
+    }
+    
+    public function setId(int $id): void {
+        $this->id = $id;
+    }
+}
+
+trait HasTimestamps {
+    private DateTime $createdAt;
+    private DateTime $updatedAt;
+    
+    public function initTimestamps(): void {
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
+    }
     
     public function touch(): void {
         $this->updatedAt = new DateTime();
     }
 }
 
-class Post {
-    use Timestamps;
-    public string $titulo;
+// Trait que usa otros traits
+trait ActiveRecord {
+    use HasId, HasTimestamps;
+    
+    public function save(): bool {
+        if (!isset($this->id)) {
+            $this->initTimestamps();
+        } else {
+            $this->touch();
+        }
+        
+        // Lógica de guardado en BD
+        echo "Guardando registro con ID: {$this->getId()}\\n";
+        return true;
+    }
+    
+    public function delete(): bool {
+        echo "Eliminando registro con ID: {$this->getId()}\\n";
+        return true;
+    }
 }
+
+class Post {
+    use ActiveRecord;
+    
+    public function __construct(
+        private string $titulo,
+        private string $contenido
+    ) {}
+}
+
+// Uso
+$post = new Post("Título", "Contenido");
+$post->setId(1);
+$post->save();
 ?&gt;</code></pre></div>
+
+        <h3>Clases Anónimas</h3>
+        <p>Las clases anónimas son útiles para crear objetos simples sin definir una clase con nombre:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Clase anónima básica
+$logger = new class {
+    public function log(string $mensaje): void {
+        echo "[" . date('Y-m-d H:i:s') . "] {$mensaje}\\n";
+    }
+};
+
+$logger->log("Mensaje de prueba");
+
+// Clase anónima con constructor
+$punto = new class(10, 20) {
+    public function __construct(
+        private int $x,
+        private int $y
+    ) {}
+    
+    public function getX(): int {
+        return $this->x;
+    }
+    
+    public function getY(): int {
+        return $this->y;
+    }
+    
+    public function distancia(): float {
+        return sqrt($this->x ** 2 + $this->y ** 2);
+    }
+};
+
+echo $punto->distancia();  // 22.36
+?&gt;</code></pre></div>
+
+        <h3>Clases Anónimas con Interfaces y Traits</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Notificador {
+    public function enviar(string $mensaje): void;
+}
+
+trait Loggable {
+    public function log(string $mensaje): void {
+        echo "[LOG] {$mensaje}\\n";
+    }
+}
+
+// Clase anónima que implementa interface y usa trait
+$emailNotificador = new class implements Notificador {
+    use Loggable;
+    
+    public function enviar(string $mensaje): void {
+        $this->log("Enviando email: {$mensaje}");
+        // Lógica de envío de email
+        echo "Email enviado\\n";
+    }
+};
+
+$smsNotificador = new class implements Notificador {
+    use Loggable;
+    
+    public function enviar(string $mensaje): void {
+        $this->log("Enviando SMS: {$mensaje}");
+        // Lógica de envío de SMS
+        echo "SMS enviado\\n";
+    }
+};
+
+// Función que acepta cualquier Notificador
+function notificar(Notificador $notificador, string $mensaje): void {
+    $notificador->enviar($mensaje);
+}
+
+notificar($emailNotificador, "Hola por email");
+notificar($smsNotificador, "Hola por SMS");
+?&gt;</code></pre></div>
+
+        <h3>Clases Anónimas para Testing/Mocking</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface RepositorioUsuarios {
+    public function encontrar(int $id): ?array;
+    public function guardar(array $datos): bool;
+}
+
+class ServicioUsuarios {
+    public function __construct(
+        private RepositorioUsuarios $repositorio
+    ) {}
+    
+    public function obtenerUsuario(int $id): ?array {
+        return $this->repositorio->encontrar($id);
+    }
+}
+
+// Mock con clase anónima para testing
+$mockRepositorio = new class implements RepositorioUsuarios {
+    private array $usuarios = [
+        1 => ['id' => 1, 'nombre' => 'Juan', 'email' => 'juan@example.com'],
+        2 => ['id' => 2, 'nombre' => 'Ana', 'email' => 'ana@example.com']
+    ];
+    
+    public function encontrar(int $id): ?array {
+        return $this->usuarios[$id] ?? null;
+    }
+    
+    public function guardar(array $datos): bool {
+        $this->usuarios[$datos['id']] = $datos;
+        return true;
+    }
+};
+
+// Usar el mock
+$servicio = new ServicioUsuarios($mockRepositorio);
+$usuario = $servicio->obtenerUsuario(1);
+print_r($usuario);
+?&gt;</code></pre></div>
+
+        <h3>Clases Anónimas como Callbacks</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Estrategia {
+    public function ejecutar(array $datos): mixed;
+}
+
+class Procesador {
+    public function procesar(array $datos, Estrategia $estrategia): mixed {
+        echo "Procesando datos...\\n";
+        return $estrategia->ejecutar($datos);
+    }
+}
+
+$procesador = new Procesador();
+
+// Estrategia 1: Sumar
+$resultado1 = $procesador->procesar(
+    [1, 2, 3, 4, 5],
+    new class implements Estrategia {
+        public function ejecutar(array $datos): mixed {
+            return array_sum($datos);
+        }
+    }
+);
+echo "Suma: {$resultado1}\\n";  // 15
+
+// Estrategia 2: Multiplicar
+$resultado2 = $procesador->procesar(
+    [2, 3, 4],
+    new class implements Estrategia {
+        public function ejecutar(array $datos): mixed {
+            return array_product($datos);
+        }
+    }
+);
+echo "Producto: {$resultado2}\\n";  // 24
+
+// Estrategia 3: Filtrar pares
+$resultado3 = $procesador->procesar(
+    [1, 2, 3, 4, 5, 6],
+    new class implements Estrategia {
+        public function ejecutar(array $datos): mixed {
+            return array_filter($datos, fn($n) => $n % 2 === 0);
+        }
+    }
+);
+print_r($resultado3);  // [2, 4, 6]
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Plugins</h3>
+        <div class="code-block"><pre><code>&lt;?php
+trait PluginBase {
+    private string $nombre;
+    private string $version;
+    private bool $activo = false;
+    
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    public function getVersion(): string {
+        return $this->version;
+    }
+    
+    public function activar(): void {
+        $this->activo = true;
+        echo "Plugin {$this->nombre} activado\\n";
+    }
+    
+    public function desactivar(): void {
+        $this->activo = false;
+        echo "Plugin {$this->nombre} desactivado\\n";
+    }
+    
+    public function estaActivo(): bool {
+        return $this->activo;
+    }
+}
+
+interface Plugin {
+    public function instalar(): void;
+    public function desinstalar(): void;
+    public function ejecutar(): void;
+}
+
+class GestorPlugins {
+    private array $plugins = [];
+    
+    public function registrar(string $nombre, Plugin $plugin): void {
+        $this->plugins[$nombre] = $plugin;
+        echo "Plugin '{$nombre}' registrado\\n";
+    }
+    
+    public function ejecutarTodos(): void {
+        foreach ($this->plugins as $nombre => $plugin) {
+            echo "Ejecutando plugin: {$nombre}\\n";
+            $plugin->ejecutar();
+        }
+    }
+}
+
+$gestor = new GestorPlugins();
+
+// Plugin 1: Cache (clase anónima)
+$gestor->registrar('cache', new class implements Plugin {
+    use PluginBase;
+    
+    public function __construct() {
+        $this->nombre = 'Cache Manager';
+        $this->version = '1.0.0';
+    }
+    
+    public function instalar(): void {
+        echo "Instalando sistema de cache...\\n";
+    }
+    
+    public function desinstalar(): void {
+        echo "Desinstalando sistema de cache...\\n";
+    }
+    
+    public function ejecutar(): void {
+        if ($this->estaActivo()) {
+            echo "Limpiando cache...\\n";
+        }
+    }
+});
+
+// Plugin 2: Analytics (clase anónima)
+$gestor->registrar('analytics', new class implements Plugin {
+    use PluginBase;
+    
+    public function __construct() {
+        $this->nombre = 'Analytics Tracker';
+        $this->version = '2.1.0';
+    }
+    
+    public function instalar(): void {
+        echo "Instalando analytics...\\n";
+    }
+    
+    public function desinstalar(): void {
+        echo "Desinstalando analytics...\\n";
+    }
+    
+    public function ejecutar(): void {
+        if ($this->estaActivo()) {
+            echo "Enviando estadísticas...\\n";
+        }
+    }
+});
+
+$gestor->ejecutarTodos();
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Traits</strong>: Usa para compartir funcionalidad entre clases no relacionadas<br>
+            • <strong>Nombres descriptivos</strong>: Usa sufijos como "able" (Loggable, Cacheable)<br>
+            • <strong>Métodos abstractos</strong>: Usa en traits para forzar implementación<br>
+            • <strong>Resolución de conflictos</strong>: Siempre resuelve conflictos explícitamente<br>
+            • <strong>Clases anónimas</strong>: Usa para objetos simples de un solo uso<br>
+            • <strong>Testing</strong>: Las clases anónimas son perfectas para mocks<br>
+            • <strong>No abuses</strong>: Los traits no reemplazan el buen diseño OOP
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • NO usar traits como reemplazo de herencia cuando hay relación "es un"<br>
+            • NO crear traits muy grandes (max 200-300 líneas)<br>
+            • NO ignorar conflictos de nombres entre traits<br>
+            • NO usar clases anónimas para lógica compleja<br>
+            • NO abusar de traits (puede dificultar el seguimiento del código)<br>
+            • SIEMPRE documentar qué hace cada trait
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Trait</strong>: <code>trait NombreTrait { }</code> - Reutilización horizontal<br>
+            • <strong>Usar trait</strong>: <code>use NombreTrait;</code> - Incluir en clase<br>
+            • <strong>Múltiples traits</strong>: <code>use Trait1, Trait2;</code><br>
+            • <strong>Resolver conflictos</strong>: <code>insteadof</code> y <code>as</code><br>
+            • <strong>Clase anónima</strong>: <code>new class { }</code> - Objeto sin nombre<br>
+            • <strong>Con constructor</strong>: <code>new class($param) { }</code><br>
+            • <strong>Uso ideal</strong>: Callbacks, mocks, objetos temporales
+        </div>
     `,
     'encapsulamiento': `
-        <h1>Encapsulamiento</h1>
+        <h1>Encapsulamiento en PHP 8+</h1>
+        
+        <p>El <strong>encapsulamiento</strong> es uno de los pilares fundamentales de la OOP. Consiste en ocultar los detalles internos de una clase y exponer solo lo necesario mediante una interfaz pública controlada.</p>
+
+        <div class="info-box">
+            <strong>💡 Principios del Encapsulamiento:</strong><br>
+            • <strong>Ocultar datos</strong>: Las propiedades deben ser privadas o protegidas<br>
+            • <strong>Controlar acceso</strong>: Usar getters y setters para acceder a propiedades<br>
+            • <strong>Validar datos</strong>: Validar en setters antes de modificar el estado<br>
+            • <strong>Proteger invariantes</strong>: Mantener el objeto en un estado válido<br>
+            • <strong>Exponer comportamiento</strong>: No exponer implementación interna
+        </div>
+
+        <h3>Niveles de Visibilidad</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Ejemplo {
+    // PUBLIC: Accesible desde cualquier lugar
+    public string $publico = "Visible en todas partes";
+    
+    // PROTECTED: Accesible en la clase y clases hijas
+    protected string $protegido = "Visible en clase e hijas";
+    
+    // PRIVATE: Solo accesible dentro de esta clase
+    private string $privado = "Solo visible aquí";
+    
+    public function mostrarAcceso(): void {
+        echo $this->publico;     // ✅ OK
+        echo $this->protegido;   // ✅ OK
+        echo $this->privado;     // ✅ OK
+    }
+}
+
+class Hija extends Ejemplo {
+    public function mostrarAccesoHija(): void {
+        echo $this->publico;     // ✅ OK
+        echo $this->protegido;   // ✅ OK
+        // echo $this->privado;  // ❌ Error: no accesible
+    }
+}
+
+$obj = new Ejemplo();
+echo $obj->publico;      // ✅ OK
+// echo $obj->protegido; // ❌ Error: no accesible
+// echo $obj->privado;   // ❌ Error: no accesible
+?&gt;</code></pre></div>
+
+        <h3>Encapsulamiento Básico con Getters y Setters</h3>
         <div class="code-block"><pre><code>&lt;?php
 class CuentaBancaria {
     private float $saldo = 0;
+    private string $titular;
+    private string $numeroCuenta;
+    private bool $activa = true;
     
+    public function __construct(string $titular, string $numeroCuenta) {
+        $this->titular = $titular;
+        $this->numeroCuenta = $numeroCuenta;
+    }
+    
+    // Getter: Solo lectura del saldo
+    public function getSaldo(): float {
+        return $this->saldo;
+    }
+    
+    // NO hay setter para saldo - solo se modifica con depositar/retirar
+    
+    public function getTitular(): string {
+        return $this->titular;
+    }
+    
+    // Setter con validación
+    public function setTitular(string $titular): void {
+        if (strlen($titular) < 3) {
+            throw new InvalidArgumentException(
+                "El nombre del titular debe tener al menos 3 caracteres"
+            );
+        }
+        $this->titular = $titular;
+    }
+    
+    // Getter que oculta información sensible
+    public function getNumeroCuenta(): string {
+        // Mostrar solo los últimos 4 dígitos
+        return "****" . substr($this->numeroCuenta, -4);
+    }
+    
+    // Métodos de negocio que modifican el estado de forma controlada
     public function depositar(float $monto): bool {
-        if ($monto <= 0) return false;
+        if (!$this->activa) {
+            throw new RuntimeException("La cuenta está inactiva");
+        }
+        
+        if ($monto <= 0) {
+            throw new InvalidArgumentException("El monto debe ser positivo");
+        }
+        
         $this->saldo += $monto;
         return true;
     }
     
-    public function getSaldo(): float {
-        return $this->saldo;
+    public function retirar(float $monto): bool {
+        if (!$this->activa) {
+            throw new RuntimeException("La cuenta está inactiva");
+        }
+        
+        if ($monto <= 0) {
+            throw new InvalidArgumentException("El monto debe ser positivo");
+        }
+        
+        if ($monto > $this->saldo) {
+            throw new RuntimeException("Saldo insuficiente");
+        }
+        
+        $this->saldo -= $monto;
+        return true;
+    }
+    
+    public function isActiva(): bool {
+        return $this->activa;
+    }
+    
+    public function desactivar(): void {
+        $this->activa = false;
     }
 }
+
+// Uso
+$cuenta = new CuentaBancaria("Juan Pérez", "1234567890");
+$cuenta->depositar(1000);
+echo $cuenta->getSaldo();  // 1000
+
+$cuenta->retirar(300);
+echo $cuenta->getSaldo();  // 700
+
+echo $cuenta->getNumeroCuenta();  // "****7890"
+
+// ❌ No se puede acceder directamente
+// $cuenta->saldo = 99999;  // Error: propiedad privada
 ?&gt;</code></pre></div>
+
+        <h3>Encapsulamiento con Readonly Properties (PHP 8.1+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Usuario {
+    // Propiedades readonly: solo se asignan una vez
+    public readonly int $id;
+    public readonly string $email;
+    public readonly DateTime $fechaRegistro;
+    
+    // Propiedades mutables
+    private string $nombre;
+    private string $passwordHash;
+    private bool $activo = true;
+    
+    public function __construct(
+        int $id,
+        string $email,
+        string $nombre,
+        string $password
+    ) {
+        // Asignar readonly properties (solo en constructor)
+        $this->id = $id;
+        $this->email = $email;
+        $this->fechaRegistro = new DateTime();
+        
+        // Asignar propiedades mutables
+        $this->nombre = $nombre;
+        $this->passwordHash = password_hash($password, PASSWORD_ARGON2ID);
+    }
+    
+    // Getters para propiedades mutables
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    // Setter con validación
+    public function setNombre(string $nombre): void {
+        if (strlen($nombre) < 2) {
+            throw new InvalidArgumentException("Nombre muy corto");
+        }
+        $this->nombre = $nombre;
+    }
+    
+    // Método para cambiar password (encapsula la lógica)
+    public function cambiarPassword(string $passwordActual, string $passwordNuevo): bool {
+        if (!password_verify($passwordActual, $this->passwordHash)) {
+            throw new RuntimeException("Password actual incorrecto");
+        }
+        
+        if (strlen($passwordNuevo) < 8) {
+            throw new InvalidArgumentException("Password debe tener al menos 8 caracteres");
+        }
+        
+        $this->passwordHash = password_hash($passwordNuevo, PASSWORD_ARGON2ID);
+        return true;
+    }
+    
+    // Verificar password sin exponer el hash
+    public function verificarPassword(string $password): bool {
+        return password_verify($password, $this->passwordHash);
+    }
+    
+    public function isActivo(): bool {
+        return $this->activo;
+    }
+    
+    public function activar(): void {
+        $this->activo = true;
+    }
+    
+    public function desactivar(): void {
+        $this->activo = false;
+    }
+}
+
+// Uso
+$usuario = new Usuario(1, "juan@example.com", "Juan", "secreto123");
+
+// Readonly properties son accesibles pero no modificables
+echo $usuario->id;     // 1
+echo $usuario->email;  // "juan@example.com"
+
+// ❌ Error: no se puede modificar readonly
+// $usuario->id = 999;
+// $usuario->email = "otro@example.com";
+
+// Propiedades privadas solo con getters/setters
+$usuario->setNombre("Juan Pérez");
+echo $usuario->getNombre();
+
+$usuario->cambiarPassword("secreto123", "nuevoPassword456");
+?&gt;</code></pre></div>
+
+        <h3>Encapsulamiento con Constructor Property Promotion (PHP 8.0+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Producto {
+    // Constructor property promotion: declara y asigna en una línea
+    public function __construct(
+        private string $nombre,
+        private float $precio,
+        private int $stock,
+        private readonly string $sku,
+        private bool $disponible = true
+    ) {
+        // Validación después de la asignación
+        if ($precio < 0) {
+            throw new InvalidArgumentException("El precio no puede ser negativo");
+        }
+        
+        if ($stock < 0) {
+            throw new InvalidArgumentException("El stock no puede ser negativo");
+        }
+    }
+    
+    // Getters
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    public function getPrecio(): float {
+        return $this->precio;
+    }
+    
+    public function getStock(): int {
+        return $this->stock;
+    }
+    
+    public function getSku(): string {
+        return $this->sku;
+    }
+    
+    // Setters con validación
+    public function setNombre(string $nombre): void {
+        if (strlen($nombre) < 3) {
+            throw new InvalidArgumentException("Nombre muy corto");
+        }
+        $this->nombre = $nombre;
+    }
+    
+    public function setPrecio(float $precio): void {
+        if ($precio < 0) {
+            throw new InvalidArgumentException("Precio inválido");
+        }
+        $this->precio = $precio;
+    }
+    
+    // Métodos de negocio que encapsulan lógica
+    public function agregarStock(int $cantidad): void {
+        if ($cantidad <= 0) {
+            throw new InvalidArgumentException("Cantidad debe ser positiva");
+        }
+        
+        $this->stock += $cantidad;
+        
+        // Lógica adicional encapsulada
+        if ($this->stock > 0 && !$this->disponible) {
+            $this->disponible = true;
+        }
+    }
+    
+    public function reducirStock(int $cantidad): void {
+        if ($cantidad <= 0) {
+            throw new InvalidArgumentException("Cantidad debe ser positiva");
+        }
+        
+        if ($cantidad > $this->stock) {
+            throw new RuntimeException("Stock insuficiente");
+        }
+        
+        $this->stock -= $cantidad;
+        
+        // Lógica adicional encapsulada
+        if ($this->stock === 0) {
+            $this->disponible = false;
+        }
+    }
+    
+    public function isDisponible(): bool {
+        return $this->disponible && $this->stock > 0;
+    }
+    
+    public function getPrecioConDescuento(float $porcentaje): float {
+        if ($porcentaje < 0 || $porcentaje > 1) {
+            throw new InvalidArgumentException("Porcentaje debe estar entre 0 y 1");
+        }
+        
+        return $this->precio * (1 - $porcentaje);
+    }
+}
+
+// Uso
+$producto = new Producto("Laptop", 999.99, 10, "LAP-001");
+
+echo $producto->getPrecio();  // 999.99
+echo $producto->getStock();   // 10
+
+$producto->reducirStock(3);
+echo $producto->getStock();   // 7
+
+echo $producto->getPrecioConDescuento(0.1);  // 899.99
+
+// ❌ No se puede acceder directamente a propiedades privadas
+// $producto->precio = 0;  // Error
+?&gt;</code></pre></div>
+
+        <h3>Encapsulamiento de Colecciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Carrito {
+    private array $items = [];
+    private float $descuento = 0;
+    
+    // Agregar item con validación
+    public function agregarItem(Producto $producto, int $cantidad): void {
+        if ($cantidad <= 0) {
+            throw new InvalidArgumentException("Cantidad debe ser positiva");
+        }
+        
+        if (!$producto->isDisponible()) {
+            throw new RuntimeException("Producto no disponible");
+        }
+        
+        $sku = $producto->getSku();
+        
+        if (isset($this->items[$sku])) {
+            $this->items[$sku]['cantidad'] += $cantidad;
+        } else {
+            $this->items[$sku] = [
+                'producto' => $producto,
+                'cantidad' => $cantidad
+            ];
+        }
+    }
+    
+    // Eliminar item
+    public function eliminarItem(string $sku): void {
+        if (!isset($this->items[$sku])) {
+            throw new InvalidArgumentException("Item no encontrado");
+        }
+        
+        unset($this->items[$sku]);
+    }
+    
+    // Obtener items (retorna copia, no referencia)
+    public function getItems(): array {
+        return $this->items;
+    }
+    
+    // Contar items
+    public function contarItems(): int {
+        return count($this->items);
+    }
+    
+    // Calcular subtotal
+    public function getSubtotal(): float {
+        $subtotal = 0;
+        
+        foreach ($this->items as $item) {
+            $subtotal += $item['producto']->getPrecio() * $item['cantidad'];
+        }
+        
+        return $subtotal;
+    }
+    
+    // Aplicar descuento con validación
+    public function aplicarDescuento(float $porcentaje): void {
+        if ($porcentaje < 0 || $porcentaje > 0.5) {
+            throw new InvalidArgumentException("Descuento debe estar entre 0% y 50%");
+        }
+        
+        $this->descuento = $porcentaje;
+    }
+    
+    // Calcular total (encapsula toda la lógica)
+    public function getTotal(): float {
+        $subtotal = $this->getSubtotal();
+        $descuento = $subtotal * $this->descuento;
+        return $subtotal - $descuento;
+    }
+    
+    // Vaciar carrito
+    public function vaciar(): void {
+        $this->items = [];
+        $this->descuento = 0;
+    }
+    
+    // Verificar si está vacío
+    public function estaVacio(): bool {
+        return empty($this->items);
+    }
+}
+
+// Uso
+$carrito = new Carrito();
+
+$laptop = new Producto("Laptop", 999.99, 5, "LAP-001");
+$mouse = new Producto("Mouse", 29.99, 10, "MOU-001");
+
+$carrito->agregarItem($laptop, 1);
+$carrito->agregarItem($mouse, 2);
+
+echo $carrito->getSubtotal();  // 1059.97
+echo $carrito->contarItems();  // 2
+
+$carrito->aplicarDescuento(0.1);  // 10% descuento
+echo $carrito->getTotal();  // 953.97
+
+// ❌ No se puede modificar directamente el array interno
+// $carrito->items = [];  // Error: propiedad privada
+?&gt;</code></pre></div>
+
+        <h3>Encapsulamiento con Immutability</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Clase inmutable: una vez creada, no se puede modificar
+readonly class Dinero {
+    public function __construct(
+        public float $cantidad,
+        public string $moneda
+    ) {
+        if ($cantidad < 0) {
+            throw new InvalidArgumentException("Cantidad no puede ser negativa");
+        }
+        
+        if (!in_array($moneda, ['USD', 'EUR', 'MXN'])) {
+            throw new InvalidArgumentException("Moneda no válida");
+        }
+    }
+    
+    // Métodos que retornan nuevas instancias en lugar de modificar
+    public function sumar(Dinero $otro): self {
+        if ($this->moneda !== $otro->moneda) {
+            throw new InvalidArgumentException("No se pueden sumar monedas diferentes");
+        }
+        
+        return new self($this->cantidad + $otro->cantidad, $this->moneda);
+    }
+    
+    public function restar(Dinero $otro): self {
+        if ($this->moneda !== $otro->moneda) {
+            throw new InvalidArgumentException("No se pueden restar monedas diferentes");
+        }
+        
+        return new self($this->cantidad - $otro->cantidad, $this->moneda);
+    }
+    
+    public function multiplicar(float $factor): self {
+        return new self($this->cantidad * $factor, $this->moneda);
+    }
+    
+    public function dividir(float $divisor): self {
+        if ($divisor === 0.0) {
+            throw new InvalidArgumentException("No se puede dividir por cero");
+        }
+        
+        return new self($this->cantidad / $divisor, $this->moneda);
+    }
+    
+    public function formato(): string {
+        return number_format($this->cantidad, 2) . " {$this->moneda}";
+    }
+}
+
+// Uso
+$precio1 = new Dinero(100, 'USD');
+$precio2 = new Dinero(50, 'USD');
+
+$total = $precio1->sumar($precio2);
+echo $total->formato();  // "150.00 USD"
+
+$conDescuento = $total->multiplicar(0.9);  // 10% descuento
+echo $conDescuento->formato();  // "135.00 USD"
+
+// Los objetos originales no cambian (inmutables)
+echo $precio1->formato();  // "100.00 USD" (sin cambios)
+echo $total->formato();    // "150.00 USD" (sin cambios)
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Pedidos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+enum EstadoPedido: string {
+    case PENDIENTE = 'pendiente';
+    case PROCESANDO = 'procesando';
+    case ENVIADO = 'enviado';
+    case ENTREGADO = 'entregado';
+    case CANCELADO = 'cancelado';
+}
+
+class Pedido {
+    private array $items = [];
+    private EstadoPedido $estado;
+    private DateTime $fechaCreacion;
+    private ?DateTime $fechaEnvio = null;
+    private ?DateTime $fechaEntrega = null;
+    
+    public function __construct(
+        private readonly int $id,
+        private readonly int $clienteId,
+        private string $direccionEnvio
+    ) {
+        $this->estado = EstadoPedido::PENDIENTE;
+        $this->fechaCreacion = new DateTime();
+    }
+    
+    // Getters para propiedades readonly
+    public function getId(): int {
+        return $this->id;
+    }
+    
+    public function getClienteId(): int {
+        return $this->clienteId;
+    }
+    
+    public function getEstado(): EstadoPedido {
+        return $this->estado;
+    }
+    
+    public function getDireccionEnvio(): string {
+        return $this->direccionEnvio;
+    }
+    
+    // Setter con validación
+    public function setDireccionEnvio(string $direccion): void {
+        // Solo se puede cambiar si el pedido no ha sido enviado
+        if ($this->estado === EstadoPedido::ENVIADO || 
+            $this->estado === EstadoPedido::ENTREGADO) {
+            throw new RuntimeException("No se puede cambiar la dirección de un pedido enviado");
+        }
+        
+        if (strlen($direccion) < 10) {
+            throw new InvalidArgumentException("Dirección muy corta");
+        }
+        
+        $this->direccionEnvio = $direccion;
+    }
+    
+    // Agregar item con validación
+    public function agregarItem(Producto $producto, int $cantidad): void {
+        if ($this->estado !== EstadoPedido::PENDIENTE) {
+            throw new RuntimeException("Solo se pueden agregar items a pedidos pendientes");
+        }
+        
+        if ($cantidad <= 0) {
+            throw new InvalidArgumentException("Cantidad debe ser positiva");
+        }
+        
+        $this->items[] = [
+            'producto' => $producto,
+            'cantidad' => $cantidad,
+            'precio' => $producto->getPrecio()  // Guardar precio actual
+        ];
+    }
+    
+    // Calcular total
+    public function getTotal(): float {
+        $total = 0;
+        foreach ($this->items as $item) {
+            $total += $item['precio'] * $item['cantidad'];
+        }
+        return $total;
+    }
+    
+    // Transiciones de estado encapsuladas
+    public function procesar(): void {
+        if ($this->estado !== EstadoPedido::PENDIENTE) {
+            throw new RuntimeException("Solo se pueden procesar pedidos pendientes");
+        }
+        
+        if (empty($this->items)) {
+            throw new RuntimeException("No se puede procesar un pedido vacío");
+        }
+        
+        $this->estado = EstadoPedido::PROCESANDO;
+    }
+    
+    public function enviar(): void {
+        if ($this->estado !== EstadoPedido::PROCESANDO) {
+            throw new RuntimeException("Solo se pueden enviar pedidos en procesamiento");
+        }
+        
+        $this->estado = EstadoPedido::ENVIADO;
+        $this->fechaEnvio = new DateTime();
+    }
+    
+    public function entregar(): void {
+        if ($this->estado !== EstadoPedido::ENVIADO) {
+            throw new RuntimeException("Solo se pueden entregar pedidos enviados");
+        }
+        
+        $this->estado = EstadoPedido::ENTREGADO;
+        $this->fechaEntrega = new DateTime();
+    }
+    
+    public function cancelar(): void {
+        if ($this->estado === EstadoPedido::ENTREGADO) {
+            throw new RuntimeException("No se puede cancelar un pedido entregado");
+        }
+        
+        $this->estado = EstadoPedido::CANCELADO;
+    }
+    
+    // Verificaciones de estado
+    public function puedeModificarse(): bool {
+        return $this->estado === EstadoPedido::PENDIENTE;
+    }
+    
+    public function estaCancelado(): bool {
+        return $this->estado === EstadoPedido::CANCELADO;
+    }
+    
+    public function estaEntregado(): bool {
+        return $this->estado === EstadoPedido::ENTREGADO;
+    }
+}
+
+// Uso
+$pedido = new Pedido(1, 123, "Calle Principal 123, Madrid");
+
+$laptop = new Producto("Laptop", 999.99, 5, "LAP-001");
+$mouse = new Producto("Mouse", 29.99, 10, "MOU-001");
+
+$pedido->agregarItem($laptop, 1);
+$pedido->agregarItem($mouse, 2);
+
+echo $pedido->getTotal();  // 1059.97
+
+// Flujo de estados encapsulado
+$pedido->procesar();
+$pedido->enviar();
+$pedido->entregar();
+
+// ❌ No se puede modificar después de entregado
+// $pedido->setDireccionEnvio("Nueva dirección");  // Error
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Propiedades privadas</strong>: Por defecto, todas las propiedades deben ser privadas<br>
+            • <strong>Getters/Setters</strong>: Controla el acceso a propiedades con métodos<br>
+            • <strong>Validación</strong>: Valida siempre en setters y constructores<br>
+            • <strong>Readonly</strong>: Usa <code>readonly</code> para datos inmutables (PHP 8.1+)<br>
+            • <strong>Invariantes</strong>: Mantén el objeto siempre en un estado válido<br>
+            • <strong>Métodos de negocio</strong>: Encapsula lógica compleja en métodos<br>
+            • <strong>No expongas colecciones</strong>: Retorna copias, no referencias directas
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • NO hacer todas las propiedades públicas<br>
+            • NO crear getters/setters sin validación<br>
+            • NO exponer detalles de implementación interna<br>
+            • NO permitir modificar el estado sin control<br>
+            • NO retornar referencias a colecciones internas<br>
+            • SIEMPRE validar datos antes de asignar<br>
+            • SIEMPRE mantener invariantes de clase
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Private</strong>: Solo accesible dentro de la clase<br>
+            • <strong>Protected</strong>: Accesible en clase e hijas<br>
+            • <strong>Public</strong>: Accesible desde cualquier lugar<br>
+            • <strong>Readonly</strong>: Propiedad inmutable (PHP 8.1+)<br>
+            • <strong>Getters</strong>: Métodos para leer propiedades privadas<br>
+            • <strong>Setters</strong>: Métodos para modificar con validación<br>
+            • <strong>Invariantes</strong>: Reglas que el objeto siempre debe cumplir
+        </div>
     `,
     'polimorfismo': `
-        <h1>Polimorfismo y Type Hinting</h1>
+        <h1>Polimorfismo y Type Hinting en PHP 8+</h1>
+        
+        <p>El <strong>polimorfismo</strong> permite que diferentes clases respondan al mismo mensaje de formas distintas. El <strong>type hinting</strong> garantiza que los parámetros y valores de retorno sean del tipo correcto.</p>
+
+        <div class="info-box">
+            <strong>💡 Conceptos Clave:</strong><br>
+            • <strong>Polimorfismo</strong>: "Muchas formas" - mismo método, diferentes implementaciones<br>
+            • <strong>Type Hinting</strong>: Declarar tipos de parámetros y retorno<br>
+            • <strong>Duck Typing</strong>: "Si camina como pato y grazna como pato, es un pato"<br>
+            • <strong>Sustitución</strong>: Usar objetos de diferentes clases de forma intercambiable<br>
+            • <strong>Contratos</strong>: Interfaces definen el "qué", clases el "cómo"
+        </div>
+
+        <h3>Polimorfismo Básico con Interfaces</h3>
         <div class="code-block"><pre><code>&lt;?php
 interface Pagable {
     public function calcularMonto(): float;
+    public function getDescripcion(): string;
 }
 
 class Factura implements Pagable {
+    public function __construct(
+        private float $subtotal,
+        private float $iva = 0.16
+    ) {}
+    
     public function calcularMonto(): float {
-        return $this->subtotal * 1.16;
+        return $this->subtotal * (1 + $this->iva);
+    }
+    
+    public function getDescripcion(): string {
+        return "Factura por \${$this->subtotal}";
     }
 }
 
-function procesarPago(Pagable $item): void {
-    echo $item->calcularMonto();
+class Recibo implements Pagable {
+    public function __construct(
+        private float $monto,
+        private float $retencion = 0.10
+    ) {}
+    
+    public function calcularMonto(): float {
+        return $this->monto * (1 - $this->retencion);
+    }
+    
+    public function getDescripcion(): string {
+        return "Recibo por \${$this->monto}";
+    }
 }
+
+class NotaCredito implements Pagable {
+    public function __construct(
+        private float $montoOriginal,
+        private float $descuento
+    ) {}
+    
+    public function calcularMonto(): float {
+        return -($this->montoOriginal * $this->descuento);
+    }
+    
+    public function getDescripcion(): string {
+        return "Nota de crédito";
+    }
+}
+
+// Función polimórfica: acepta cualquier Pagable
+function procesarPago(Pagable $item): void {
+    echo $item->getDescripcion() . "\\n";
+    echo "Monto: \$" . number_format($item->calcularMonto(), 2) . "\\n";
+}
+
+// Uso - Polimorfismo en acción
+$factura = new Factura(1000);
+$recibo = new Recibo(500);
+$notaCredito = new NotaCredito(1000, 0.1);
+
+procesarPago($factura);      // "Factura por $1000" / "Monto: $1160.00"
+procesarPago($recibo);       // "Recibo por $500" / "Monto: $450.00"
+procesarPago($notaCredito);  // "Nota de crédito" / "Monto: $-100.00"
 ?&gt;</code></pre></div>
+
+        <h3>Type Hinting con Tipos Escalares</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Declarar strict types para mayor seguridad
+declare(strict_types=1);
+
+class Calculadora {
+    // Type hinting de parámetros y retorno
+    public function sumar(int $a, int $b): int {
+        return $a + $b;
+    }
+    
+    public function dividir(float $a, float $b): float {
+        if ($b === 0.0) {
+            throw new InvalidArgumentException("División por cero");
+        }
+        return $a / $b;
+    }
+    
+    public function concatenar(string $a, string $b): string {
+        return $a . $b;
+    }
+    
+    public function esVerdadero(bool $valor): string {
+        return $valor ? "Verdadero" : "Falso";
+    }
+    
+    // Array type hint
+    public function sumarArray(array $numeros): float {
+        return array_sum($numeros);
+    }
+    
+    // Mixed type (PHP 8.0+)
+    public function procesarValor(mixed $valor): string {
+        return match(gettype($valor)) {
+            'integer' => "Entero: {$valor}",
+            'double' => "Float: {$valor}",
+            'string' => "String: {$valor}",
+            'boolean' => "Boolean: " . ($valor ? 'true' : 'false'),
+            'array' => "Array con " . count($valor) . " elementos",
+            default => "Tipo: " . gettype($valor)
+        };
+    }
+}
+
+$calc = new Calculadora();
+
+echo $calc->sumar(5, 3);           // 8
+echo $calc->dividir(10.0, 2.0);    // 5.0
+echo $calc->concatenar("Hola", " Mundo");  // "Hola Mundo"
+
+// ❌ Error con strict_types=1
+// $calc->sumar(5.5, 3);  // TypeError: debe ser int
+?&gt;</code></pre></div>
+
+        <h3>Union Types (PHP 8.0+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Procesador {
+    // Acepta int o float
+    public function procesar(int|float $numero): int|float {
+        return $numero * 2;
+    }
+    
+    // Acepta string o null
+    public function formatear(?string $texto): string {
+        return $texto ?? "Sin texto";
+    }
+    
+    // Acepta array o objeto
+    public function serializar(array|object $datos): string {
+        return json_encode($datos);
+    }
+    
+    // Union type complejo
+    public function convertir(int|float|string $valor): float {
+        return (float) $valor;
+    }
+}
+
+$proc = new Procesador();
+
+echo $proc->procesar(10);      // 20
+echo $proc->procesar(5.5);     // 11.0
+echo $proc->formatear(null);   // "Sin texto"
+echo $proc->formatear("Hola"); // "Hola"
+?&gt;</code></pre></div>
+
+        <h3>Intersection Types (PHP 8.1+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Loggable {
+    public function log(string $mensaje): void;
+}
+
+interface Cacheable {
+    public function cache(string $key, mixed $value): void;
+}
+
+class Logger implements Loggable {
+    public function log(string $mensaje): void {
+        echo "[LOG] {$mensaje}\\n";
+    }
+}
+
+class CacheManager implements Cacheable {
+    public function cache(string $key, mixed $value): void {
+        echo "[CACHE] {$key} = {$value}\\n";
+    }
+}
+
+class AdvancedService implements Loggable, Cacheable {
+    public function log(string $mensaje): void {
+        echo "[SERVICE LOG] {$mensaje}\\n";
+    }
+    
+    public function cache(string $key, mixed $value): void {
+        echo "[SERVICE CACHE] {$key}\\n";
+    }
+}
+
+// Intersection type: debe implementar AMBAS interfaces
+function procesar(Loggable&Cacheable $servicio): void {
+    $servicio->log("Procesando...");
+    $servicio->cache("resultado", "OK");
+}
+
+$advanced = new AdvancedService();
+procesar($advanced);  // ✅ OK: implementa ambas
+
+// $logger = new Logger();
+// procesar($logger);  // ❌ Error: solo implementa Loggable
+?&gt;</code></pre></div>
+
+        <h3>Polimorfismo con Clases Abstractas</h3>
+        <div class="code-block"><pre><code>&lt;?php
+abstract class Notificacion {
+    protected string $destinatario;
+    protected string $mensaje;
+    
+    public function __construct(string $destinatario, string $mensaje) {
+        $this->destinatario = $destinatario;
+        $this->mensaje = $mensaje;
+    }
+    
+    // Método abstracto: cada clase lo implementa diferente
+    abstract public function enviar(): bool;
+    
+    // Método concreto: compartido por todas
+    public function validar(): bool {
+        return !empty($this->destinatario) && !empty($this->mensaje);
+    }
+    
+    public function getMensaje(): string {
+        return $this->mensaje;
+    }
+}
+
+class EmailNotificacion extends Notificacion {
+    public function enviar(): bool {
+        if (!$this->validar()) {
+            return false;
+        }
+        
+        echo "Enviando email a {$this->destinatario}: {$this->mensaje}\\n";
+        // Lógica de envío de email
+        return true;
+    }
+}
+
+class SMSNotificacion extends Notificacion {
+    public function enviar(): bool {
+        if (!$this->validar()) {
+            return false;
+        }
+        
+        echo "Enviando SMS a {$this->destinatario}: {$this->mensaje}\\n";
+        // Lógica de envío de SMS
+        return true;
+    }
+}
+
+class PushNotificacion extends Notificacion {
+    public function enviar(): bool {
+        if (!$this->validar()) {
+            return false;
+        }
+        
+        echo "Enviando push a {$this->destinatario}: {$this->mensaje}\\n";
+        // Lógica de push notification
+        return true;
+    }
+}
+
+// Función polimórfica que acepta cualquier Notificacion
+function enviarNotificacion(Notificacion $notif): void {
+    if ($notif->validar()) {
+        $notif->enviar();
+    } else {
+        echo "Notificación inválida\\n";
+    }
+}
+
+// Uso - Polimorfismo
+$email = new EmailNotificacion("user@example.com", "Hola por email");
+$sms = new SMSNotificacion("+34123456789", "Hola por SMS");
+$push = new PushNotificacion("device-token-123", "Hola por push");
+
+enviarNotificacion($email);
+enviarNotificacion($sms);
+enviarNotificacion($push);
+?&gt;</code></pre></div>
+
+        <h3>Type Hinting con Clases y Objetos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Usuario {
+    public function __construct(
+        public readonly int $id,
+        public readonly string $nombre
+    ) {}
+}
+
+class Producto {
+    public function __construct(
+        public readonly int $id,
+        public readonly string $nombre,
+        public readonly float $precio
+    ) {}
+}
+
+class Pedido {
+    private array $items = [];
+    
+    public function __construct(
+        private Usuario $usuario  // Type hint de clase
+    ) {}
+    
+    // Type hint de clase en parámetro
+    public function agregarProducto(Producto $producto, int $cantidad): void {
+        $this->items[] = [
+            'producto' => $producto,
+            'cantidad' => $cantidad
+        ];
+    }
+    
+    // Type hint de clase en retorno
+    public function getUsuario(): Usuario {
+        return $this->usuario;
+    }
+    
+    public function getTotal(): float {
+        $total = 0;
+        foreach ($this->items as $item) {
+            $total += $item['producto']->precio * $item['cantidad'];
+        }
+        return $total;
+    }
+}
+
+// Uso
+$usuario = new Usuario(1, "Juan");
+$producto1 = new Producto(1, "Laptop", 999.99);
+$producto2 = new Producto(2, "Mouse", 29.99);
+
+$pedido = new Pedido($usuario);
+$pedido->agregarProducto($producto1, 1);
+$pedido->agregarProducto($producto2, 2);
+
+echo $pedido->getUsuario()->nombre;  // "Juan"
+echo $pedido->getTotal();  // 1059.97
+?&gt;</code></pre></div>
+
+        <h3>Polimorfismo con Callable y First-Class Callables (PHP 8.1+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Filtrador {
+    // Type hint: callable
+    public function filtrar(array $datos, callable $criterio): array {
+        return array_filter($datos, $criterio);
+    }
+    
+    // Type hint: Closure
+    public function transformar(array $datos, Closure $transformacion): array {
+        return array_map($transformacion, $datos);
+    }
+}
+
+$filtrador = new Filtrador();
+$numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// Usando función anónima
+$pares = $filtrador->filtrar($numeros, fn($n) => $n % 2 === 0);
+print_r($pares);  // [2, 4, 6, 8, 10]
+
+// Usando closure
+$dobles = $filtrador->transformar($numeros, fn($n) => $n * 2);
+print_r($dobles);  // [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+
+// First-class callable (PHP 8.1+)
+class Matematicas {
+    public static function cuadrado(int $n): int {
+        return $n * $n;
+    }
+}
+
+// Sintaxis antigua
+$cuadrados1 = $filtrador->transformar($numeros, 'Matematicas::cuadrado'(...));
+
+// Sintaxis nueva (PHP 8.1+)
+$cuadrados2 = $filtrador->transformar($numeros, Matematicas::cuadrado(...));
+print_r($cuadrados2);  // [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+?&gt;</code></pre></div>
+
+        <h3>Nullable Types y Null Coalescing</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class PerfilUsuario {
+    public function __construct(
+        private string $nombre,
+        private ?string $apellido = null,  // Nullable
+        private ?int $edad = null,
+        private ?string $email = null
+    ) {}
+    
+    // Retorno nullable
+    public function getApellido(): ?string {
+        return $this->apellido;
+    }
+    
+    public function getNombreCompleto(): string {
+        // Null coalescing operator
+        return $this->nombre . ' ' . ($this->apellido ?? '');
+    }
+    
+    public function getEdad(): int {
+        // Null coalescing con valor por defecto
+        return $this->edad ?? 0;
+    }
+    
+    // Union type con null (alternativa a ?)
+    public function getEmail(): string|null {
+        return $this->email;
+    }
+    
+    public function setEmail(?string $email): void {
+        $this->email = $email;
+    }
+}
+
+$perfil1 = new PerfilUsuario("Juan", "Pérez", 30, "juan@example.com");
+echo $perfil1->getNombreCompleto();  // "Juan Pérez"
+
+$perfil2 = new PerfilUsuario("Ana");
+echo $perfil2->getNombreCompleto();  // "Ana "
+echo $perfil2->getEdad();            // 0
+echo $perfil2->getEmail() ?? "Sin email";  // "Sin email"
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Pagos Polimórfico</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface MetodoPago {
+    public function procesar(float $monto): bool;
+    public function getNombre(): string;
+    public function getComision(): float;
+}
+
+class PagoTarjeta implements MetodoPago {
+    public function __construct(
+        private string $numero,
+        private string $cvv
+    ) {}
+    
+    public function procesar(float $monto): bool {
+        echo "Procesando \${$monto} con tarjeta ****" . substr($this->numero, -4) . "\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return "Tarjeta de Crédito";
+    }
+    
+    public function getComision(): float {
+        return 0.025;  // 2.5%
+    }
+}
+
+class PagoPayPal implements MetodoPago {
+    public function __construct(
+        private string $email
+    ) {}
+    
+    public function procesar(float $monto): bool {
+        echo "Procesando \${$monto} con PayPal ({$this->email})\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return "PayPal";
+    }
+    
+    public function getComision(): float {
+        return 0.035;  // 3.5%
+    }
+}
+
+class PagoCripto implements MetodoPago {
+    public function __construct(
+        private string $wallet,
+        private string $moneda = 'BTC'
+    ) {}
+    
+    public function procesar(float $monto): bool {
+        echo "Procesando \${$monto} con {$this->moneda} a wallet {$this->wallet}\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return "Criptomoneda ({$this->moneda})";
+    }
+    
+    public function getComision(): float {
+        return 0.01;  // 1%
+    }
+}
+
+// Procesador polimórfico
+class ProcesadorPagos {
+    private array $historial = [];
+    
+    // Type hint: acepta cualquier MetodoPago
+    public function procesarPago(MetodoPago $metodo, float $monto): array {
+        $comision = $monto * $metodo->getComision();
+        $total = $monto + $comision;
+        
+        echo "Método: {$metodo->getNombre()}\\n";
+        echo "Monto: \${$monto}\\n";
+        echo "Comisión: \${$comision}\\n";
+        echo "Total: \${$total}\\n";
+        
+        $resultado = $metodo->procesar($total);
+        
+        $transaccion = [
+            'metodo' => $metodo->getNombre(),
+            'monto' => $monto,
+            'comision' => $comision,
+            'total' => $total,
+            'exitoso' => $resultado,
+            'fecha' => new DateTime()
+        ];
+        
+        $this->historial[] = $transaccion;
+        
+        return $transaccion;
+    }
+    
+    // Type hint: array de MetodoPago
+    public function procesarMultiple(array $metodos, float $monto): void {
+        foreach ($metodos as $metodo) {
+            if (!$metodo instanceof MetodoPago) {
+                throw new InvalidArgumentException("Debe ser MetodoPago");
+            }
+            
+            $this->procesarPago($metodo, $monto);
+            echo "---\\n";
+        }
+    }
+    
+    public function getHistorial(): array {
+        return $this->historial;
+    }
+}
+
+// Uso - Polimorfismo en acción
+$procesador = new ProcesadorPagos();
+
+$tarjeta = new PagoTarjeta("4532123456789012", "123");
+$paypal = new PagoPayPal("user@example.com");
+$cripto = new PagoCripto("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", "BTC");
+
+// Procesar con diferentes métodos (polimorfismo)
+$procesador->procesarPago($tarjeta, 100);
+echo "\\n";
+$procesador->procesarPago($paypal, 200);
+echo "\\n";
+$procesador->procesarPago($cripto, 300);
+
+// Procesar múltiples
+echo "\\n=== PROCESAMIENTO MÚLTIPLE ===\\n";
+$procesador->procesarMultiple([$tarjeta, $paypal, $cripto], 50);
+?&gt;</code></pre></div>
+
+        <h3>Never Type (PHP 8.1+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class ErrorHandler {
+    // never: indica que la función nunca retorna (siempre lanza excepción o termina)
+    public function abort(string $mensaje): never {
+        throw new RuntimeException($mensaje);
+    }
+    
+    public function exit(int $codigo = 0): never {
+        exit($codigo);
+    }
+    
+    public function redirect(string $url): never {
+        header("Location: {$url}");
+        exit;
+    }
+}
+
+function validarEdad(int $edad): void {
+    $handler = new ErrorHandler();
+    
+    if ($edad < 0) {
+        $handler->abort("Edad no puede ser negativa");
+        // El código nunca llega aquí
+    }
+    
+    if ($edad < 18) {
+        echo "Menor de edad\\n";
+    }
+}
+
+// validarEdad(-5);  // Lanza RuntimeException
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Siempre usa type hints</strong>: En parámetros y valores de retorno<br>
+            • <strong>Strict types</strong>: Usa <code>declare(strict_types=1)</code> para mayor seguridad<br>
+            • <strong>Interfaces sobre clases</strong>: Type hint con interfaces para flexibilidad<br>
+            • <strong>Union types</strong>: Usa cuando un parámetro acepta múltiples tipos<br>
+            • <strong>Nullable con ?</strong>: Usa <code>?Type</code> para valores opcionales<br>
+            • <strong>Mixed con cuidado</strong>: Solo cuando realmente necesitas cualquier tipo<br>
+            • <strong>Never para funciones que no retornan</strong>: Documenta el flujo claramente
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • NO omitir type hints en código nuevo<br>
+            • NO usar <code>mixed</code> cuando puedes ser más específico<br>
+            • NO confundir <code>?Type</code> (nullable) con <code>Type|null</code> (son equivalentes)<br>
+            • NO usar type hints incorrectos solo para evitar errores<br>
+            • SIEMPRE validar tipos en funciones públicas<br>
+            • SIEMPRE usar <code>instanceof</code> para verificar tipos en runtime<br>
+            • NUNCA asumir el tipo sin verificar en código crítico
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Polimorfismo</strong>: Diferentes clases, misma interfaz<br>
+            • <strong>Type Hint</strong>: <code>function foo(Type $param): ReturnType</code><br>
+            • <strong>Union Types</strong>: <code>int|float|string</code> (PHP 8.0+)<br>
+            • <strong>Intersection Types</strong>: <code>Interface1&Interface2</code> (PHP 8.1+)<br>
+            • <strong>Nullable</strong>: <code>?Type</code> o <code>Type|null</code><br>
+            • <strong>Mixed</strong>: Acepta cualquier tipo (PHP 8.0+)<br>
+            • <strong>Never</strong>: Función que nunca retorna (PHP 8.1+)<br>
+            • <strong>Strict Types</strong>: <code>declare(strict_types=1)</code>
+        </div>
     `,
     'clases-finales': `
-        <h1>Clases Finales y Métodos Finales</h1>
+        <h1>Clases Finales y Métodos Finales en PHP 8+</h1>
+        
+        <p>La palabra clave <strong>final</strong> previene que una clase sea heredada o que un método sea sobrescrito. Es útil para garantizar la integridad del diseño y prevenir modificaciones no deseadas.</p>
+
+        <div class="info-box">
+            <strong>💡 Cuándo usar final:</strong><br>
+            • <strong>Clases final</strong>: Cuando no quieres que nadie herede de tu clase<br>
+            • <strong>Métodos final</strong>: Cuando un método no debe ser sobrescrito<br>
+            • <strong>Seguridad</strong>: Prevenir modificaciones que rompan la lógica<br>
+            • <strong>Optimización</strong>: El compilador puede optimizar mejor<br>
+            • <strong>Diseño claro</strong>: Comunica intención de no extender
+        </div>
+
+        <h3>Clases Finales Básicas</h3>
+        <p>Una clase final no puede ser heredada:</p>
+        
         <div class="code-block"><pre><code>&lt;?php
+// Clase final: no se puede heredar
+final class Usuario {
+    public function __construct(
+        private string $nombre,
+        private string $email
+    ) {}
+    
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    public function getEmail(): string {
+        return $this->email;
+    }
+}
+
+// ❌ Error: no se puede heredar de una clase final
+// class UsuarioPremium extends Usuario {
+//     // Fatal error: Class UsuarioPremium may not inherit from final class Usuario
+// }
+
+// ✅ Uso normal
+$usuario = new Usuario("Juan", "juan@example.com");
+echo $usuario->getNombre();
+?&gt;</code></pre></div>
+
+        <h3>Métodos Finales</h3>
+        <p>Un método final no puede ser sobrescrito en clases hijas:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+class Vehiculo {
+    protected string $marca;
+    protected int $año;
+    
+    public function __construct(string $marca, int $año) {
+        $this->marca = $marca;
+        $this->año = $año;
+    }
+    
+    // Método final: no se puede sobrescribir
+    final public function getIdentificacion(): string {
+        return "{$this->marca} ({$this->año})";
+    }
+    
+    // Método normal: se puede sobrescribir
+    public function getDescripcion(): string {
+        return "Vehículo {$this->marca}";
+    }
+    
+    // Método final con lógica crítica
+    final public function validarAño(): bool {
+        $añoActual = (int) date('Y');
+        return $this->año >= 1900 && $this->año <= $añoActual;
+    }
+}
+
+class Coche extends Vehiculo {
+    private int $puertas;
+    
+    public function __construct(string $marca, int $año, int $puertas) {
+        parent::__construct($marca, $año);
+        $this->puertas = $puertas;
+    }
+    
+    // ✅ OK: sobrescribir método normal
+    public function getDescripcion(): string {
+        return "Coche {$this->marca} con {$this->puertas} puertas";
+    }
+    
+    // ❌ Error: no se puede sobrescribir método final
+    // public function getIdentificacion(): string {
+    //     return "Coche: " . parent::getIdentificacion();
+    // }
+    // Fatal error: Cannot override final method Vehiculo::getIdentificacion()
+}
+
+$coche = new Coche("Toyota", 2023, 4);
+echo $coche->getIdentificacion();  // "Toyota (2023)"
+echo $coche->getDescripcion();     // "Coche Toyota con 4 puertas"
+echo $coche->validarAño() ? "Válido" : "Inválido";
+?&gt;</code></pre></div>
+
+        <h3>Patrón Singleton con Clase Final</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Clase final para prevenir herencia del Singleton
 final class Configuracion {
     private static ?Configuracion $instancia = null;
+    private array $config = [];
     
-    private function __construct() {}
+    // Constructor privado: no se puede instanciar desde fuera
+    private function __construct() {
+        // Cargar configuración
+        $this->config = [
+            'app_name' => 'Mi Aplicación',
+            'version' => '1.0.0',
+            'debug' => true
+        ];
+    }
     
-    public static function getInstance(): Configuracion {
+    // Prevenir clonación
+    private function __clone() {}
+    
+    // Prevenir deserialización
+    public function __wakeup() {
+        throw new Exception("No se puede deserializar un Singleton");
+    }
+    
+    // Método estático para obtener la instancia única
+    public static function getInstance(): self {
         if (self::$instancia === null) {
             self::$instancia = new self();
         }
         return self::$instancia;
     }
+    
+    public function get(string $key): mixed {
+        return $this->config[$key] ?? null;
+    }
+    
+    public function set(string $key, mixed $value): void {
+        $this->config[$key] = $value;
+    }
+    
+    public function getAll(): array {
+        return $this->config;
+    }
+}
+
+// Uso
+$config1 = Configuracion::getInstance();
+$config2 = Configuracion::getInstance();
+
+var_dump($config1 === $config2);  // true - misma instancia
+
+echo $config1->get('app_name');  // "Mi Aplicación"
+$config1->set('timezone', 'Europe/Madrid');
+echo $config2->get('timezone');  // "Europe/Madrid" - comparten estado
+
+// ❌ No se puede instanciar directamente
+// $config = new Configuracion();  // Error: constructor privado
+
+// ❌ No se puede heredar
+// class ConfiguracionExtendida extends Configuracion {}  // Error: clase final
+?&gt;</code></pre></div>
+
+        <h3>Clases Finales para Value Objects</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Value Object inmutable y final
+final readonly class Email {
+    public function __construct(
+        public string $valor
+    ) {
+        if (!filter_var($valor, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException("Email inválido: {$valor}");
+        }
+    }
+    
+    public function getDominio(): string {
+        return substr($this->valor, strpos($this->valor, '@') + 1);
+    }
+    
+    public function getUsuario(): string {
+        return substr($this->valor, 0, strpos($this->valor, '@'));
+    }
+    
+    public function equals(Email $otro): bool {
+        return strtolower($this->valor) === strtolower($otro->valor);
+    }
+    
+    public function __toString(): string {
+        return $this->valor;
+    }
+}
+
+final readonly class Dinero {
+    public function __construct(
+        public float $cantidad,
+        public string $moneda
+    ) {
+        if ($cantidad < 0) {
+            throw new InvalidArgumentException("Cantidad no puede ser negativa");
+        }
+        
+        if (!in_array($moneda, ['USD', 'EUR', 'MXN', 'GBP'])) {
+            throw new InvalidArgumentException("Moneda no válida");
+        }
+    }
+    
+    public function sumar(Dinero $otro): self {
+        if ($this->moneda !== $otro->moneda) {
+            throw new InvalidArgumentException("No se pueden sumar monedas diferentes");
+        }
+        return new self($this->cantidad + $otro->cantidad, $this->moneda);
+    }
+    
+    public function multiplicar(float $factor): self {
+        return new self($this->cantidad * $factor, $this->moneda);
+    }
+    
+    public function formato(): string {
+        return number_format($this->cantidad, 2) . " {$this->moneda}";
+    }
+}
+
+// Uso
+$email = new Email("usuario@example.com");
+echo $email->getDominio();  // "example.com"
+echo $email->getUsuario();  // "usuario"
+
+$precio = new Dinero(100, 'USD');
+$descuento = $precio->multiplicar(0.9);
+echo $descuento->formato();  // "90.00 USD"
+
+// ❌ No se pueden heredar (son finales)
+// class EmailCorporativo extends Email {}  // Error
+?&gt;</code></pre></div>
+
+        <h3>Métodos Finales para Lógica Crítica</h3>
+        <div class="code-block"><pre><code>&lt;?php
+abstract class BaseDatos {
+    protected string $host;
+    protected string $usuario;
+    protected string $password;
+    protected ?PDO $conexion = null;
+    
+    public function __construct(string $host, string $usuario, string $password) {
+        $this->host = $host;
+        $this->usuario = $usuario;
+        $this->password = $password;
+    }
+    
+    // Método final: la lógica de conexión no debe cambiar
+    final public function conectar(): void {
+        if ($this->conexion !== null) {
+            return;  // Ya conectado
+        }
+        
+        try {
+            $dsn = $this->getDSN();
+            $this->conexion = new PDO($dsn, $this->usuario, $this->password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ]);
+            
+            $this->afterConnect();
+        } catch (PDOException $e) {
+            throw new RuntimeException("Error de conexión: " . $e->getMessage());
+        }
+    }
+    
+    // Método final: la desconexión debe ser consistente
+    final public function desconectar(): void {
+        $this->beforeDisconnect();
+        $this->conexion = null;
+    }
+    
+    // Método final: transacciones deben ser seguras
+    final public function transaction(callable $callback): mixed {
+        if ($this->conexion === null) {
+            throw new RuntimeException("No hay conexión activa");
+        }
+        
+        try {
+            $this->conexion->beginTransaction();
+            $resultado = $callback($this->conexion);
+            $this->conexion->commit();
+            return $resultado;
+        } catch (Exception $e) {
+            $this->conexion->rollBack();
+            throw $e;
+        }
+    }
+    
+    // Métodos abstractos: cada BD los implementa diferente
+    abstract protected function getDSN(): string;
+    
+    // Hooks que las clases hijas pueden sobrescribir
+    protected function afterConnect(): void {
+        // Opcional: configuración post-conexión
+    }
+    
+    protected function beforeDisconnect(): void {
+        // Opcional: limpieza pre-desconexión
+    }
+}
+
+class MySQL extends BaseDatos {
+    private string $database;
+    
+    public function __construct(string $host, string $usuario, string $password, string $database) {
+        parent::__construct($host, $usuario, $password);
+        $this->database = $database;
+    }
+    
+    protected function getDSN(): string {
+        return "mysql:host={$this->host};dbname={$this->database};charset=utf8mb4";
+    }
+    
+    protected function afterConnect(): void {
+        // Configuración específica de MySQL
+        $this->conexion->exec("SET time_zone = '+00:00'");
+    }
+    
+    // ❌ No se puede sobrescribir método final
+    // public function conectar(): void {
+    //     // Error: Cannot override final method
+    // }
+}
+
+class PostgreSQL extends BaseDatos {
+    private string $database;
+    
+    public function __construct(string $host, string $usuario, string $password, string $database) {
+        parent::__construct($host, $usuario, $password);
+        $this->database = $database;
+    }
+    
+    protected function getDSN(): string {
+        return "pgsql:host={$this->host};dbname={$this->database}";
+    }
+}
+
+// Uso
+$mysql = new MySQL("localhost", "root", "password", "midb");
+$mysql->conectar();
+
+$mysql->transaction(function($pdo) {
+    $pdo->exec("INSERT INTO usuarios (nombre) VALUES ('Juan')");
+    $pdo->exec("INSERT INTO logs (accion) VALUES ('usuario_creado')");
+    return true;
+});
+
+$mysql->desconectar();
+?&gt;</code></pre></div>
+
+        <h3>Clases Finales para DTOs (Data Transfer Objects)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// DTO final: estructura de datos simple e inmutable
+final readonly class UsuarioDTO {
+    public function __construct(
+        public int $id,
+        public string $nombre,
+        public string $email,
+        public DateTime $fechaRegistro,
+        public bool $activo
+    ) {}
+    
+    public function toArray(): array {
+        return [
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'email' => $this->email,
+            'fecha_registro' => $this->fechaRegistro->format('Y-m-d H:i:s'),
+            'activo' => $this->activo
+        ];
+    }
+    
+    public static function fromArray(array $data): self {
+        return new self(
+            $data['id'],
+            $data['nombre'],
+            $data['email'],
+            new DateTime($data['fecha_registro']),
+            $data['activo']
+        );
+    }
+}
+
+final readonly class ProductoDTO {
+    public function __construct(
+        public int $id,
+        public string $nombre,
+        public float $precio,
+        public int $stock,
+        public string $categoria
+    ) {}
+    
+    public function toJSON(): string {
+        return json_encode([
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'precio' => $this->precio,
+            'stock' => $this->stock,
+            'categoria' => $this->categoria
+        ]);
+    }
+}
+
+// Uso
+$usuario = new UsuarioDTO(
+    1,
+    "Juan Pérez",
+    "juan@example.com",
+    new DateTime(),
+    true
+);
+
+$array = $usuario->toArray();
+print_r($array);
+
+$producto = new ProductoDTO(1, "Laptop", 999.99, 10, "Electrónica");
+echo $producto->toJSON();
+?&gt;</code></pre></div>
+
+        <h3>Combinación: Clase Final con Métodos Finales</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Clase final con métodos finales (redundante pero explícito)
+final class ValidadorTarjeta {
+    // Método final en clase final (redundante pero documenta intención)
+    final public function validarNumero(string $numero): bool {
+        // Eliminar espacios y guiones
+        $numero = preg_replace('/[\s-]/', '', $numero);
+        
+        // Verificar que solo contenga dígitos
+        if (!ctype_digit($numero)) {
+            return false;
+        }
+        
+        // Algoritmo de Luhn
+        return $this->algoritmoLuhn($numero);
+    }
+    
+    final public function validarCVV(string $cvv): bool {
+        return ctype_digit($cvv) && (strlen($cvv) === 3 || strlen($cvv) === 4);
+    }
+    
+    final public function validarFechaExpiracion(int $mes, int $año): bool {
+        if ($mes < 1 || $mes > 12) {
+            return false;
+        }
+        
+        $añoActual = (int) date('Y');
+        $mesActual = (int) date('m');
+        
+        if ($año < $añoActual) {
+            return false;
+        }
+        
+        if ($año === $añoActual && $mes < $mesActual) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    final public function getTipo(string $numero): string {
+        $numero = preg_replace('/[\s-]/', '', $numero);
+        
+        return match(true) {
+            str_starts_with($numero, '4') => 'Visa',
+            str_starts_with($numero, '5') => 'Mastercard',
+            str_starts_with($numero, '3') => 'American Express',
+            default => 'Desconocido'
+        };
+    }
+    
+    private function algoritmoLuhn(string $numero): bool {
+        $suma = 0;
+        $longitud = strlen($numero);
+        
+        for ($i = $longitud - 1; $i >= 0; $i--) {
+            $digito = (int) $numero[$i];
+            
+            if (($longitud - $i) % 2 === 0) {
+                $digito *= 2;
+                if ($digito > 9) {
+                    $digito -= 9;
+                }
+            }
+            
+            $suma += $digito;
+        }
+        
+        return $suma % 10 === 0;
+    }
+}
+
+// Uso
+$validador = new ValidadorTarjeta();
+
+$numeroTarjeta = "4532 1234 5678 9010";
+echo $validador->validarNumero($numeroTarjeta) ? "Válida" : "Inválida";
+echo $validador->getTipo($numeroTarjeta);  // "Visa"
+echo $validador->validarCVV("123") ? "CVV válido" : "CVV inválido";
+echo $validador->validarFechaExpiracion(12, 2025) ? "Fecha válida" : "Fecha inválida";
+
+// ❌ No se puede heredar
+// class ValidadorTarjetaExtendido extends ValidadorTarjeta {}  // Error
+?&gt;</code></pre></div>
+
+        <h3>Cuándo NO usar final</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ MAL: Clase que debería ser extensible
+// final class Controlador {
+//     public function index() {}
+// }
+// Problema: Los usuarios querrán extender controladores
+
+// ✅ BIEN: Clase base extensible
+abstract class Controlador {
+    // Método final para lógica común
+    final protected function validarRequest(): bool {
+        return !empty($_SERVER['REQUEST_METHOD']);
+    }
+    
+    // Método abstracto para que las clases hijas implementen
+    abstract public function index(): void;
+}
+
+class HomeControlador extends Controlador {
+    public function index(): void {
+        if ($this->validarRequest()) {
+            echo "Página de inicio";
+        }
+    }
+}
+
+// ❌ MAL: Librería con clases finales innecesarias
+// final class Helper {
+//     public static function formatear($valor) {}
+// }
+// Problema: Los usuarios pueden querer extender funcionalidad
+
+// ✅ BIEN: Clase extensible con métodos finales críticos
+class Helper {
+    // Método final para lógica que no debe cambiar
+    final public static function sanitizar(string $input): string {
+        return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+    }
+    
+    // Método normal que se puede sobrescribir
+    public static function formatear(mixed $valor): string {
+        return (string) $valor;
+    }
+}
+
+class HelperExtendido extends Helper {
+    // ✅ OK: sobrescribir método normal
+    public static function formatear(mixed $valor): string {
+        if (is_array($valor)) {
+            return json_encode($valor);
+        }
+        return parent::formatear($valor);
+    }
 }
 ?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Value Objects</strong>: Usa clases finales para objetos inmutables<br>
+            • <strong>DTOs</strong>: Marca DTOs como finales (son estructuras de datos)<br>
+            • <strong>Singleton</strong>: Usa final para prevenir herencia del patrón<br>
+            • <strong>Métodos críticos</strong>: Marca como final lógica de seguridad/validación<br>
+            • <strong>Template Method</strong>: Usa final en el algoritmo principal<br>
+            • <strong>Documenta intención</strong>: Usa final para comunicar diseño<br>
+            • <strong>Optimización</strong>: PHP puede optimizar mejor clases/métodos finales
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • NO marcar todo como final por defecto<br>
+            • NO usar final en librerías/frameworks extensibles<br>
+            • NO prevenir extensión sin razón válida<br>
+            • NO usar final solo por "optimización" prematura<br>
+            • SIEMPRE considerar si otros necesitarán extender tu código<br>
+            • SIEMPRE documentar por qué algo es final<br>
+            • NUNCA hacer final una clase base de framework
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>final class</strong>: No se puede heredar<br>
+            • <strong>final method</strong>: No se puede sobrescribir<br>
+            • <strong>Uso principal</strong>: Value Objects, DTOs, Singleton<br>
+            • <strong>Ventajas</strong>: Seguridad, claridad de diseño, optimización<br>
+            • <strong>Desventajas</strong>: Menos flexibilidad, dificulta testing<br>
+            • <strong>Regla de oro</strong>: Usa final cuando tengas una razón específica<br>
+            • <strong>Combinación</strong>: Puedes tener métodos finales en clases no finales
+        </div>
     `,
     
     // Patrones de Diseño
