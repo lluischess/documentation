@@ -201,54 +201,49 @@ echo contador();  // 3
 // La variable $cuenta mantiene su valor entre llamadas
 ?&gt;</code></pre></div>
 
-        <div class="warning-box">
-            <strong>⚠️ Advertencia:</strong> Evita usar variables globales en exceso. Pueden hacer tu código difícil de mantener y probar. Prefiere pasar variables como parámetros o usar inyección de dependencias.
-        </div>
+<div class="warning-box">
+    <strong>⚠️ Advertencia:</strong> Evita usar variables globales en exceso. Pueden hacer tu código difícil de mantener y probar. Prefiere pasar variables como parámetros o usar inyección de dependencias.
+</div>
     `,
 
     'tipos-escalares': `
-        <h1>Tipos Escalares y Compuestos</h1>
+        <h1>Tipos Escalares y Compuestos en PHP 8+</h1>
         
-        <p>PHP soporta varios tipos de datos que se clasifican en tipos escalares (valores simples) y tipos compuestos (valores complejos que contienen múltiples valores).</p>
+<p>PHP 8+ ofrece un sistema de tipos robusto con <strong>typed properties, union types, y mejor validación</strong>. Los tipos se dividen en escalares (valores simples) y compuestos (estructuras complejas).</p>
 
-        <h3>Tipos Escalares</h3>
-        <p>Los tipos escalares representan un único valor. PHP tiene cuatro tipos escalares principales:</p>
+<h3>Tipos Escalares</h3>
 
-        <h4>1. Integer (Entero)</h4>
-        <div class="code-block"><pre><code>&lt;?php
-// Decimal (base 10)
+<h4>1. Integer</h4>
+<div class="code-block"><pre><code>&lt;?php
+// Diferentes bases
 $decimal = 42;
-$negativo = -15;
+$hex = 0xFF;                // 255
+$octal = 0o755;             // 493 (PHP 8.1+: prefijo 0o)
+$binario = 0b1010;          // 10
 
-// Hexadecimal (base 16) - prefijo 0x
-$hexadecimal = 0x1A;        // 26 en decimal
-$colorHex = 0xFF0000;       // 16711680 (rojo en RGB)
-
-// Octal (base 8) - prefijo 0
-$octal = 0755;              // 493 en decimal
-
-// Binario (base 2) - prefijo 0b (PHP 5.4+)
-$binario = 0b1010;          // 10 en decimal
-$permisos = 0b111101101;    // 493 en decimal
-
-// Separadores numéricos (PHP 7.4+)
+// Separadores (PHP 7.4+) - mejora legibilidad
 $millon = 1_000_000;
-$bytes = 0xFF_FF_FF;
-$binarioLargo = 0b0101_1111;
+$tarjeta = 1234_5678_9012_3456;
 
-// Información del sistema
-echo PHP_INT_MAX;           // Valor máximo de integer
-echo PHP_INT_MIN;           // Valor mínimo de integer (PHP 7.0+)
-echo PHP_INT_SIZE;          // Tamaño en bytes (4 o 8)
+// PHP 8+: Typed properties
+class Contador {
+    public function __construct(
+        private int $valor = 0,
+        public readonly int $maximo = 100  // PHP 8.1+
+    ) {}
+    
+    public function incrementar(): int {
+        return min(++$this->valor, $this->maximo);
+    }
+}
 
-// Conversión y verificación
-$numero = "123";
-$entero = (int)$numero;
-var_dump(is_int($entero));  // bool(true)
-var_dump(is_integer($entero)); // Alias de is_int
+// Verificación
+var_dump(is_int(42));       // true
+echo PHP_INT_MAX;           // 9223372036854775807 (64-bit)
 ?&gt;</code></pre></div>
 
-        <h4>2. Float (Punto Flotante / Double)</h4>
+<h4>2. Float</h4>
+        
         <div class="code-block"><pre><code>&lt;?php
 // Números decimales
 $precio = 19.99;
@@ -292,63 +287,35 @@ var_dump(is_float($flotante)); // true
             <strong>⚠️ Precisión de Floats:</strong> Nunca compares floats con <code>===</code>. Los números de punto flotante tienen problemas de precisión inherentes. Usa una función que compare con un margen de error (epsilon).
         </div>
 
-        <h4>3. String (Cadena de Texto)</h4>
+        <h4>3. String</h4>
         <div class="code-block"><pre><code>&lt;?php
-// Comillas simples - literal
+// Comillas simples vs dobles
 $nombre = 'Juan';
-$path = 'C:\\Users\\Juan\\Documents';  // Necesita escapar \\
+$mensaje = "Hola, $nombre!";  // Interpola variables
 
-// Comillas dobles - interpola variables
-$apellido = "Pérez";
-$nombreCompleto = "$nombre $apellido";  // "Juan Pérez"
-$mensaje = "Hola, {$nombre}!";          // Llaves opcionales
+// PHP 8.0+: Nuevas funciones de string
+$email = "usuario@example.com";
+var_dump(str_contains($email, '@'));          // true
+var_dump(str_starts_with($email, 'usuario')); // true
+var_dump(str_ends_with($email, '.com'));      // true
 
-// Secuencias de escape en comillas dobles
-$texto = "Línea 1\\nLínea 2\\tTabulado";
-$unicode = "\\u{1F600}";  // 😀 emoji (PHP 7.0+)
-
-// Heredoc - para strings multilínea
+// Heredoc con indentación flexible (PHP 7.3+)
 $html = &lt;&lt;&lt;HTML
-&lt;div class="container"&gt;
-    &lt;h1&gt;$nombre&lt;/h1&gt;
-    &lt;p&gt;Este es un texto largo&lt;/p&gt;
-&lt;/div&gt;
-HTML;
+    &lt;div&gt;
+        &lt;h1&gt;$nombre&lt;/h1&gt;
+    &lt;/div&gt;
+    HTML;  // Puede estar indentado
 
-// Nowdoc - como heredoc pero sin interpolación (PHP 5.3+)
-$codigo = &lt;&lt;&lt;'CODE'
-function ejemplo() {
-    echo $variable;  // No se interpola
-    return true;
-}
-CODE;
-
-// String wrapping (PHP 7.3+)
-$query = &lt;&lt;&lt;SQL
-    SELECT *
-    FROM usuarios
-    WHERE estado = 'activo'
-        AND edad &gt;= 18
-    ORDER BY nombre
-SQL;
-
-// Concatenación
-$saludo = "Hola" . " " . "Mundo";
-$nombre .= " Pérez";  // Append
-
-// Acceso a caracteres (como array)
+// Acceso a caracteres
 $palabra = "Hola";
 echo $palabra[0];     // "H"
 echo $palabra[-1];    // "a" (desde el final, PHP 7.1+)
 
-// Funciones útiles
-strlen($palabra);           // 4 (longitud)
-strtoupper($palabra);       // "HOLA"
-strtolower($palabra);       // "hola"
-ucfirst($palabra);          // "Hola"
-str_replace('o', '0', $palabra); // "H0la"
-substr($palabra, 0, 2);     // "Ho"
-strpos($palabra, 'la');     // 2 (posición)
+// Funciones comunes
+strlen($palabra);                  // 4
+strtoupper($palabra);              // "HOLA"
+str_replace('o', '0', $palabra);   // "H0la"
+substr($palabra, 0, 2);            // "Ho"
 ?&gt;</code></pre></div>
 
         <h4>4. Boolean (Booleano)</h4>
@@ -450,53 +417,36 @@ array_map(fn($x) => $x * 2, $numeros);
 array_filter($numeros, fn($x) => $x > 2);
 ?&gt;</code></pre></div>
 
-        <h4>6. Object (Objeto)</h4>
+        <h4>6. Object</h4>
         <div class="code-block"><pre><code>&lt;?php
-// Definición de clase
+// PHP 8+: Constructor Property Promotion
 class Usuario {
-    public $nombre;
-    public $email;
-    private $password;
+    public function __construct(
+        public string $nombre,
+        public readonly string $email,  // PHP 8.1+ inmutable
+        private string $password = ''
+    ) {}
     
-    public function __construct($nombre, $email) {
-        $this->nombre = $nombre;
-        $this->email = $email;
-    }
-    
-    public function saludar() {
+    public function saludar(): string {
         return "Hola, soy {$this->nombre}";
     }
 }
 
-// Crear objeto
-$user = new Usuario("Carlos", "carlos@example.com");
+// Crear con named arguments
+$user = new Usuario(
+    nombre: "Carlos",
+    email: "carlos@example.com"
+);
 
-// Acceder a propiedades y métodos
 echo $user->nombre;          // "Carlos"
 echo $user->saludar();       // "Hola, soy Carlos"
 
-// Propiedades dinámicas
-$user->edad = 25;
-echo $user->edad;            // 25
+// PHP 8.0+: Nullsafe operator
+$ciudad = $user?->direccion?->ciudad ?? "Desconocida";
 
-// Objeto stdClass (objeto genérico)
-$producto = new stdClass();
-$producto->nombre = "Laptop";
-$producto->precio = 999.99;
-
-// Conversión de array a objeto
-$datos = ["x" => 10, "y" => 20];
-$punto = (object)$datos;
-echo $punto->x;              // 10
-
-// Verificación
-var_dump(is_object($user));  // true
-var_dump($user instanceof Usuario); // true
-
-// Información del objeto
-get_class($user);            // "Usuario"
-get_object_vars($user);      // Array de propiedades públicas
-method_exists($user, 'saludar'); // true
+// stdClass para datos dinámicos
+$config = (object)['debug' => true, 'cache' => false];
+echo $config->debug;  // true
 ?&gt;</code></pre></div>
 
         <h3>Tipos Especiales</h3>
@@ -530,41 +480,67 @@ $longitud = $usuario?->nombre?->length();
 // No lanza error si $usuario o $nombre son null
 ?&gt;</code></pre></div>
 
-        <h4>8. Resource (Recurso)</h4>
+        <h3>Tipos Especiales y Union Types (PHP 8+)</h3>
+        
         <div class="code-block"><pre><code>&lt;?php
-// Resource: referencias a recursos externos
-// Ejemplos: conexiones de base de datos, archivos, streams
+// PHP 8.0+: Union Types
+function procesar(int|float $numero): string|int {
+    return $numero > 10 ? "grande" : 0;
+}
 
-// Archivo
-$archivo = fopen("datos.txt", "r");
-var_dump(is_resource($archivo));  // true
-var_dump(get_resource_type($archivo)); // "stream"
+procesar(5);      // OK: int
+procesar(3.14);   // OK: float
 
-// Base de datos
-$conexion = mysqli_connect("localhost", "user", "pass");
-var_dump(is_resource($conexion));  // true
+// PHP 8.0+: Mixed type (cualquier tipo)
+function flexble(mixed $dato): mixed {
+    return $dato;
+}
 
-// cURL
-$ch = curl_init("https://api.example.com");
-var_dump(is_resource($ch));       // true
+// PHP 8.1+: Intersection Types
+interface Loggable {}
+interface Cacheable {}
 
-// Cerrar recursos
-fclose($archivo);
-mysqli_close($conexion);
-curl_close($ch);
+function guardar(Loggable&Cacheable $obj): void {
+    // $obj debe implementar AMBAS interfaces
+}
 
-// Nota: Muchos recursos están siendo reemplazados por 
-// objetos en PHP 8+ (por ejemplo, mysqli_connect ahora 
-// retorna un objeto mysqli)
+// PHP 8.0+: Nullsafe operator
+$usuario = obtenerUsuario();
+$email = $usuario?->contacto?->email ?? "no-email@example.com";
+
+// PHP 8.1+: Readonly properties
+class Punto {
+    public function __construct(
+        public readonly float $x,
+        public readonly float $y
+    ) {}
+}
+
+$p = new Punto(10.5, 20.3);
+// $p->x = 15;  // ❌ Error: Cannot modify readonly
+
+// PHP 8.1+: Enums
+enum Estado: string {
+    case ACTIVO = 'activo';
+    case INACTIVO = 'inactivo';
+    case SUSPENDIDO = 'suspendido';
+}
+
+$estado = Estado::ACTIVO;
+echo $estado->value;  // "activo"
 ?&gt;</code></pre></div>
 
-        <div class="info-box">
-            <strong>💡 Verificación de Tipos:</strong><br>
-            • <code>gettype($var)</code> - Retorna el tipo como string<br>
-            • <code>is_int()</code>, <code>is_float()</code>, <code>is_string()</code>, <code>is_bool()</code><br>
-            • <code>is_array()</code>, <code>is_object()</code>, <code>is_null()</code>, <code>is_resource()</code><br>
-            • <code>is_numeric()</code> - Verifica si es número o string numérico<br>
-            • <code>is_callable()</code> - Verifica si es invocable como función
+        <div class="success-box">
+            <strong>✅ Novedades PHP 8+:</strong><br>
+            • <strong>Union Types</strong> (8.0): <code>int|string|null</code><br>
+            • <strong>Intersection Types</strong> (8.1): <code>Interface1&Interface2</code><br>
+            • <strong>Readonly Properties</strong> (8.1): Inmutables después de inicialización<br>
+            • <strong>Enums</strong> (8.1): Tipos enumerados nativos<br>
+            • <strong>Nullsafe Operator</strong> (8.0): <code>?-></code> para evitar errores con null<br>
+            • <strong>Constructor Property Promotion</strong> (8.0): Sintaxis concisa<br>
+            • <strong>Named Arguments</strong> (8.0): Argumentos por nombre<br>
+            • <strong>Match Expression</strong> (8.0): Reemplazo moderno de switch<br>
+            • <strong>Nuevas funciones de string</strong> (8.0): <code>str_contains()</code>, <code>str_starts_with()</code>, <code>str_ends_with()</code>
         </div>
     `
 };
