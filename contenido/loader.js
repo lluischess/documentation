@@ -17453,10 +17453,1923 @@ $service2->getUser(1);
             • Añade complejidad innecesaria
         </div>
     `,
-    'patron-decorator': `<h1>Patrón Decorator</h1><p>Contenido en desarrollo...</p>`,
-    'patron-facade': `<h1>Patrón Facade</h1><p>Contenido en desarrollo...</p>`,
-    'patron-bridge': `<h1>Patrón Bridge</h1><p>Contenido en desarrollo...</p>`,
-    'patron-composite': `<h1>Patrón Composite</h1><p>Contenido en desarrollo...</p>`,
-    'patron-proxy': `<h1>Patrón Proxy</h1><p>Contenido en desarrollo...</p>`,
-    'patron-flyweight': `<h1>Patrón Flyweight</h1><p>Contenido en desarrollo...</p>`
+    'patron-decorator': `
+        <h1>Patrón Decorator (Decorador)</h1>
+        
+        <p>El <strong>patrón Decorator</strong> es un patrón estructural que permite añadir funcionalidades a objetos de forma dinámica sin modificar su estructura. Los decoradores envuelven objetos existentes y añaden comportamiento adicional manteniendo la misma interfaz.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Decorator?</strong><br>
+            • <strong>Propósito</strong>: Añadir responsabilidades a objetos dinámicamente<br>
+            • <strong>Problema</strong>: Extender funcionalidad sin modificar clases existentes<br>
+            • <strong>Solución</strong>: Envolver objetos en decoradores que añaden comportamiento<br>
+            • <strong>Analogía</strong>: Como vestir capas de ropa una sobre otra<br>
+            • <strong>Tipo</strong>: Patrón estructural
+        </div>
+
+        <h3>Problema Sin Decorator</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ Sin Decorator: Explosión de subclases
+
+interface Notificador {
+    public function enviar(string $mensaje): void;
+}
+
+class NotificadorEmail implements Notificador {
+    public function enviar(string $mensaje): void {
+        echo "📧 Email: {$mensaje}\\n";
+    }
+}
+
+// ❌ Necesitas una clase para cada combinación
+class NotificadorEmailYSMS implements Notificador {
+    public function enviar(string $mensaje): void {
+        echo "📧 Email: {$mensaje}\\n";
+        echo "📱 SMS: {$mensaje}\\n";
+    }
+}
+
+class NotificadorEmailYSlack implements Notificador {
+    public function enviar(string $mensaje): void {
+        echo "📧 Email: {$mensaje}\\n";
+        echo "💬 Slack: {$mensaje}\\n";
+    }
+}
+
+class NotificadorEmailSMSYSlack implements Notificador {
+    public function enviar(string $mensaje): void {
+        echo "📧 Email: {$mensaje}\\n";
+        echo "📱 SMS: {$mensaje}\\n";
+        echo "💬 Slack: {$mensaje}\\n";
+    }
+}
+
+// ❌ Problema: Con N canales necesitas 2^N clases!
+?&gt;</code></pre></div>
+
+        <h3>Solución Con Decorator</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ Con Decorator: Composición flexible
+
+interface Notificador {
+    public function enviar(string $mensaje): void;
+}
+
+// Notificador base
+class NotificadorEmail implements Notificador {
+    public function enviar(string $mensaje): void {
+        echo "📧 Email: {$mensaje}\\n";
+    }
+}
+
+// Decorador base abstracto
+abstract class NotificadorDecorator implements Notificador {
+    public function __construct(protected Notificador $notificador) {}
+    
+    public function enviar(string $mensaje): void {
+        $this->notificador->enviar($mensaje);
+    }
+}
+
+// Decoradores concretos
+class SMSDecorator extends NotificadorDecorator {
+    public function enviar(string $mensaje): void {
+        parent::enviar($mensaje);
+        echo "📱 SMS: {$mensaje}\\n";
+    }
+}
+
+class SlackDecorator extends NotificadorDecorator {
+    public function enviar(string $mensaje): void {
+        parent::enviar($mensaje);
+        echo "💬 Slack: {$mensaje}\\n";
+    }
+}
+
+class PushDecorator extends NotificadorDecorator {
+    public function enviar(string $mensaje): void {
+        parent::enviar($mensaje);
+        echo "🔔 Push: {$mensaje}\\n";
+    }
+}
+
+// Uso: Combinar decoradores dinámicamente
+$notificador = new NotificadorEmail();
+
+echo "=== Solo Email ===\\n";
+$notificador->enviar("Hola");
+
+echo "\\n=== Email + SMS ===\\n";
+$conSMS = new SMSDecorator($notificador);
+$conSMS->enviar("Hola");
+
+echo "\\n=== Email + SMS + Slack ===\\n";
+$completo = new SlackDecorator(new SMSDecorator($notificador));
+$completo->enviar("Hola");
+
+echo "\\n=== Todos los canales ===\\n";
+$todos = new PushDecorator(new SlackDecorator(new SMSDecorator($notificador)));
+$todos->enviar("Hola");
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Café</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de cafetería con ingredientes adicionales
+
+interface Bebida {
+    public function getDescripcion(): string;
+    public function getPrecio(): float;
+}
+
+// Bebidas base
+class Cafe implements Bebida {
+    public function getDescripcion(): string {
+        return "Café";
+    }
+    
+    public function getPrecio(): float {
+        return 2.00;
+    }
+}
+
+class Te implements Bebida {
+    public function getDescripcion(): string {
+        return "Té";
+    }
+    
+    public function getPrecio(): float {
+        return 1.50;
+    }
+}
+
+// Decorador base
+abstract class BebidaDecorator implements Bebida {
+    public function __construct(protected Bebida $bebida) {}
+    
+    public function getDescripcion(): string {
+        return $this->bebida->getDescripcion();
+    }
+    
+    public function getPrecio(): float {
+        return $this->bebida->getPrecio();
+    }
+}
+
+// Decoradores de ingredientes
+class LecheDecorator extends BebidaDecorator {
+    public function getDescripcion(): string {
+        return $this->bebida->getDescripcion() . ", Leche";
+    }
+    
+    public function getPrecio(): float {
+        return $this->bebida->getPrecio() + 0.50;
+    }
+}
+
+class CarameloDecorator extends BebidaDecorator {
+    public function getDescripcion(): string {
+        return $this->bebida->getDescripcion() . ", Caramelo";
+    }
+    
+    public function getPrecio(): float {
+        return $this->bebida->getPrecio() + 0.75;
+    }
+}
+
+class CremaDecorator extends BebidaDecorator {
+    public function getDescripcion(): string {
+        return $this->bebida->getDescripcion() . ", Crema";
+    }
+    
+    public function getPrecio(): float {
+        return $this->bebida->getPrecio() + 0.60;
+    }
+}
+
+class ChocolateDecorator extends BebidaDecorator {
+    public function getDescripcion(): string {
+        return $this->bebida->getDescripcion() . ", Chocolate";
+    }
+    
+    public function getPrecio(): float {
+        return $this->bebida->getPrecio() + 0.80;
+    }
+}
+
+// Uso: Crear bebidas personalizadas
+echo "=== Café simple ===\\n";
+$cafe = new Cafe();
+echo "{$cafe->getDescripcion()}: \${$cafe->getPrecio()}\\n";
+
+echo "\\n=== Café con leche ===\\n";
+$cafeConLeche = new LecheDecorator(new Cafe());
+echo "{$cafeConLeche->getDescripcion()}: \${$cafeConLeche->getPrecio()}\\n";
+
+echo "\\n=== Café con leche y caramelo ===\\n";
+$cafeEspecial = new CarameloDecorator(new LecheDecorator(new Cafe()));
+echo "{$cafeEspecial->getDescripcion()}: \${$cafeEspecial->getPrecio()}\\n";
+
+echo "\\n=== Café completo ===\\n";
+$cafeCompleto = new ChocolateDecorator(
+    new CremaDecorator(
+        new CarameloDecorator(
+            new LecheDecorator(new Cafe())
+        )
+    )
+);
+echo "{$cafeCompleto->getDescripcion()}: \${$cafeCompleto->getPrecio()}\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Procesamiento de Texto</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de procesamiento de texto con filtros
+
+interface TextProcessor {
+    public function process(string $text): string;
+}
+
+// Procesador base (no hace nada)
+class PlainTextProcessor implements TextProcessor {
+    public function process(string $text): string {
+        return $text;
+    }
+}
+
+// Decorador base
+abstract class TextDecorator implements TextProcessor {
+    public function __construct(protected TextProcessor $processor) {}
+    
+    public function process(string $text): string {
+        return $this->processor->process($text);
+    }
+}
+
+// Decoradores de procesamiento
+class UpperCaseDecorator extends TextDecorator {
+    public function process(string $text): string {
+        $processed = parent::process($text);
+        return strtoupper($processed);
+    }
+}
+
+class TrimDecorator extends TextDecorator {
+    public function process(string $text): string {
+        $processed = parent::process($text);
+        return trim($processed);
+    }
+}
+
+class HtmlEncodeDecorator extends TextDecorator {
+    public function process(string $text): string {
+        $processed = parent::process($text);
+        return htmlspecialchars($processed, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+class MarkdownDecorator extends TextDecorator {
+    public function process(string $text): string {
+        $processed = parent::process($text);
+        // Convertir **texto** a <strong>texto</strong>
+        $processed = preg_replace('/\\*\\*(.+?)\\*\\*/', '<strong>$1</strong>', $processed);
+        // Convertir *texto* a <em>texto</em>
+        $processed = preg_replace('/\\*(.+?)\\*/', '<em>$1</em>', $processed);
+        return $processed;
+    }
+}
+
+class StripTagsDecorator extends TextDecorator {
+    public function process(string $text): string {
+        $processed = parent::process($text);
+        return strip_tags($processed);
+    }
+}
+
+// Uso: Pipeline de procesamiento
+$texto = "  <script>alert('xss')</script> **Hola** *mundo*  ";
+
+echo "=== Texto original ===\\n";
+echo "\"{$texto}\"\\n";
+
+echo "\\n=== Solo trim ===\\n";
+$processor1 = new TrimDecorator(new PlainTextProcessor());
+echo "\"{$processor1->process($texto)}\"\\n";
+
+echo "\\n=== Trim + HTML encode ===\\n";
+$processor2 = new HtmlEncodeDecorator(new TrimDecorator(new PlainTextProcessor()));
+echo "\"{$processor2->process($texto)}\"\\n";
+
+echo "\\n=== Trim + Strip tags + Markdown ===\\n";
+$processor3 = new MarkdownDecorator(
+    new StripTagsDecorator(
+        new TrimDecorator(new PlainTextProcessor())
+    )
+);
+echo "\"{$processor3->process($texto)}\"\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Logging con Decoradores</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de logging con diferentes formatos y destinos
+
+interface Logger {
+    public function log(string $message): void;
+}
+
+// Logger base
+class SimpleLogger implements Logger {
+    public function log(string $message): void {
+        echo "{$message}\\n";
+    }
+}
+
+// Decorador base
+abstract class LoggerDecorator implements Logger {
+    public function __construct(protected Logger $logger) {}
+    
+    public function log(string $message): void {
+        $this->logger->log($message);
+    }
+}
+
+// Decoradores de formato
+class TimestampDecorator extends LoggerDecorator {
+    public function log(string $message): void {
+        $timestamp = date('Y-m-d H:i:s');
+        parent::log("[{$timestamp}] {$message}");
+    }
+}
+
+class LevelDecorator extends LoggerDecorator {
+    public function __construct(Logger $logger, private string $level) {
+        parent::__construct($logger);
+    }
+    
+    public function log(string $message): void {
+        parent::log("[{$this->level}] {$message}");
+    }
+}
+
+class ColorDecorator extends LoggerDecorator {
+    public function __construct(Logger $logger, private string $color) {
+        parent::__construct($logger);
+    }
+    
+    public function log(string $message): void {
+        $colors = [
+            'red' => '\\033[31m',
+            'green' => '\\033[32m',
+            'yellow' => '\\033[33m',
+            'reset' => '\\033[0m'
+        ];
+        
+        $colorCode = $colors[$this->color] ?? '';
+        $reset = $colors['reset'];
+        parent::log("{$colorCode}{$message}{$reset}");
+    }
+}
+
+class FileDecorator extends LoggerDecorator {
+    public function __construct(Logger $logger, private string $filename) {
+        parent::__construct($logger);
+    }
+    
+    public function log(string $message): void {
+        parent::log($message);
+        file_put_contents($this->filename, $message . "\\n", FILE_APPEND);
+        echo "💾 Guardado en {$this->filename}\\n";
+    }
+}
+
+// Uso: Crear loggers personalizados
+echo "=== Logger simple ===\\n";
+$logger1 = new SimpleLogger();
+$logger1->log("Mensaje simple");
+
+echo "\\n=== Logger con timestamp ===\\n";
+$logger2 = new TimestampDecorator(new SimpleLogger());
+$logger2->log("Mensaje con timestamp");
+
+echo "\\n=== Logger completo ===\\n";
+$logger3 = new FileDecorator(
+    new ColorDecorator(
+        new LevelDecorator(
+            new TimestampDecorator(new SimpleLogger()),
+            'ERROR'
+        ),
+        'red'
+    ),
+    'app.log'
+);
+$logger3->log("Error crítico en el sistema");
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Compresión y Encriptación de Datos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de almacenamiento con compresión y encriptación
+
+interface DataSource {
+    public function write(string $data): void;
+    public function read(): string;
+}
+
+// Fuente de datos base
+class FileDataSource implements DataSource {
+    public function __construct(private string $filename) {}
+    
+    public function write(string $data): void {
+        echo "📁 Escribiendo en archivo: {$this->filename}\\n";
+        file_put_contents($this->filename, $data);
+    }
+    
+    public function read(): string {
+        echo "📖 Leyendo de archivo: {$this->filename}\\n";
+        return file_get_contents($this->filename) ?: '';
+    }
+}
+
+// Decorador base
+abstract class DataSourceDecorator implements DataSource {
+    public function __construct(protected DataSource $source) {}
+    
+    public function write(string $data): void {
+        $this->source->write($data);
+    }
+    
+    public function read(): string {
+        return $this->source->read();
+    }
+}
+
+// Decorador de compresión
+class CompressionDecorator extends DataSourceDecorator {
+    public function write(string $data): void {
+        echo "🗜️ Comprimiendo datos...\\n";
+        $compressed = gzcompress($data);
+        parent::write($compressed);
+    }
+    
+    public function read(): string {
+        $data = parent::read();
+        echo "📦 Descomprimiendo datos...\\n";
+        return gzuncompress($data);
+    }
+}
+
+// Decorador de encriptación
+class EncryptionDecorator extends DataSourceDecorator {
+    public function __construct(DataSource $source, private string $key) {
+        parent::__construct($source);
+    }
+    
+    public function write(string $data): void {
+        echo "🔒 Encriptando datos...\\n";
+        $encrypted = base64_encode($data); // Simplificado
+        parent::write($encrypted);
+    }
+    
+    public function read(): string {
+        $data = parent::read();
+        echo "🔓 Desencriptando datos...\\n";
+        return base64_decode($data);
+    }
+}
+
+// Uso: Combinar compresión y encriptación
+$datos = "Información confidencial muy importante que debe ser protegida";
+
+echo "=== Guardar sin protección ===\\n";
+$source1 = new FileDataSource('data.txt');
+$source1->write($datos);
+
+echo "\\n=== Guardar con compresión ===\\n";
+$source2 = new CompressionDecorator(new FileDataSource('data_compressed.txt'));
+$source2->write($datos);
+
+echo "\\n=== Guardar con encriptación ===\\n";
+$source3 = new EncryptionDecorator(new FileDataSource('data_encrypted.txt'), 'secret');
+$source3->write($datos);
+
+echo "\\n=== Guardar con compresión + encriptación ===\\n";
+$source4 = new EncryptionDecorator(
+    new CompressionDecorator(
+        new FileDataSource('data_secure.txt')
+    ),
+    'secret'
+);
+$source4->write($datos);
+
+echo "\\n=== Leer datos seguros ===\\n";
+$datosLeidos = $source4->read();
+echo "Datos recuperados: {$datosLeidos}\\n";
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Patrón Decorator:</strong><br>
+            • <strong>Flexibilidad</strong>: Añade funcionalidad dinámicamente<br>
+            • <strong>SRP</strong>: Cada decorador tiene una responsabilidad única<br>
+            • <strong>OCP</strong>: Extensible sin modificar código existente<br>
+            • <strong>Composición</strong>: Combina decoradores de múltiples formas<br>
+            • <strong>Alternativa a herencia</strong>: Evita explosión de subclases<br>
+            • <strong>Runtime</strong>: Configuración en tiempo de ejecución
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Complejidad</strong>: Muchos objetos pequeños<br>
+            • <strong>Orden importa</strong>: El orden de decoradores afecta el resultado<br>
+            • <strong>Debugging</strong>: Difícil seguir la cadena de decoradores<br>
+            • <strong>Identidad</strong>: El objeto decorado no es idéntico al original
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar Decorator:</strong><br>
+            • <strong>Añadir funcionalidad</strong>: Sin modificar clases existentes<br>
+            • <strong>Combinaciones</strong>: Múltiples combinaciones de comportamiento<br>
+            • <strong>Runtime</strong>: Configuración dinámica en tiempo de ejecución<br>
+            • <strong>Evitar herencia</strong>: Alternativa a jerarquías complejas<br>
+            • <strong>Pipeline</strong>: Procesamiento en cadena (filtros, middleware)<br>
+            • <strong>Responsabilidades opcionales</strong>: Funcionalidad que puede o no aplicarse<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • La funcionalidad es parte esencial del objeto<br>
+            • Solo necesitas una combinación específica<br>
+            • El orden de decoradores no debe importar<br>
+            • Añade complejidad innecesaria
+        </div>
+    `,
+    'patron-facade': `
+        <h1>Patrón Facade (Fachada)</h1>
+        
+        <p>El <strong>patrón Facade</strong> es un patrón estructural que proporciona una interfaz simplificada a un sistema complejo de clases, bibliotecas o frameworks. Actúa como una "fachada" que oculta la complejidad interna y expone solo lo necesario.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Facade?</strong><br>
+            • <strong>Propósito</strong>: Simplificar la interfaz de un sistema complejo<br>
+            • <strong>Problema</strong>: Subsistemas con muchas clases interdependientes difíciles de usar<br>
+            • <strong>Solución</strong>: Crear una clase fachada que coordina las operaciones<br>
+            • <strong>Analogía</strong>: Como el mostrador de un hotel que coordina todos los servicios<br>
+            • <strong>Tipo</strong>: Patrón estructural
+        </div>
+
+        <h3>Problema Sin Facade</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ Sin Facade: Cliente debe conocer y coordinar múltiples subsistemas
+
+class VideoFile {
+    public function __construct(public string $filename) {}
+}
+
+class CodecFactory {
+    public function extract(VideoFile $file): string {
+        echo "🎬 Extrayendo codec del video\\n";
+        return "h264";
+    }
+}
+
+class BitrateReader {
+    public function read(VideoFile $file, string $codec): string {
+        echo "📊 Leyendo bitrate\\n";
+        return "1080p";
+    }
+}
+
+class AudioMixer {
+    public function fix(VideoFile $file): void {
+        echo "🎵 Arreglando audio\\n";
+    }
+}
+
+// ❌ Cliente debe conocer todos los pasos
+$file = new VideoFile("video.mp4");
+$codecFactory = new CodecFactory();
+$bitrateReader = new BitrateReader();
+$audioMixer = new AudioMixer();
+
+$codec = $codecFactory->extract($file);
+$bitrate = $bitrateReader->read($file, $codec);
+$audioMixer->fix($file);
+
+echo "✅ Video procesado\\n";
+
+// Problema: Demasiado complejo para el cliente
+?&gt;</code></pre></div>
+
+        <h3>Solución Con Facade</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ Con Facade: Interfaz simple para el cliente
+
+// Subsistemas complejos (sin cambios)
+class VideoFile {
+    public function __construct(public string $filename) {}
+}
+
+class CodecFactory {
+    public function extract(VideoFile $file): string {
+        echo "🎬 Extrayendo codec del video\\n";
+        return "h264";
+    }
+}
+
+class BitrateReader {
+    public function read(VideoFile $file, string $codec): string {
+        echo "📊 Leyendo bitrate\\n";
+        return "1080p";
+    }
+}
+
+class AudioMixer {
+    public function fix(VideoFile $file): void {
+        echo "🎵 Arreglando audio\\n";
+    }
+}
+
+// ✅ Facade: Simplifica el uso
+class VideoConverter {
+    public function convert(string $filename, string $format): void {
+        echo "🎥 Iniciando conversión de video\\n";
+        
+        $file = new VideoFile($filename);
+        $codecFactory = new CodecFactory();
+        $bitrateReader = new BitrateReader();
+        $audioMixer = new AudioMixer();
+        
+        $codec = $codecFactory->extract($file);
+        $bitrate = $bitrateReader->read($file, $codec);
+        $audioMixer->fix($file);
+        
+        echo "✅ Video convertido a {$format}\\n";
+    }
+}
+
+// Uso: Mucho más simple
+$converter = new VideoConverter();
+$converter->convert("video.mp4", "avi");
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Facade de E-commerce</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de e-commerce con múltiples subsistemas
+
+// Subsistema de inventario
+class InventorySystem {
+    public function checkStock(int $productId, int $quantity): bool {
+        echo "📦 Verificando stock del producto {$productId}\\n";
+        return true;
+    }
+    
+    public function reserveStock(int $productId, int $quantity): void {
+        echo "🔒 Reservando {$quantity} unidades\\n";
+    }
+}
+
+// Subsistema de pagos
+class PaymentGateway {
+    public function authorize(float $amount, string $cardNumber): string {
+        echo "💳 Autorizando pago de \${$amount}\\n";
+        return "AUTH_" . rand(1000, 9999);
+    }
+    
+    public function capture(string $authCode): void {
+        echo "✅ Capturando pago {$authCode}\\n";
+    }
+}
+
+// Subsistema de envíos
+class ShippingService {
+    public function calculateShipping(string $address): float {
+        echo "📮 Calculando envío a {$address}\\n";
+        return 5.99;
+    }
+    
+    public function createShipment(int $orderId, string $address): string {
+        echo "🚚 Creando envío para orden {$orderId}\\n";
+        return "SHIP_" . rand(1000, 9999);
+    }
+}
+
+// Subsistema de notificaciones
+class NotificationService {
+    public function sendOrderConfirmation(string $email, int $orderId): void {
+        echo "📧 Enviando confirmación a {$email} para orden {$orderId}\\n";
+    }
+}
+
+// ✅ Facade: Simplifica el proceso de compra
+class CheckoutFacade {
+    public function __construct(
+        private InventorySystem $inventory,
+        private PaymentGateway $payment,
+        private ShippingService $shipping,
+        private NotificationService $notification
+    ) {}
+    
+    public function placeOrder(
+        int $productId,
+        int $quantity,
+        string $cardNumber,
+        string $address,
+        string $email
+    ): array {
+        echo "🛒 Procesando orden...\\n\\n";
+        
+        // 1. Verificar stock
+        if (!$this->inventory->checkStock($productId, $quantity)) {
+            throw new Exception("Producto sin stock");
+        }
+        
+        // 2. Calcular total
+        $productPrice = 29.99;
+        $shippingCost = $this->shipping->calculateShipping($address);
+        $total = ($productPrice * $quantity) + $shippingCost;
+        
+        // 3. Procesar pago
+        $authCode = $this->payment->authorize($total, $cardNumber);
+        $this->payment->capture($authCode);
+        
+        // 4. Reservar inventario
+        $this->inventory->reserveStock($productId, $quantity);
+        
+        // 5. Crear envío
+        $orderId = rand(10000, 99999);
+        $trackingNumber = $this->shipping->createShipment($orderId, $address);
+        
+        // 6. Enviar confirmación
+        $this->notification->sendOrderConfirmation($email, $orderId);
+        
+        echo "\\n✅ Orden completada exitosamente\\n";
+        
+        return [
+            'orderId' => $orderId,
+            'total' => $total,
+            'trackingNumber' => $trackingNumber
+        ];
+    }
+}
+
+// Uso: Cliente solo llama a un método
+$facade = new CheckoutFacade(
+    new InventorySystem(),
+    new PaymentGateway(),
+    new ShippingService(),
+    new NotificationService()
+);
+
+$order = $facade->placeOrder(
+    productId: 123,
+    quantity: 2,
+    cardNumber: "4111111111111111",
+    address: "Calle Principal 123",
+    email: "cliente@example.com"
+);
+
+echo "\\nOrden ID: {$order['orderId']}\\n";
+echo "Total: \${$order['total']}\\n";
+echo "Tracking: {$order['trackingNumber']}\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Facade de Base de Datos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de base de datos con múltiples componentes
+
+// Subsistema de conexión
+class DatabaseConnection {
+    public function connect(string $host, string $db): void {
+        echo "🔌 Conectando a {$host}/{$db}\\n";
+    }
+    
+    public function disconnect(): void {
+        echo "🔌 Desconectando\\n";
+    }
+}
+
+// Subsistema de consultas
+class QueryBuilder {
+    public function select(string $table, array $columns): string {
+        $cols = implode(', ', $columns);
+        return "SELECT {$cols} FROM {$table}";
+    }
+    
+    public function where(string $query, array $conditions): string {
+        $where = implode(' AND ', array_map(
+            fn($k, $v) => "{$k} = '{$v}'",
+            array_keys($conditions),
+            $conditions
+        ));
+        return "{$query} WHERE {$where}";
+    }
+}
+
+// Subsistema de ejecución
+class QueryExecutor {
+    public function execute(string $query): array {
+        echo "⚡ Ejecutando: {$query}\\n";
+        return [
+            ['id' => 1, 'name' => 'Juan'],
+            ['id' => 2, 'name' => 'Ana']
+        ];
+    }
+}
+
+// Subsistema de caché
+class QueryCache {
+    private array $cache = [];
+    
+    public function get(string $key): ?array {
+        if (isset($this->cache[$key])) {
+            echo "💾 Obteniendo de caché\\n";
+            return $this->cache[$key];
+        }
+        return null;
+    }
+    
+    public function set(string $key, array $data): void {
+        echo "💾 Guardando en caché\\n";
+        $this->cache[$key] = $data;
+    }
+}
+
+// ✅ Facade: Simplifica operaciones de BD
+class DatabaseFacade {
+    private DatabaseConnection $connection;
+    private QueryBuilder $builder;
+    private QueryExecutor $executor;
+    private QueryCache $cache;
+    
+    public function __construct(string $host, string $database) {
+        $this->connection = new DatabaseConnection();
+        $this->builder = new QueryBuilder();
+        $this->executor = new QueryExecutor();
+        $this->cache = new QueryCache();
+        
+        $this->connection->connect($host, $database);
+    }
+    
+    public function find(string $table, array $conditions): array {
+        $cacheKey = $table . '_' . md5(json_encode($conditions));
+        
+        // Intentar obtener de caché
+        $cached = $this->cache->get($cacheKey);
+        if ($cached !== null) {
+            return $cached;
+        }
+        
+        // Construir y ejecutar query
+        $query = $this->builder->select($table, ['*']);
+        $query = $this->builder->where($query, $conditions);
+        $results = $this->executor->execute($query);
+        
+        // Guardar en caché
+        $this->cache->set($cacheKey, $results);
+        
+        return $results;
+    }
+    
+    public function findAll(string $table): array {
+        $query = $this->builder->select($table, ['*']);
+        return $this->executor->execute($query);
+    }
+    
+    public function __destruct() {
+        $this->connection->disconnect();
+    }
+}
+
+// Uso: Interfaz simple
+echo "=== Primera consulta ===\\n";
+$db = new DatabaseFacade('localhost', 'mydb');
+$users = $db->find('users', ['status' => 'active']);
+print_r($users);
+
+echo "\\n=== Segunda consulta (desde caché) ===\\n";
+$users2 = $db->find('users', ['status' => 'active']);
+print_r($users2);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Facade de Sistema de Reportes</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de generación de reportes
+
+// Subsistema de datos
+class DataCollector {
+    public function collectSalesData(string $startDate, string $endDate): array {
+        echo "📊 Recolectando datos de ventas\\n";
+        return [
+            ['date' => '2024-01-01', 'amount' => 1500],
+            ['date' => '2024-01-02', 'amount' => 2300],
+        ];
+    }
+    
+    public function collectUserData(): array {
+        echo "👥 Recolectando datos de usuarios\\n";
+        return ['total' => 150, 'active' => 120];
+    }
+}
+
+// Subsistema de análisis
+class DataAnalyzer {
+    public function calculateTotal(array $data): float {
+        echo "🧮 Calculando totales\\n";
+        return array_sum(array_column($data, 'amount'));
+    }
+    
+    public function calculateAverage(array $data): float {
+        echo "📈 Calculando promedios\\n";
+        $total = $this->calculateTotal($data);
+        return $total / count($data);
+    }
+}
+
+// Subsistema de formato
+class ReportFormatter {
+    public function formatPDF(array $data): string {
+        echo "📄 Formateando a PDF\\n";
+        return "report.pdf";
+    }
+    
+    public function formatExcel(array $data): string {
+        echo "📊 Formateando a Excel\\n";
+        return "report.xlsx";
+    }
+    
+    public function formatHTML(array $data): string {
+        echo "🌐 Formateando a HTML\\n";
+        return "<html>...</html>";
+    }
+}
+
+// Subsistema de envío
+class ReportDelivery {
+    public function sendEmail(string $report, string $email): void {
+        echo "📧 Enviando reporte a {$email}\\n";
+    }
+    
+    public function saveToCloud(string $report): string {
+        echo "☁️ Guardando en la nube\\n";
+        return "https://cloud.com/reports/" . $report;
+    }
+}
+
+// ✅ Facade: Simplifica generación de reportes
+class ReportFacade {
+    private DataCollector $collector;
+    private DataAnalyzer $analyzer;
+    private ReportFormatter $formatter;
+    private ReportDelivery $delivery;
+    
+    public function __construct() {
+        $this->collector = new DataCollector();
+        $this->analyzer = new DataAnalyzer();
+        $this->formatter = new ReportFormatter();
+        $this->delivery = new ReportDelivery();
+    }
+    
+    public function generateSalesReport(
+        string $startDate,
+        string $endDate,
+        string $format = 'pdf',
+        ?string $email = null
+    ): array {
+        echo "📋 Generando reporte de ventas...\\n\\n";
+        
+        // 1. Recolectar datos
+        $salesData = $this->collector->collectSalesData($startDate, $endDate);
+        
+        // 2. Analizar
+        $total = $this->analyzer->calculateTotal($salesData);
+        $average = $this->analyzer->calculateAverage($salesData);
+        
+        // 3. Formatear
+        $report = match($format) {
+            'pdf' => $this->formatter->formatPDF($salesData),
+            'excel' => $this->formatter->formatExcel($salesData),
+            'html' => $this->formatter->formatHTML($salesData),
+            default => throw new Exception("Formato no soportado")
+        };
+        
+        // 4. Entregar
+        $url = $this->delivery->saveToCloud($report);
+        
+        if ($email) {
+            $this->delivery->sendEmail($report, $email);
+        }
+        
+        echo "\\n✅ Reporte generado\\n";
+        
+        return [
+            'report' => $report,
+            'url' => $url,
+            'total' => $total,
+            'average' => $average
+        ];
+    }
+    
+    public function generateDashboard(): string {
+        echo "📊 Generando dashboard...\\n\\n";
+        
+        $salesData = $this->collector->collectSalesData('2024-01-01', '2024-12-31');
+        $userData = $this->collector->collectUserData();
+        
+        $salesTotal = $this->analyzer->calculateTotal($salesData);
+        
+        $dashboard = $this->formatter->formatHTML([
+            'sales' => $salesTotal,
+            'users' => $userData
+        ]);
+        
+        echo "\\n✅ Dashboard generado\\n";
+        
+        return $dashboard;
+    }
+}
+
+// Uso: Interfaz simple y clara
+$reportFacade = new ReportFacade();
+
+echo "=== Generar reporte de ventas ===\\n";
+$result = $reportFacade->generateSalesReport(
+    '2024-01-01',
+    '2024-01-31',
+    'pdf',
+    'gerente@example.com'
+);
+
+echo "\\nURL: {$result['url']}\\n";
+echo "Total: \${$result['total']}\\n";
+echo "Promedio: \${$result['average']}\\n";
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Patrón Facade:</strong><br>
+            • <strong>Simplicidad</strong>: Interfaz simple para sistemas complejos<br>
+            • <strong>Desacoplamiento</strong>: Cliente no depende de subsistemas internos<br>
+            • <strong>Facilita uso</strong>: Reduce curva de aprendizaje<br>
+            • <strong>Centralización</strong>: Un punto de entrada para operaciones comunes<br>
+            • <strong>Mantenibilidad</strong>: Cambios internos no afectan al cliente<br>
+            • <strong>Testing</strong>: Fácil mockear la fachada
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>God Object</strong>: Puede convertirse en un objeto que sabe demasiado<br>
+            • <strong>Limitación</strong>: Puede no exponer toda la funcionalidad necesaria<br>
+            • <strong>Capa adicional</strong>: Añade una capa de indirección<br>
+            • <strong>Rigidez</strong>: Puede ser inflexible para casos especiales
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar Facade:</strong><br>
+            • <strong>Sistema complejo</strong>: Muchas clases interdependientes<br>
+            • <strong>Simplificar API</strong>: Librería o framework complicado<br>
+            • <strong>Punto de entrada</strong>: Operaciones comunes bien definidas<br>
+            • <strong>Desacoplar</strong>: Aislar cliente de subsistemas<br>
+            • <strong>Migración</strong>: Facilitar transición entre sistemas<br>
+            • <strong>Capas</strong>: Definir puntos de entrada a cada capa<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • El sistema ya es simple<br>
+            • Necesitas acceso completo a subsistemas<br>
+            • Solo tienes una clase<br>
+            • Añade complejidad innecesaria
+        </div>
+    `,
+    'patron-bridge': `
+        <h1>Patrón Bridge (Puente)</h1>
+        
+        <p>El <strong>patrón Bridge</strong> separa la abstracción de su implementación, permitiendo que ambas varíen independientemente. Divide una clase grande en dos jerarquías separadas: abstracción e implementación.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Bridge?</strong><br>
+            • <strong>Propósito</strong>: Desacoplar abstracción de implementación<br>
+            • <strong>Problema</strong>: Explosión de subclases al combinar múltiples dimensiones<br>
+            • <strong>Solución</strong>: Composición en lugar de herencia<br>
+            • <strong>Analogía</strong>: Como un control remoto (abstracción) que funciona con diferentes TVs (implementación)<br>
+            • <strong>Tipo</strong>: Patrón estructural
+        </div>
+
+        <h3>Problema Sin Bridge</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ Sin Bridge: Explosión de subclases
+
+// Formas: Círculo, Cuadrado
+// Colores: Rojo, Azul, Verde
+// Necesitas: 2 × 3 = 6 clases
+
+class CirculoRojo {
+    public function dibujar(): void {
+        echo "⭕ Círculo rojo\\n";
+    }
+}
+
+class CirculoAzul {
+    public function dibujar(): void {
+        echo "⭕ Círculo azul\\n";
+    }
+}
+
+class CuadradoRojo {
+    public function dibujar(): void {
+        echo "⬛ Cuadrado rojo\\n";
+    }
+}
+
+// ❌ Con N formas y M colores necesitas N × M clases
+?&gt;</code></pre></div>
+
+        <h3>Solución Con Bridge</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ Con Bridge: Separar abstracción e implementación
+
+// Implementación: Colores
+interface Color {
+    public function aplicar(): string;
+}
+
+class Rojo implements Color {
+    public function aplicar(): string {
+        return "rojo";
+    }
+}
+
+class Azul implements Color {
+    public function aplicar(): string {
+        return "azul";
+    }
+}
+
+// Abstracción: Formas
+abstract class Forma {
+    public function __construct(protected Color $color) {}
+    
+    abstract public function dibujar(): void;
+}
+
+class Circulo extends Forma {
+    public function dibujar(): void {
+        echo "⭕ Círculo {$this->color->aplicar()}\\n";
+    }
+}
+
+class Cuadrado extends Forma {
+    public function dibujar(): void {
+        echo "⬛ Cuadrado {$this->color->aplicar()}\\n";
+    }
+}
+
+// Uso: Combinar libremente
+$circuloRojo = new Circulo(new Rojo());
+$circuloRojo->dibujar();
+
+$cuadradoAzul = new Cuadrado(new Azul());
+$cuadradoAzul->dibujar();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Notificaciones Multiplataforma</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de notificaciones con múltiples plataformas y tipos
+
+// Implementación: Plataformas
+interface Platform {
+    public function send(string $title, string $message): void;
+}
+
+class EmailPlatform implements Platform {
+    public function send(string $title, string $message): void {
+        echo "📧 Email: {$title} - {$message}\\n";
+    }
+}
+
+class SMSPlatform implements Platform {
+    public function send(string $title, string $message): void {
+        echo "📱 SMS: {$message}\\n";
+    }
+}
+
+class PushPlatform implements Platform {
+    public function send(string $title, string $message): void {
+        echo "🔔 Push: {$title} - {$message}\\n";
+    }
+}
+
+// Abstracción: Tipos de notificación
+abstract class Notification {
+    public function __construct(protected Platform $platform) {}
+    
+    abstract public function notify(string $message): void;
+}
+
+class UrgentNotification extends Notification {
+    public function notify(string $message): void {
+        $this->platform->send("🚨 URGENTE", $message);
+    }
+}
+
+class InfoNotification extends Notification {
+    public function notify(string $message): void {
+        $this->platform->send("ℹ️ Info", $message);
+    }
+}
+
+class WarningNotification extends Notification {
+    public function notify(string $message): void {
+        $this->platform->send("⚠️ Advertencia", $message);
+    }
+}
+
+// Uso
+$urgentEmail = new UrgentNotification(new EmailPlatform());
+$urgentEmail->notify("Servidor caído");
+
+$infoSMS = new InfoNotification(new SMSPlatform());
+$infoSMS->notify("Mantenimiento programado");
+
+$warningPush = new WarningNotification(new PushPlatform());
+$warningPush->notify("Espacio en disco bajo");
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Bridge:</strong><br>
+            • <strong>Desacoplamiento</strong>: Abstracción e implementación independientes<br>
+            • <strong>Extensibilidad</strong>: Añade abstracciones o implementaciones sin afectar la otra<br>
+            • <strong>OCP</strong>: Abierto a extensión, cerrado a modificación<br>
+            • <strong>SRP</strong>: Separa responsabilidades claramente
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Complejidad</strong>: Más clases e interfaces<br>
+            • <strong>Indirección</strong>: Capa adicional de abstracción
+        </div>
+    `,
+    'patron-composite': `
+        <h1>Patrón Composite (Compuesto)</h1>
+        
+        <p>El <strong>patrón Composite</strong> permite componer objetos en estructuras de árbol para representar jerarquías parte-todo. Permite tratar objetos individuales y composiciones de manera uniforme.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Composite?</strong><br>
+            • <strong>Propósito</strong>: Tratar objetos individuales y grupos uniformemente<br>
+            • <strong>Problema</strong>: Trabajar con estructuras de árbol complejas<br>
+            • <strong>Solución</strong>: Interfaz común para hojas y contenedores<br>
+            • <strong>Analogía</strong>: Como carpetas y archivos en un sistema de archivos<br>
+            • <strong>Tipo</strong>: Patrón estructural
+        </div>
+
+        <h3>Ejemplo Real: Sistema de Archivos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de archivos con archivos y carpetas
+
+interface FileSystemComponent {
+    public function getName(): string;
+    public function getSize(): int;
+    public function display(int $indent = 0): void;
+}
+
+// Hoja: Archivo
+class File implements FileSystemComponent {
+    public function __construct(
+        private string $name,
+        private int $size
+    ) {}
+    
+    public function getName(): string {
+        return $this->name;
+    }
+    
+    public function getSize(): int {
+        return $this->size;
+    }
+    
+    public function display(int $indent = 0): void {
+        echo str_repeat("  ", $indent) . "📄 {$this->name} ({$this->size} KB)\\n";
+    }
+}
+
+// Compuesto: Carpeta
+class Folder implements FileSystemComponent {
+    private array $children = [];
+    
+    public function __construct(private string $name) {}
+    
+    public function add(FileSystemComponent $component): void {
+        $this->children[] = $component;
+    }
+    
+    public function remove(FileSystemComponent $component): void {
+        $this->children = array_filter(
+            $this->children,
+            fn($child) => $child !== $component
+        );
+    }
+    
+    public function getName(): string {
+        return $this->name;
+    }
+    
+    public function getSize(): int {
+        return array_reduce(
+            $this->children,
+            fn($total, $child) => $total + $child->getSize(),
+            0
+        );
+    }
+    
+    public function display(int $indent = 0): void {
+        echo str_repeat("  ", $indent) . "📁 {$this->name} ({$this->getSize()} KB)\\n";
+        
+        foreach ($this->children as $child) {
+            $child->display($indent + 1);
+        }
+    }
+}
+
+// Uso
+$root = new Folder("root");
+
+$documents = new Folder("documents");
+$documents->add(new File("cv.pdf", 150));
+$documents->add(new File("carta.docx", 80));
+
+$photos = new Folder("photos");
+$photos->add(new File("vacaciones.jpg", 2500));
+$photos->add(new File("familia.png", 1800));
+
+$root->add($documents);
+$root->add($photos);
+$root->add(new File("readme.txt", 5));
+
+$root->display();
+echo "\\nTamaño total: {$root->getSize()} KB\\n";
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Composite:</strong><br>
+            • <strong>Uniformidad</strong>: Trata hojas y compuestos igual<br>
+            • <strong>Recursividad</strong>: Fácil trabajar con estructuras recursivas<br>
+            • <strong>Extensibilidad</strong>: Fácil añadir nuevos tipos de componentes
+        </div>
+    `,
+    'patron-proxy': `
+        <h1>Patrón Proxy (Apoderado)</h1>
+        
+        <p>El <strong>patrón Proxy</strong> proporciona un sustituto o representante de otro objeto para controlar el acceso a él. El proxy actúa como intermediario entre el cliente y el objeto real.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Proxy?</strong><br>
+            • <strong>Propósito</strong>: Controlar acceso a un objeto<br>
+            • <strong>Problema</strong>: Necesitas funcionalidad adicional al acceder a un objeto<br>
+            • <strong>Solución</strong>: Crear un proxy con la misma interfaz<br>
+            • <strong>Tipos</strong>: Virtual, Protección, Remoto, Cache<br>
+            • <strong>Tipo</strong>: Patrón estructural
+        </div>
+
+        <h3>Proxy Virtual (Lazy Loading)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Proxy para cargar imágenes pesadas solo cuando se necesitan
+
+interface Image {
+    public function display(): void;
+}
+
+// Objeto real (costoso de crear)
+class RealImage implements Image {
+    public function __construct(private string $filename) {
+        $this->loadFromDisk();
+    }
+    
+    private function loadFromDisk(): void {
+        echo "📥 Cargando imagen desde disco: {$this->filename}\\n";
+        sleep(2); // Simula carga pesada
+    }
+    
+    public function display(): void {
+        echo "🖼️ Mostrando imagen: {$this->filename}\\n";
+    }
+}
+
+// Proxy: Carga lazy
+class ImageProxy implements Image {
+    private ?RealImage $realImage = null;
+    
+    public function __construct(private string $filename) {}
+    
+    public function display(): void {
+        // Cargar solo cuando se necesita
+        if ($this->realImage === null) {
+            $this->realImage = new RealImage($this->filename);
+        }
+        $this->realImage->display();
+    }
+}
+
+// Uso
+echo "Creando proxies (rápido)...\\n";
+$image1 = new ImageProxy("foto1.jpg");
+$image2 = new ImageProxy("foto2.jpg");
+echo "Proxies creados\\n\\n";
+
+echo "Mostrando imagen 1...\\n";
+$image1->display();
+
+echo "\\nMostrando imagen 1 de nuevo (ya cargada)...\\n";
+$image1->display();
+?&gt;</code></pre></div>
+
+        <h3>Proxy de Protección</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Proxy para controlar acceso según permisos
+
+interface Document {
+    public function read(): string;
+    public function write(string $content): void;
+}
+
+class SecretDocument implements Document {
+    private string $content = "Información confidencial";
+    
+    public function read(): string {
+        return $this->content;
+    }
+    
+    public function write(string $content): void {
+        $this->content = $content;
+    }
+}
+
+class DocumentProxy implements Document {
+    private ?SecretDocument $document = null;
+    
+    public function __construct(private string $userRole) {}
+    
+    private function getDocument(): SecretDocument {
+        if ($this->document === null) {
+            $this->document = new SecretDocument();
+        }
+        return $this->document;
+    }
+    
+    public function read(): string {
+        if ($this->userRole === 'admin' || $this->userRole === 'user') {
+            return $this->getDocument()->read();
+        }
+        throw new Exception("❌ Acceso denegado para lectura");
+    }
+    
+    public function write(string $content): void {
+        if ($this->userRole === 'admin') {
+            $this->getDocument()->write($content);
+            echo "✅ Documento actualizado\\n";
+        } else {
+            throw new Exception("❌ Acceso denegado para escritura");
+        }
+    }
+}
+
+// Uso
+$adminDoc = new DocumentProxy('admin');
+echo $adminDoc->read() . "\\n";
+$adminDoc->write("Nueva información");
+
+$userDoc = new DocumentProxy('user');
+echo $userDoc->read() . "\\n";
+try {
+    $userDoc->write("Intento de escritura");
+} catch (Exception $e) {
+    echo $e->getMessage() . "\\n";
+}
+?&gt;</code></pre></div>
+
+        <h3>Proxy de Cache</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Proxy que cachea resultados costosos
+
+interface DataService {
+    public function getData(int $id): array;
+}
+
+class DatabaseService implements DataService {
+    public function getData(int $id): array {
+        echo "🗄️ Consultando base de datos...\\n";
+        sleep(1); // Simula consulta lenta
+        return ['id' => $id, 'name' => "Usuario {$id}"];
+    }
+}
+
+class CachedDataService implements DataService {
+    private array $cache = [];
+    
+    public function __construct(private DatabaseService $service) {}
+    
+    public function getData(int $id): array {
+        if (isset($this->cache[$id])) {
+            echo "💾 Obteniendo de caché\\n";
+            return $this->cache[$id];
+        }
+        
+        $data = $this->service->getData($id);
+        $this->cache[$id] = $data;
+        
+        return $data;
+    }
+}
+
+// Uso
+$service = new CachedDataService(new DatabaseService());
+
+echo "Primera llamada:\\n";
+$data1 = $service->getData(1);
+print_r($data1);
+
+echo "\\nSegunda llamada (desde caché):\\n";
+$data2 = $service->getData(1);
+print_r($data2);
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Proxy:</strong><br>
+            • <strong>Control</strong>: Controla acceso al objeto real<br>
+            • <strong>Lazy loading</strong>: Carga objetos costosos solo cuando se necesitan<br>
+            • <strong>Seguridad</strong>: Añade capa de protección<br>
+            • <strong>Cache</strong>: Mejora rendimiento
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Complejidad</strong>: Añade capa adicional<br>
+            • <strong>Latencia</strong>: Pequeño overhead
+        </div>
+    `,
+    'patron-flyweight': `
+        <h1>Patrón Flyweight (Peso Ligero)</h1>
+        
+        <p>El <strong>patrón Flyweight</strong> optimiza el uso de memoria compartiendo eficientemente grandes cantidades de objetos similares. Separa el estado intrínseco (compartido) del extrínseco (único).</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Flyweight?</strong><br>
+            • <strong>Propósito</strong>: Reducir uso de memoria compartiendo datos<br>
+            • <strong>Problema</strong>: Miles de objetos similares consumen mucha RAM<br>
+            • <strong>Solución</strong>: Compartir estado común, externalizar estado único<br>
+            • <strong>Analogía</strong>: Como fuentes en un procesador de textos (compartir glifos)<br>
+            • <strong>Tipo</strong>: Patrón estructural
+        </div>
+
+        <h3>Problema Sin Flyweight</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ Sin Flyweight: Cada árbol tiene toda la información
+
+class Tree {
+    public function __construct(
+        private int $x,
+        private int $y,
+        private string $type,      // Repetido
+        private string $color,     // Repetido
+        private string $texture    // Repetido (puede ser imagen grande)
+    ) {}
+    
+    public function draw(): void {
+        echo "🌳 Árbol {$this->type} en ({$this->x}, {$this->y})\\n";
+    }
+}
+
+// 1000 árboles = 1000 copias de type, color, texture
+$trees = [];
+for ($i = 0; $i < 1000; $i++) {
+    $trees[] = new Tree(
+        rand(0, 100),
+        rand(0, 100),
+        'Pino',        // ❌ Repetido 1000 veces
+        'Verde',       // ❌ Repetido 1000 veces
+        'texture.png'  // ❌ Repetido 1000 veces
+    );
+}
+?&gt;</code></pre></div>
+
+        <h3>Solución Con Flyweight</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ Con Flyweight: Compartir estado común
+
+// Flyweight: Estado intrínseco (compartido)
+class TreeType {
+    public function __construct(
+        private string $name,
+        private string $color,
+        private string $texture
+    ) {}
+    
+    public function draw(int $x, int $y): void {
+        echo "🌳 {$this->name} {$this->color} en ({$x}, {$y})\\n";
+    }
+}
+
+// Flyweight Factory: Gestiona objetos compartidos
+class TreeFactory {
+    private static array $treeTypes = [];
+    
+    public static function getTreeType(
+        string $name,
+        string $color,
+        string $texture
+    ): TreeType {
+        $key = "{$name}_{$color}_{$texture}";
+        
+        if (!isset(self::$treeTypes[$key])) {
+            echo "➕ Creando nuevo tipo: {$key}\\n";
+            self::$treeTypes[$key] = new TreeType($name, $color, $texture);
+        }
+        
+        return self::$treeTypes[$key];
+    }
+    
+    public static function getTypesCount(): int {
+        return count(self::$treeTypes);
+    }
+}
+
+// Contexto: Estado extrínseco (único por objeto)
+class Tree {
+    public function __construct(
+        private int $x,
+        private int $y,
+        private TreeType $type  // Referencia compartida
+    ) {}
+    
+    public function draw(): void {
+        $this->type->draw($this->x, $this->y);
+    }
+}
+
+// Uso
+$trees = [];
+
+// 1000 árboles pero solo 3 TreeType compartidos
+for ($i = 0; $i < 1000; $i++) {
+    $types = [
+        ['Pino', 'Verde', 'pine.png'],
+        ['Roble', 'Marrón', 'oak.png'],
+        ['Abedul', 'Blanco', 'birch.png']
+    ];
+    
+    $randomType = $types[array_rand($types)];
+    
+    $trees[] = new Tree(
+        rand(0, 100),
+        rand(0, 100),
+        TreeFactory::getTreeType(...$randomType)
+    );
+}
+
+echo "\\n📊 Total árboles: " . count($trees) . "\\n";
+echo "📊 Tipos únicos: " . TreeFactory::getTypesCount() . "\\n";
+echo "💾 Ahorro de memoria: " . (1000 - TreeFactory::getTypesCount()) . " objetos\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Partículas</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de partículas para videojuego
+
+// Flyweight: Tipo de partícula (compartido)
+class ParticleType {
+    public function __construct(
+        private string $sprite,
+        private string $color,
+        private int $size
+    ) {}
+    
+    public function render(int $x, int $y, int $velocity): void {
+        echo "{$this->color} {$this->sprite} ({$this->size}px) ";
+        echo "en ({$x}, {$y}) vel:{$velocity}\\n";
+    }
+}
+
+// Factory
+class ParticleFactory {
+    private static array $types = [];
+    
+    public static function getType(string $sprite, string $color, int $size): ParticleType {
+        $key = "{$sprite}_{$color}_{$size}";
+        
+        if (!isset(self::$types[$key])) {
+            self::$types[$key] = new ParticleType($sprite, $color, $size);
+        }
+        
+        return self::$types[$key];
+    }
+}
+
+// Contexto: Partícula individual
+class Particle {
+    public function __construct(
+        private int $x,
+        private int $y,
+        private int $velocity,
+        private ParticleType $type
+    ) {}
+    
+    public function move(): void {
+        $this->x += $this->velocity;
+    }
+    
+    public function render(): void {
+        $this->type->render($this->x, $this->y, $this->velocity);
+    }
+}
+
+// Sistema de partículas
+class ParticleSystem {
+    private array $particles = [];
+    
+    public function addExplosion(int $x, int $y): void {
+        // Crear 100 partículas de explosión
+        for ($i = 0; $i < 100; $i++) {
+            $this->particles[] = new Particle(
+                $x,
+                $y,
+                rand(1, 10),
+                ParticleFactory::getType('●', '🔥', 5)  // Compartido
+            );
+        }
+    }
+    
+    public function addSmoke(int $x, int $y): void {
+        for ($i = 0; $i < 50; $i++) {
+            $this->particles[] = new Particle(
+                $x,
+                $y,
+                rand(1, 3),
+                ParticleFactory::getType('○', '💨', 3)  // Compartido
+            );
+        }
+    }
+    
+    public function render(): void {
+        foreach ($this->particles as $particle) {
+            $particle->render();
+        }
+    }
+    
+    public function getCount(): int {
+        return count($this->particles);
+    }
+}
+
+// Uso
+$system = new ParticleSystem();
+$system->addExplosion(50, 50);
+$system->addSmoke(60, 60);
+
+echo "\\n💥 Total partículas: {$system->getCount()}\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Editor de Texto</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Editor de texto con millones de caracteres
+
+// Flyweight: Estilo de carácter (compartido)
+class CharacterStyle {
+    public function __construct(
+        private string $font,
+        private int $size,
+        private string $color
+    ) {}
+    
+    public function apply(string $char): string {
+        return "<span style='font:{$this->font}; size:{$this->size}px; color:{$this->color}'>{$char}</span>";
+    }
+}
+
+// Factory
+class StyleFactory {
+    private static array $styles = [];
+    
+    public static function getStyle(string $font, int $size, string $color): CharacterStyle {
+        $key = "{$font}_{$size}_{$color}";
+        
+        if (!isset(self::$styles[$key])) {
+            self::$styles[$key] = new CharacterStyle($font, $size, $color);
+        }
+        
+        return self::$styles[$key];
+    }
+    
+    public static function getCount(): int {
+        return count(self::$styles);
+    }
+}
+
+// Contexto: Carácter individual
+class Character {
+    public function __construct(
+        private string $char,
+        private int $position,
+        private CharacterStyle $style
+    ) {}
+    
+    public function render(): string {
+        return $this->style->apply($this->char);
+    }
+}
+
+// Documento
+class Document {
+    private array $characters = [];
+    
+    public function addText(string $text, string $font, int $size, string $color): void {
+        $style = StyleFactory::getStyle($font, $size, $color);
+        
+        for ($i = 0; $i < strlen($text); $i++) {
+            $this->characters[] = new Character(
+                $text[$i],
+                count($this->characters),
+                $style  // Compartido
+            );
+        }
+    }
+    
+    public function getStats(): array {
+        return [
+            'characters' => count($this->characters),
+            'styles' => StyleFactory::getCount()
+        ];
+    }
+}
+
+// Uso
+$doc = new Document();
+$doc->addText("Hola mundo", "Arial", 12, "black");
+$doc->addText("Título importante", "Arial", 24, "red");
+$doc->addText("Más texto normal", "Arial", 12, "black");
+
+$stats = $doc->getStats();
+echo "📝 Caracteres totales: {$stats['characters']}\\n";
+echo "🎨 Estilos únicos: {$stats['styles']}\\n";
+echo "💾 Ahorro: " . ($stats['characters'] - $stats['styles']) . " objetos de estilo\\n";
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Flyweight:</strong><br>
+            • <strong>Memoria</strong>: Reduce drásticamente uso de RAM<br>
+            • <strong>Rendimiento</strong>: Menos objetos = menos presión en GC<br>
+            • <strong>Escalabilidad</strong>: Maneja millones de objetos<br>
+            • <strong>Cache-friendly</strong>: Mejor localidad de datos
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Complejidad</strong>: Separar estado intrínseco/extrínseco<br>
+            • <strong>CPU</strong>: Pequeño overhead por búsqueda en factory<br>
+            • <strong>Contexto</strong>: Debes pasar estado extrínseco en cada llamada
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Cuándo Usar Flyweight:</strong><br>
+            • Aplicación usa gran cantidad de objetos similares<br>
+            • El costo de almacenamiento es alto<br>
+            • La mayoría del estado puede ser extrínseco<br>
+            • Muchos objetos pueden reemplazarse por pocos compartidos<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Pocos objetos en memoria<br>
+            • Estado mayormente único (no compartible)<br>
+            • Complejidad no justifica el ahorro
+        </div>
+
+        <h3>Comparación: Con vs Sin Flyweight</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Comparación de uso de memoria
+
+class MemoryTest {
+    public static function withoutFlyweight(): void {
+        $objects = [];
+        for ($i = 0; $i < 10000; $i++) {
+            $objects[] = [
+                'id' => $i,
+                'type' => 'Usuario',      // Repetido 10000 veces
+                'icon' => '👤',           // Repetido 10000 veces
+                'permissions' => ['read'] // Repetido 10000 veces
+            ];
+        }
+        echo "Sin Flyweight: " . memory_get_usage() . " bytes\\n";
+    }
+    
+    public static function withFlyweight(): void {
+        $sharedType = [
+            'type' => 'Usuario',
+            'icon' => '👤',
+            'permissions' => ['read']
+        ];
+        
+        $objects = [];
+        for ($i = 0; $i < 10000; $i++) {
+            $objects[] = [
+                'id' => $i,
+                'sharedRef' => &$sharedType  // Referencia compartida
+            ];
+        }
+        echo "Con Flyweight: " . memory_get_usage() . " bytes\\n";
+    }
+}
+
+MemoryTest::withoutFlyweight();
+MemoryTest::withFlyweight();
+?&gt;</code></pre></div>
+    `
 };
