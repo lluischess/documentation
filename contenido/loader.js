@@ -18998,6 +18998,9869 @@ print_r($data2);
             • <strong>Latencia</strong>: Pequeño overhead
         </div>
     `,
+    // ============================================
+    // SYMFONY FRAMEWORK
+    // ============================================
+    
+    // 1. Patrones de Diseño de Comportamiento
+    'introduccion-patrones-symfony': `
+        <h1>Patrones de Comportamiento en Symfony</h1>
+        
+        <p>Antes de profundizar en cada patrón, es fundamental entender <strong>por qué estudiamos estos patrones específicamente en el contexto de Symfony</strong>. Symfony no es solo un framework, es una arquitectura completa construida sobre principios SOLID y patrones de diseño.</p>
+
+        <div class="info-box">
+            <strong>🎯 ¿Por qué estos patrones en Symfony?</strong><br>
+            Symfony utiliza extensivamente estos patrones de comportamiento en su núcleo. Entenderlos te permitirá:
+            <br><br>
+            • <strong>Comprender el código interno</strong> de Symfony<br>
+            • <strong>Extender el framework</strong> correctamente<br>
+            • <strong>Crear aplicaciones escalables</strong> siguiendo las mejores prácticas<br>
+            • <strong>Debuggear eficientemente</strong> conociendo cómo funciona internamente
+        </div>
+
+        <h2>🔍 Cómo Symfony Usa Cada Patrón</h2>
+
+        <h3>1. Strategy Pattern</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Symfony usa Strategy en múltiples componentes
+
+// 🔹 Security: Diferentes estrategias de autenticación
+interface AuthenticationStrategyInterface {
+    public function authenticate(Request $request): ?TokenInterface;
+}
+
+class FormLoginAuthenticator implements AuthenticationStrategyInterface { }
+class JsonLoginAuthenticator implements AuthenticationStrategyInterface { }
+class ApiTokenAuthenticator implements AuthenticationStrategyInterface { }
+
+// 🔹 Serializer: Diferentes estrategias de normalización
+interface NormalizerInterface {
+    public function normalize($object, string $format = null);
+}
+
+// 🔹 Cache: Diferentes estrategias de caché
+$cache = new FilesystemAdapter();  // Strategy: Filesystem
+$cache = new RedisAdapter();       // Strategy: Redis
+$cache = new MemcachedAdapter();   // Strategy: Memcached
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Uso Real en Symfony:</strong><br>
+            • <strong>Security Component</strong>: Authenticators, Voters<br>
+            • <strong>Serializer</strong>: Normalizers, Encoders<br>
+            • <strong>Cache</strong>: Adapters (Redis, Filesystem, APCu)<br>
+            • <strong>Messenger</strong>: Transports (AMQP, Redis, Doctrine)<br>
+            • <strong>Validator</strong>: Constraints (Email, NotBlank, Length)
+        </div>
+
+        <h3>2. Observer Pattern (Event Dispatcher)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// 🎯 El EventDispatcher de Symfony ES el patrón Observer
+
+use Symfony\\Component\\EventDispatcher\\EventDispatcher;
+use Symfony\\Component\\HttpKernel\\Event\\RequestEvent;
+
+// Subject = EventDispatcher
+$dispatcher = new EventDispatcher();
+
+// Observers = Event Listeners/Subscribers
+class RequestListener {
+    public function onKernelRequest(RequestEvent $event): void {
+        // Reaccionar al evento
+    }
+}
+
+$dispatcher->addListener('kernel.request', [new RequestListener(), 'onKernelRequest']);
+
+// Cuando ocurre un evento, TODOS los listeners son notificados
+$dispatcher->dispatch($event, 'kernel.request');
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Eventos Clave de Symfony:</strong><br>
+            • <strong>kernel.request</strong>: Cuando llega una petición HTTP<br>
+            • <strong>kernel.controller</strong>: Antes de ejecutar el controlador<br>
+            • <strong>kernel.response</strong>: Antes de enviar la respuesta<br>
+            • <strong>kernel.exception</strong>: Cuando ocurre una excepción<br>
+            • <strong>console.command</strong>: Al ejecutar comandos CLI<br>
+            • <strong>doctrine.post_persist</strong>: Después de guardar entidad
+        </div>
+
+        <h3>3. Command Pattern</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Symfony usa Command en dos contextos principales
+
+// 🔹 1. Console Commands (CLI)
+use Symfony\\Component\\Console\\Command\\Command;
+
+class CreateUserCommand extends Command {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
+        // Encapsula la acción "crear usuario" como objeto
+        $this->userService->createUser(...);
+        return Command::SUCCESS;
+    }
+}
+
+// 🔹 2. Messenger Component (CQRS)
+class CreateUserCommand {
+    public function __construct(
+        public string $email,
+        public string $password
+    ) {}
+}
+
+class CreateUserHandler {
+    public function __invoke(CreateUserCommand $command): void {
+        // Ejecutar el comando
+    }
+}
+
+// El bus encola y ejecuta comandos
+$messageBus->dispatch(new CreateUserCommand('user@example.com', 'pass'));
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Uso Real en Symfony:</strong><br>
+            • <strong>Console Component</strong>: Cada comando CLI es un Command object<br>
+            • <strong>Messenger</strong>: CQRS con Commands y Queries<br>
+            • <strong>Form Component</strong>: Form handlers encapsulan acciones<br>
+            • <strong>Workflow</strong>: Transiciones como comandos
+        </div>
+
+        <h3>4. Iterator Pattern</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Symfony usa Iterator extensivamente
+
+// 🔹 Doctrine Collections
+$users = $userRepository->findAll(); // Retorna Collection (Iterator)
+
+foreach ($users as $user) {
+    echo $user->getName();
+}
+
+// 🔹 Form Component
+foreach ($form->getErrors(true) as $error) {
+    echo $error->getMessage();
+}
+
+// 🔹 Finder Component
+use Symfony\\Component\\Finder\\Finder;
+
+$finder = new Finder();
+$finder->files()->in(__DIR__);
+
+foreach ($finder as $file) {
+    echo $file->getFilename();
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Uso Real en Symfony:</strong><br>
+            • <strong>Doctrine Collections</strong>: ArrayCollection, PersistentCollection<br>
+            • <strong>Finder</strong>: Iterar archivos y directorios<br>
+            • <strong>Form</strong>: Iterar errores y campos<br>
+            • <strong>Process</strong>: Iterar output de procesos
+        </div>
+
+        <h3>5. State Pattern</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Symfony Workflow Component implementa State Pattern
+
+use Symfony\\Component\\Workflow\\WorkflowInterface;
+
+// Estados: draft, review, published
+// Transiciones: to_review, publish, reject
+
+$workflow->apply($post, 'to_review');  // draft -> review
+$workflow->apply($post, 'publish');    // review -> published
+
+// El comportamiento del objeto cambia según su estado
+if ($workflow->can($post, 'publish')) {
+    // Solo disponible en estado 'review'
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Uso Real en Symfony:</strong><br>
+            • <strong>Workflow Component</strong>: Máquinas de estado<br>
+            • <strong>Security</strong>: Estados de autenticación<br>
+            • <strong>Form</strong>: Estados del formulario (submitted, valid)<br>
+            • <strong>HttpFoundation</strong>: Estados de sesión
+        </div>
+
+        <h3>6. Template Method Pattern</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Symfony usa Template Method en clases abstractas
+
+// 🔹 AbstractController
+abstract class AbstractController {
+    // Template Method: estructura fija
+    public function __invoke(Request $request): Response {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        
+        $data = $this->getData($request);      // Hook method
+        $result = $this->process($data);       // Hook method
+        
+        return $this->render('template.html.twig', ['result' => $result]);
+    }
+    
+    abstract protected function getData(Request $request): array;
+    abstract protected function process(array $data): mixed;
+}
+
+// 🔹 Command
+abstract class Command {
+    public function run(InputInterface $input, OutputInterface $output): int {
+        $this->initialize($input, $output);  // Hook
+        $this->interact($input, $output);    // Hook
+        return $this->execute($input, $output); // Hook (abstract)
+    }
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Uso Real en Symfony:</strong><br>
+            • <strong>AbstractController</strong>: Métodos helper predefinidos<br>
+            • <strong>Command</strong>: initialize(), interact(), execute()<br>
+            • <strong>Kernel</strong>: boot(), registerBundles()<br>
+            • <strong>EventSubscriber</strong>: getSubscribedEvents()
+        </div>
+
+        <h3>7. Chain of Responsibility Pattern</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Symfony usa Chain of Responsibility en Middleware
+
+// 🔹 HTTP Kernel: Cadena de listeners
+Request -> Firewall -> Router -> Controller -> Response
+
+// 🔹 Security: Cadena de voters
+class VoterChain {
+    public function vote(TokenInterface $token, $subject, array $attributes): int {
+        foreach ($this->voters as $voter) {
+            $result = $voter->vote($token, $subject, $attributes);
+            if ($result !== VoterInterface::ACCESS_ABSTAIN) {
+                return $result; // Primer voter que decide, gana
+            }
+        }
+        return VoterInterface::ACCESS_DENIED;
+    }
+}
+
+// 🔹 Messenger: Cadena de middleware
+$messageBus->dispatch($message); // Pasa por múltiples middleware
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Uso Real en Symfony:</strong><br>
+            • <strong>HttpKernel</strong>: Event listeners en cadena<br>
+            • <strong>Security Voters</strong>: Cadena de decisión de acceso<br>
+            • <strong>Messenger Middleware</strong>: Procesar mensajes en cadena<br>
+            • <strong>Firewall</strong>: Cadena de autenticadores
+        </div>
+
+        <h2>📊 Tabla Resumen: Patrones en Symfony</h2>
+        <table style="width:100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+                <tr style="background: #2d3748; color: white;">
+                    <th style="padding: 12px; border: 1px solid #4a5568;">Patrón</th>
+                    <th style="padding: 12px; border: 1px solid #4a5568;">Componente Symfony</th>
+                    <th style="padding: 12px; border: 1px solid #4a5568;">Ejemplo Concreto</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #4a5568;"><strong>Strategy</strong></td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">Security, Cache, Serializer</td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">Authenticators, Cache Adapters</td>
+                </tr>
+                <tr style="background: #f7fafc;">
+                    <td style="padding: 10px; border: 1px solid #4a5568;"><strong>Observer</strong></td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">EventDispatcher</td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">kernel.request, kernel.response</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #4a5568;"><strong>Command</strong></td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">Console, Messenger</td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">bin/console commands, CQRS</td>
+                </tr>
+                <tr style="background: #f7fafc;">
+                    <td style="padding: 10px; border: 1px solid #4a5568;"><strong>Iterator</strong></td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">Doctrine, Finder, Form</td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">Collections, File iteration</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #4a5568;"><strong>State</strong></td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">Workflow</td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">State machines, Form states</td>
+                </tr>
+                <tr style="background: #f7fafc;">
+                    <td style="padding: 10px; border: 1px solid #4a5568;"><strong>Template Method</strong></td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">AbstractController, Command</td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">Controller base, CLI commands</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #4a5568;"><strong>Chain of Resp.</strong></td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">HttpKernel, Security, Messenger</td>
+                    <td style="padding: 10px; border: 1px solid #4a5568;">Middleware, Voters, Firewalls</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="warning-box">
+            <strong>💡 Importante:</strong><br>
+            No necesitas memorizar todo esto ahora. A medida que avances en Symfony, reconocerás estos patrones en acción. Esta introducción es tu mapa mental para entender <strong>por qué</strong> Symfony funciona como funciona.
+        </div>
+
+        <h2>🎓 Próximos Pasos</h2>
+        <p>Ahora que entiendes el contexto, estudia cada patrón en detalle. Cada sección incluye:</p>
+        <ul>
+            <li>✅ Explicación del patrón con ejemplos PHP modernos</li>
+            <li>✅ Casos de uso reales</li>
+            <li>✅ Ventajas y desventajas</li>
+            <li>✅ Cuándo usar y cuándo NO usar</li>
+            <li>✅ Relación con Symfony (donde aplique)</li>
+        </ul>
+
+        <div class="info-box">
+            <strong>🚀 Recomendación:</strong><br>
+            Lee primero esta introducción, luego estudia cada patrón individualmente. Cuando llegues a los componentes de Symfony, todo tendrá sentido porque ya conocerás los patrones subyacentes.
+        </div>
+    `,
+    'patron-strategy': `
+        <h1>Patrón Strategy (Estrategia)</h1>
+        
+        <p>El <strong>patrón Strategy</strong> define una familia de algoritmos, encapsula cada uno y los hace intercambiables. Permite que el algoritmo varíe independientemente de los clientes que lo usan.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Strategy?</strong><br>
+            • <strong>Propósito</strong>: Definir familia de algoritmos intercambiables<br>
+            • <strong>Problema</strong>: Múltiples formas de hacer lo mismo (if/else gigantes)<br>
+            • <strong>Solución</strong>: Encapsular cada algoritmo en una clase separada<br>
+            • <strong>Analogía</strong>: Como elegir método de transporte (auto, bus, bici)<br>
+            • <strong>Tipo</strong>: Patrón de comportamiento
+        </div>
+
+        <h3>Problema Sin Strategy</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ Sin Strategy: Código acoplado con if/else
+
+class PaymentProcessor {
+    public function processPayment(string $type, float $amount): void {
+        if ($type === 'credit_card') {
+            echo "Procesando {$amount}€ con tarjeta de crédito\\n";
+            // Lógica específica de tarjeta
+        } elseif ($type === 'paypal') {
+            echo "Procesando {$amount}€ con PayPal\\n";
+            // Lógica específica de PayPal
+        } elseif ($type === 'bitcoin') {
+            echo "Procesando {$amount}€ con Bitcoin\\n";
+            // Lógica específica de Bitcoin
+        } else {
+            throw new Exception("Método de pago no soportado");
+        }
+    }
+}
+
+// ❌ Problemas:
+// - Viola OCP (abierto/cerrado)
+// - Difícil de testear
+// - Difícil añadir nuevos métodos
+// - Código acoplado
+?&gt;</code></pre></div>
+
+        <h3>Solución Con Strategy</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ Con Strategy: Cada algoritmo es una estrategia
+
+// Interfaz Strategy
+interface PaymentStrategy {
+    public function pay(float $amount): void;
+}
+
+// Estrategias concretas
+class CreditCardPayment implements PaymentStrategy {
+    public function __construct(
+        private string $cardNumber,
+        private string $cvv
+    ) {}
+    
+    public function pay(float $amount): void {
+        echo "💳 Pagando {$amount}€ con tarjeta ****{$this->getLast4()}\\n";
+    }
+    
+    private function getLast4(): string {
+        return substr($this->cardNumber, -4);
+    }
+}
+
+class PayPalPayment implements PaymentStrategy {
+    public function __construct(private string $email) {}
+    
+    public function pay(float $amount): void {
+        echo "🅿️ Pagando {$amount}€ con PayPal ({$this->email})\\n";
+    }
+}
+
+class BitcoinPayment implements PaymentStrategy {
+    public function __construct(private string $walletAddress) {}
+    
+    public function pay(float $amount): void {
+        echo "₿ Pagando {$amount}€ con Bitcoin ({$this->walletAddress})\\n";
+    }
+}
+
+// Contexto
+class ShoppingCart {
+    private array $items = [];
+    private ?PaymentStrategy $paymentStrategy = null;
+    
+    public function addItem(string $item, float $price): void {
+        $this->items[] = ['item' => $item, 'price' => $price];
+    }
+    
+    public function setPaymentStrategy(PaymentStrategy $strategy): void {
+        $this->paymentStrategy = $strategy;
+    }
+    
+    public function checkout(): void {
+        if (!$this->paymentStrategy) {
+            throw new Exception("Seleccione un método de pago");
+        }
+        
+        $total = array_sum(array_column($this->items, 'price'));
+        echo "Total: {$total}€\\n";
+        $this->paymentStrategy->pay($total);
+    }
+}
+
+// Uso
+$cart = new ShoppingCart();
+$cart->addItem("Laptop", 999.99);
+$cart->addItem("Mouse", 29.99);
+
+// Cambiar estrategia dinámicamente
+$cart->setPaymentStrategy(new CreditCardPayment("1234567890123456", "123"));
+$cart->checkout();
+
+$cart->setPaymentStrategy(new PayPalPayment("user@example.com"));
+$cart->checkout();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Envíos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de cálculo de costos de envío
+
+interface ShippingStrategy {
+    public function calculateCost(float $weight, float $distance): float;
+}
+
+class StandardShipping implements ShippingStrategy {
+    public function calculateCost(float $weight, float $distance): float {
+        return $weight * 0.5 + $distance * 0.1;
+    }
+}
+
+class ExpressShipping implements ShippingStrategy {
+    public function calculateCost(float $weight, float $distance): float {
+        return ($weight * 0.5 + $distance * 0.1) * 2 + 10; // Doble + tarifa express
+    }
+}
+
+class InternationalShipping implements ShippingStrategy {
+    public function calculateCost(float $weight, float $distance): float {
+        return $weight * 1.5 + $distance * 0.3 + 25; // Tarifa internacional
+    }
+}
+
+class Order {
+    public function __construct(
+        private float $weight,
+        private float $distance,
+        private ShippingStrategy $shippingStrategy
+    ) {}
+    
+    public function getShippingCost(): float {
+        return $this->shippingStrategy->calculateCost($this->weight, $this->distance);
+    }
+    
+    public function setShippingStrategy(ShippingStrategy $strategy): void {
+        $this->shippingStrategy = $strategy;
+    }
+}
+
+// Uso
+$order = new Order(5.0, 100.0, new StandardShipping());
+echo "Envío estándar: " . $order->getShippingCost() . "€\\n";
+
+$order->setShippingStrategy(new ExpressShipping());
+echo "Envío express: " . $order->getShippingCost() . "€\\n";
+
+$order->setShippingStrategy(new InternationalShipping());
+echo "Envío internacional: " . $order->getShippingCost() . "€\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Compresión de Archivos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de compresión con diferentes algoritmos
+
+interface CompressionStrategy {
+    public function compress(string $data): string;
+    public function decompress(string $data): string;
+}
+
+class ZipCompression implements CompressionStrategy {
+    public function compress(string $data): string {
+        echo "🗜️ Comprimiendo con ZIP...\\n";
+        return "ZIP:" . gzcompress($data);
+    }
+    
+    public function decompress(string $data): string {
+        return gzuncompress(substr($data, 4));
+    }
+}
+
+class RarCompression implements CompressionStrategy {
+    public function compress(string $data): string {
+        echo "🗜️ Comprimiendo con RAR...\\n";
+        return "RAR:" . base64_encode($data); // Simulado
+    }
+    
+    public function decompress(string $data): string {
+        return base64_decode(substr($data, 4));
+    }
+}
+
+class NoCompression implements CompressionStrategy {
+    public function compress(string $data): string {
+        echo "📄 Sin compresión\\n";
+        return $data;
+    }
+    
+    public function decompress(string $data): string {
+        return $data;
+    }
+}
+
+class FileManager {
+    public function __construct(private CompressionStrategy $compression) {}
+    
+    public function saveFile(string $filename, string $data): void {
+        $compressed = $this->compression->compress($data);
+        file_put_contents($filename, $compressed);
+        echo "✅ Archivo guardado: {$filename}\\n";
+    }
+    
+    public function loadFile(string $filename): string {
+        $compressed = file_get_contents($filename);
+        return $this->compression->decompress($compressed);
+    }
+    
+    public function setCompression(CompressionStrategy $compression): void {
+        $this->compression = $compression;
+    }
+}
+
+// Uso
+$fileManager = new FileManager(new ZipCompression());
+$fileManager->saveFile("data.zip", "Contenido muy largo...");
+
+$fileManager->setCompression(new RarCompression());
+$fileManager->saveFile("data.rar", "Contenido muy largo...");
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Validación de Datos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de validación con diferentes estrategias
+
+interface ValidationStrategy {
+    public function validate(string $value): bool;
+    public function getErrorMessage(): string;
+}
+
+class EmailValidation implements ValidationStrategy {
+    public function validate(string $value): bool {
+        return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
+    }
+    
+    public function getErrorMessage(): string {
+        return "Email inválido";
+    }
+}
+
+class PhoneValidation implements ValidationStrategy {
+    public function validate(string $value): bool {
+        return preg_match('/^\\+?[0-9]{9,15}$/', $value) === 1;
+    }
+    
+    public function getErrorMessage(): string {
+        return "Teléfono inválido";
+    }
+}
+
+class PasswordValidation implements ValidationStrategy {
+    public function validate(string $value): bool {
+        // Mínimo 8 caracteres, 1 mayúscula, 1 número
+        return strlen($value) >= 8 
+            && preg_match('/[A-Z]/', $value) 
+            && preg_match('/[0-9]/', $value);
+    }
+    
+    public function getErrorMessage(): string {
+        return "Contraseña debe tener mínimo 8 caracteres, 1 mayúscula y 1 número";
+    }
+}
+
+class FormField {
+    private ?ValidationStrategy $validator = null;
+    
+    public function __construct(
+        private string $name,
+        private string $value
+    ) {}
+    
+    public function setValidator(ValidationStrategy $validator): void {
+        $this->validator = $validator;
+    }
+    
+    public function isValid(): bool {
+        if (!$this->validator) {
+            return true;
+        }
+        
+        if (!$this->validator->validate($this->value)) {
+            echo "❌ {$this->name}: {$this->validator->getErrorMessage()}\\n";
+            return false;
+        }
+        
+        echo "✅ {$this->name}: válido\\n";
+        return true;
+    }
+}
+
+// Uso
+$emailField = new FormField("Email", "user@example.com");
+$emailField->setValidator(new EmailValidation());
+$emailField->isValid();
+
+$phoneField = new FormField("Teléfono", "+34123456789");
+$phoneField->setValidator(new PhoneValidation());
+$phoneField->isValid();
+
+$passwordField = new FormField("Contraseña", "Pass123");
+$passwordField->setValidator(new PasswordValidation());
+$passwordField->isValid();
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Strategy:</strong><br>
+            • <strong>OCP</strong>: Fácil añadir nuevas estrategias sin modificar código existente<br>
+            • <strong>SRP</strong>: Cada estrategia tiene una sola responsabilidad<br>
+            • <strong>Testeable</strong>: Fácil testear cada estrategia por separado<br>
+            • <strong>Flexible</strong>: Cambiar algoritmo en tiempo de ejecución<br>
+            • <strong>Elimina condicionales</strong>: No más if/else gigantes
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Más clases</strong>: Una clase por cada estrategia<br>
+            • <strong>Cliente debe conocer</strong>: El cliente debe saber qué estrategia usar<br>
+            • <strong>Overhead</strong>: Para algoritmos muy simples puede ser excesivo
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Cuándo Usar Strategy:</strong><br>
+            • Tienes múltiples formas de hacer lo mismo<br>
+            • Necesitas cambiar algoritmo en tiempo de ejecución<br>
+            • Quieres evitar if/else o switch largos<br>
+            • Los algoritmos son independientes del contexto<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Solo tienes un algoritmo<br>
+            • El algoritmo nunca cambia<br>
+            • La lógica es muy simple
+        </div>
+
+        <h3>Strategy vs State vs Command</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Comparación de patrones similares
+
+// STRATEGY: Diferentes formas de hacer LO MISMO
+interface SortStrategy {
+    public function sort(array $data): array;
+}
+
+// STATE: Diferentes comportamientos según ESTADO
+interface PlayerState {
+    public function play(): void;
+    public function pause(): void;
+}
+
+// COMMAND: Encapsular ACCIONES como objetos
+interface Command {
+    public function execute(): void;
+    public function undo(): void;
+}
+
+// Strategy se enfoca en ALGORITMOS intercambiables
+// State se enfoca en COMPORTAMIENTO según estado
+// Command se enfoca en ACCIONES como objetos
+?&gt;</code></pre></div>
+    `,
+    'patron-observer': `
+        <h1>Patrón Observer (Observador)</h1>
+        
+        <p>El <strong>patrón Observer</strong> define una dependencia uno-a-muchos entre objetos, de modo que cuando un objeto cambia de estado, todos sus dependientes son notificados y actualizados automáticamente.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Observer?</strong><br>
+            • <strong>Propósito</strong>: Notificar cambios a múltiples objetos automáticamente<br>
+            • <strong>Problema</strong>: Mantener objetos sincronizados sin acoplamiento<br>
+            • <strong>Solución</strong>: Suscripción/notificación (pub/sub)<br>
+            • <strong>Analogía</strong>: Como suscribirse a un canal de YouTube<br>
+            • <strong>Tipo</strong>: Patrón de comportamiento
+        </div>
+
+        <h3>Estructura del Patrón</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Estructura básica del Observer
+
+// Subject (Observable)
+interface Subject {
+    public function attach(Observer $observer): void;
+    public function detach(Observer $observer): void;
+    public function notify(): void;
+}
+
+// Observer
+interface Observer {
+    public function update(Subject $subject): void;
+}
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Notificaciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de notificaciones cuando cambia el estado de un pedido
+
+interface Observer {
+    public function update(string $event, array $data): void;
+}
+
+class EmailNotifier implements Observer {
+    public function update(string $event, array $data): void {
+        echo "📧 Email: Pedido #{$data['orderId']} - {$event}\\n";
+    }
+}
+
+class SMSNotifier implements Observer {
+    public function update(string $event, array $data): void {
+        echo "📱 SMS: Pedido #{$data['orderId']} - {$event}\\n";
+    }
+}
+
+class PushNotifier implements Observer {
+    public function update(string $event, array $data): void {
+        echo "🔔 Push: Pedido #{$data['orderId']} - {$event}\\n";
+    }
+}
+
+class LogNotifier implements Observer {
+    public function update(string $event, array $data): void {
+        echo "📝 Log: [{$event}] Pedido #{$data['orderId']}\\n";
+    }
+}
+
+// Subject
+class Order {
+    private array $observers = [];
+    private string $status = 'pending';
+    
+    public function __construct(private int $orderId) {}
+    
+    public function attach(Observer $observer): void {
+        $this->observers[] = $observer;
+        echo "✅ Observador añadido\\n";
+    }
+    
+    public function detach(Observer $observer): void {
+        $this->observers = array_filter(
+            $this->observers,
+            fn($obs) => $obs !== $observer
+        );
+        echo "❌ Observador eliminado\\n";
+    }
+    
+    public function notify(string $event): void {
+        $data = [
+            'orderId' => $this->orderId,
+            'status' => $this->status
+        ];
+        
+        foreach ($this->observers as $observer) {
+            $observer->update($event, $data);
+        }
+    }
+    
+    public function setStatus(string $status): void {
+        $this->status = $status;
+        $this->notify("Estado cambiado a: {$status}");
+    }
+    
+    public function ship(): void {
+        $this->status = 'shipped';
+        $this->notify("Pedido enviado");
+    }
+    
+    public function deliver(): void {
+        $this->status = 'delivered';
+        $this->notify("Pedido entregado");
+    }
+}
+
+// Uso
+$order = new Order(12345);
+
+$order->attach(new EmailNotifier());
+$order->attach(new SMSNotifier());
+$order->attach(new PushNotifier());
+$order->attach(new LogNotifier());
+
+echo "\\n--- Procesando pedido ---\\n";
+$order->setStatus('processing');
+
+echo "\\n--- Enviando pedido ---\\n";
+$order->ship();
+
+echo "\\n--- Entregando pedido ---\\n";
+$order->deliver();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Eventos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Event Dispatcher similar a Symfony
+
+class Event {
+    private bool $propagationStopped = false;
+    
+    public function __construct(private array $data = []) {}
+    
+    public function getData(): array {
+        return $this->data;
+    }
+    
+    public function stopPropagation(): void {
+        $this->propagationStopped = true;
+    }
+    
+    public function isPropagationStopped(): bool {
+        return $this->propagationStopped;
+    }
+}
+
+interface EventListener {
+    public function handle(Event $event): void;
+}
+
+class EventDispatcher {
+    private array $listeners = [];
+    
+    public function addListener(string $eventName, EventListener $listener, int $priority = 0): void {
+        if (!isset($this->listeners[$eventName])) {
+            $this->listeners[$eventName] = [];
+        }
+        
+        $this->listeners[$eventName][] = [
+            'listener' => $listener,
+            'priority' => $priority
+        ];
+        
+        // Ordenar por prioridad
+        usort($this->listeners[$eventName], fn($a, $b) => $b['priority'] <=> $a['priority']);
+    }
+    
+    public function dispatch(string $eventName, Event $event): void {
+        if (!isset($this->listeners[$eventName])) {
+            return;
+        }
+        
+        foreach ($this->listeners[$eventName] as $item) {
+            if ($event->isPropagationStopped()) {
+                break;
+            }
+            
+            $item['listener']->handle($event);
+        }
+    }
+}
+
+// Listeners concretos
+class UserRegisteredEmailListener implements EventListener {
+    public function handle(Event $event): void {
+        $data = $event->getData();
+        echo "📧 Enviando email de bienvenida a {$data['email']}\\n";
+    }
+}
+
+class UserRegisteredAnalyticsListener implements EventListener {
+    public function handle(Event $event): void {
+        $data = $event->getData();
+        echo "📊 Registrando evento en analytics: {$data['email']}\\n";
+    }
+}
+
+class UserRegisteredCouponListener implements EventListener {
+    public function handle(Event $event): void {
+        $data = $event->getData();
+        echo "🎁 Generando cupón de bienvenida para {$data['email']}\\n";
+    }
+}
+
+// Uso
+$dispatcher = new EventDispatcher();
+
+$dispatcher->addListener('user.registered', new UserRegisteredEmailListener(), 10);
+$dispatcher->addListener('user.registered', new UserRegisteredAnalyticsListener(), 5);
+$dispatcher->addListener('user.registered', new UserRegisteredCouponListener(), 1);
+
+echo "--- Usuario registrado ---\\n";
+$event = new Event(['email' => 'user@example.com', 'name' => 'Juan']);
+$dispatcher->dispatch('user.registered', $event);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Monitor de Stock</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema que notifica cuando el stock cambia
+
+interface StockObserver {
+    public function onStockChange(string $product, int $quantity): void;
+}
+
+class WarehouseManager implements StockObserver {
+    public function onStockChange(string $product, int $quantity): void {
+        if ($quantity < 10) {
+            echo "⚠️ Almacén: Stock bajo de {$product} ({$quantity} unidades)\\n";
+        }
+    }
+}
+
+class SalesTeam implements StockObserver {
+    public function onStockChange(string $product, int $quantity): void {
+        if ($quantity === 0) {
+            echo "🚫 Ventas: {$product} agotado, pausar promociones\\n";
+        }
+    }
+}
+
+class SupplierNotifier implements StockObserver {
+    public function onStockChange(string $product, int $quantity): void {
+        if ($quantity < 5) {
+            echo "📞 Proveedor: Solicitar reposición de {$product}\\n";
+        }
+    }
+}
+
+class CustomerNotifier implements StockObserver {
+    private array $waitingCustomers = [];
+    
+    public function addWaitingCustomer(string $product, string $email): void {
+        $this->waitingCustomers[$product][] = $email;
+    }
+    
+    public function onStockChange(string $product, int $quantity): void {
+        if ($quantity > 0 && isset($this->waitingCustomers[$product])) {
+            foreach ($this->waitingCustomers[$product] as $email) {
+                echo "📧 Cliente: {$product} disponible para {$email}\\n";
+            }
+            unset($this->waitingCustomers[$product]);
+        }
+    }
+}
+
+class Product {
+    private array $observers = [];
+    private int $stock;
+    
+    public function __construct(
+        private string $name,
+        int $initialStock
+    ) {
+        $this->stock = $initialStock;
+    }
+    
+    public function attach(StockObserver $observer): void {
+        $this->observers[] = $observer;
+    }
+    
+    public function detach(StockObserver $observer): void {
+        $this->observers = array_filter(
+            $this->observers,
+            fn($obs) => $obs !== $observer
+        );
+    }
+    
+    private function notifyObservers(): void {
+        foreach ($this->observers as $observer) {
+            $observer->onStockChange($this->name, $this->stock);
+        }
+    }
+    
+    public function sell(int $quantity): void {
+        $this->stock -= $quantity;
+        echo "💰 Vendidas {$quantity} unidades de {$this->name}\\n";
+        $this->notifyObservers();
+    }
+    
+    public function restock(int $quantity): void {
+        $this->stock += $quantity;
+        echo "📦 Añadidas {$quantity} unidades de {$this->name}\\n";
+        $this->notifyObservers();
+    }
+    
+    public function getStock(): int {
+        return $this->stock;
+    }
+}
+
+// Uso
+$product = new Product("iPhone 15", 15);
+
+$warehouse = new WarehouseManager();
+$sales = new SalesTeam();
+$supplier = new SupplierNotifier();
+$customers = new CustomerNotifier();
+
+$product->attach($warehouse);
+$product->attach($sales);
+$product->attach($supplier);
+$product->attach($customers);
+
+$customers->addWaitingCustomer("iPhone 15", "cliente1@example.com");
+$customers->addWaitingCustomer("iPhone 15", "cliente2@example.com");
+
+echo "\\n--- Vendiendo 10 unidades ---\\n";
+$product->sell(10);
+
+echo "\\n--- Vendiendo 5 unidades más ---\\n";
+$product->sell(5);
+
+echo "\\n--- Reponiendo stock ---\\n";
+$product->restock(20);
+?&gt;</code></pre></div>
+
+        <h3>Observer con SplObserver (PHP Nativo)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// PHP tiene interfaces nativas para Observer
+
+class User implements SplSubject {
+    private SplObjectStorage $observers;
+    private string $name;
+    private string $email;
+    
+    public function __construct(string $name, string $email) {
+        $this->observers = new SplObjectStorage();
+        $this->name = $name;
+        $this->email = $email;
+    }
+    
+    public function attach(SplObserver $observer): void {
+        $this->observers->attach($observer);
+    }
+    
+    public function detach(SplObserver $observer): void {
+        $this->observers->detach($observer);
+    }
+    
+    public function notify(): void {
+        foreach ($this->observers as $observer) {
+            $observer->update($this);
+        }
+    }
+    
+    public function changeEmail(string $newEmail): void {
+        $this->email = $newEmail;
+        $this->notify();
+    }
+    
+    public function getEmail(): string {
+        return $this->email;
+    }
+    
+    public function getName(): string {
+        return $this->name;
+    }
+}
+
+class EmailChangeLogger implements SplObserver {
+    public function update(SplSubject $subject): void {
+        if ($subject instanceof User) {
+            echo "📝 Log: Email de {$subject->getName()} cambió a {$subject->getEmail()}\\n";
+        }
+    }
+}
+
+class SecurityAlert implements SplObserver {
+    public function update(SplSubject $subject): void {
+        if ($subject instanceof User) {
+            echo "🔒 Seguridad: Verificar cambio de email para {$subject->getName()}\\n";
+        }
+    }
+}
+
+// Uso
+$user = new User("Juan", "juan@old.com");
+$user->attach(new EmailChangeLogger());
+$user->attach(new SecurityAlert());
+
+echo "--- Cambiando email ---\\n";
+$user->changeEmail("juan@new.com");
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Observer:</strong><br>
+            • <strong>Desacoplamiento</strong>: Subject y observers independientes<br>
+            • <strong>Extensibilidad</strong>: Fácil añadir nuevos observers<br>
+            • <strong>Broadcast</strong>: Notificar a múltiples objetos automáticamente<br>
+            • <strong>OCP</strong>: Abierto a extensión sin modificar subject<br>
+            • <strong>Dinámico</strong>: Suscribir/desuscribir en tiempo de ejecución
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Orden impredecible</strong>: No garantiza orden de notificación<br>
+            • <strong>Memory leaks</strong>: Observers no eliminados pueden causar fugas<br>
+            • <strong>Performance</strong>: Muchos observers pueden ser costosos<br>
+            • <strong>Debugging</strong>: Difícil rastrear flujo de ejecución
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Cuándo Usar Observer:</strong><br>
+            • Cambio en un objeto requiere cambiar otros<br>
+            • No sabes cuántos objetos necesitan ser notificados<br>
+            • Quieres desacoplar objetos que se comunican<br>
+            • Sistema de eventos o notificaciones<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Relación simple uno-a-uno<br>
+            • Observers tienen dependencias entre sí<br>
+            • Performance crítica con muchos observers
+        </div>
+    `,
+    'patron-command': `
+        <h1>Patrón Command (Comando)</h1>
+        
+        <p>El <strong>patrón Command</strong> encapsula una solicitud como un objeto, permitiendo parametrizar clientes con diferentes solicitudes, encolar o registrar solicitudes, y soportar operaciones que se pueden deshacer.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Command?</strong><br>
+            • <strong>Propósito</strong>: Encapsular acciones como objetos<br>
+            • <strong>Problema</strong>: Necesitas deshacer/rehacer, encolar o registrar operaciones<br>
+            • <strong>Solución</strong>: Convertir solicitudes en objetos independientes<br>
+            • <strong>Analogía</strong>: Como un control remoto con botones (cada botón es un comando)<br>
+            • <strong>Tipo</strong>: Patrón de comportamiento
+        </div>
+
+        <h3>Estructura Básica</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Estructura del patrón Command
+
+interface Command {
+    public function execute(): void;
+    public function undo(): void;
+}
+
+// Receiver: quien ejecuta la acción real
+class Receiver {
+    public function action(): void {
+        echo "Ejecutando acción\\n";
+    }
+}
+
+// Comando concreto
+class ConcreteCommand implements Command {
+    public function __construct(private Receiver $receiver) {}
+    
+    public function execute(): void {
+        $this->receiver->action();
+    }
+    
+    public function undo(): void {
+        echo "Deshaciendo acción\\n";
+    }
+}
+
+// Invoker: quien invoca el comando
+class Invoker {
+    private ?Command $command = null;
+    
+    public function setCommand(Command $command): void {
+        $this->command = $command;
+    }
+    
+    public function executeCommand(): void {
+        $this->command?->execute();
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Editor de Texto con Undo/Redo</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Editor de texto con historial de comandos
+
+interface Command {
+    public function execute(): void;
+    public function undo(): void;
+}
+
+// Receiver
+class TextEditor {
+    private string $text = "";
+    
+    public function write(string $text): void {
+        $this->text .= $text;
+        echo "📝 Texto: '{$this->text}'\\n";
+    }
+    
+    public function delete(int $length): void {
+        $this->text = substr($this->text, 0, -$length);
+        echo "🗑️ Texto: '{$this->text}'\\n";
+    }
+    
+    public function getText(): string {
+        return $this->text;
+    }
+}
+
+// Comando: Escribir texto
+class WriteCommand implements Command {
+    public function __construct(
+        private TextEditor $editor,
+        private string $text
+    ) {}
+    
+    public function execute(): void {
+        $this->editor->write($this->text);
+    }
+    
+    public function undo(): void {
+        $this->editor->delete(strlen($this->text));
+    }
+}
+
+// Comando: Borrar texto
+class DeleteCommand implements Command {
+    private string $deletedText = "";
+    
+    public function __construct(
+        private TextEditor $editor,
+        private int $length
+    ) {}
+    
+    public function execute(): void {
+        $this->deletedText = substr($this->editor->getText(), -$this->length);
+        $this->editor->delete($this->length);
+    }
+    
+    public function undo(): void {
+        $this->editor->write($this->deletedText);
+    }
+}
+
+// Invoker con historial
+class CommandHistory {
+    private array $history = [];
+    private int $currentIndex = -1;
+    
+    public function execute(Command $command): void {
+        // Eliminar comandos después del índice actual
+        $this->history = array_slice($this->history, 0, $this->currentIndex + 1);
+        
+        $command->execute();
+        $this->history[] = $command;
+        $this->currentIndex++;
+    }
+    
+    public function undo(): void {
+        if ($this->currentIndex >= 0) {
+            $this->history[$this->currentIndex]->undo();
+            $this->currentIndex--;
+            echo "⬅️ Deshacer\\n";
+        } else {
+            echo "❌ No hay nada que deshacer\\n";
+        }
+    }
+    
+    public function redo(): void {
+        if ($this->currentIndex < count($this->history) - 1) {
+            $this->currentIndex++;
+            $this->history[$this->currentIndex]->execute();
+            echo "➡️ Rehacer\\n";
+        } else {
+            echo "❌ No hay nada que rehacer\\n";
+        }
+    }
+}
+
+// Uso
+$editor = new TextEditor();
+$history = new CommandHistory();
+
+echo "--- Escribiendo ---\\n";
+$history->execute(new WriteCommand($editor, "Hola "));
+$history->execute(new WriteCommand($editor, "mundo"));
+
+echo "\\n--- Deshaciendo ---\\n";
+$history->undo();
+
+echo "\\n--- Rehaciendo ---\\n";
+$history->redo();
+
+echo "\\n--- Borrando ---\\n";
+$history->execute(new DeleteCommand($editor, 3));
+
+echo "\\n--- Deshaciendo borrado ---\\n";
+$history->undo();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Transacciones Bancarias</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema bancario con comandos reversibles
+
+interface BankCommand {
+    public function execute(): bool;
+    public function undo(): bool;
+    public function getDescription(): string;
+}
+
+class BankAccount {
+    public function __construct(
+        private string $accountNumber,
+        private float $balance
+    ) {}
+    
+    public function deposit(float $amount): void {
+        $this->balance += $amount;
+        echo "💰 Depósito: +{$amount}€ | Saldo: {$this->balance}€\\n";
+    }
+    
+    public function withdraw(float $amount): bool {
+        if ($this->balance >= $amount) {
+            $this->balance -= $amount;
+            echo "💸 Retiro: -{$amount}€ | Saldo: {$this->balance}€\\n";
+            return true;
+        }
+        echo "❌ Fondos insuficientes\\n";
+        return false;
+    }
+    
+    public function getBalance(): float {
+        return $this->balance;
+    }
+    
+    public function getAccountNumber(): string {
+        return $this->accountNumber;
+    }
+}
+
+class DepositCommand implements BankCommand {
+    public function __construct(
+        private BankAccount $account,
+        private float $amount
+    ) {}
+    
+    public function execute(): bool {
+        $this->account->deposit($this->amount);
+        return true;
+    }
+    
+    public function undo(): bool {
+        return $this->account->withdraw($this->amount);
+    }
+    
+    public function getDescription(): string {
+        return "Depósito de {$this->amount}€";
+    }
+}
+
+class WithdrawCommand implements BankCommand {
+    public function __construct(
+        private BankAccount $account,
+        private float $amount
+    ) {}
+    
+    public function execute(): bool {
+        return $this->account->withdraw($this->amount);
+    }
+    
+    public function undo(): bool {
+        $this->account->deposit($this->amount);
+        return true;
+    }
+    
+    public function getDescription(): string {
+        return "Retiro de {$this->amount}€";
+    }
+}
+
+class TransferCommand implements BankCommand {
+    public function __construct(
+        private BankAccount $fromAccount,
+        private BankAccount $toAccount,
+        private float $amount
+    ) {}
+    
+    public function execute(): bool {
+        if ($this->fromAccount->withdraw($this->amount)) {
+            $this->toAccount->deposit($this->amount);
+            echo "🔄 Transferencia completada\\n";
+            return true;
+        }
+        return false;
+    }
+    
+    public function undo(): bool {
+        $this->toAccount->withdraw($this->amount);
+        $this->fromAccount->deposit($this->amount);
+        echo "↩️ Transferencia revertida\\n";
+        return true;
+    }
+    
+    public function getDescription(): string {
+        return "Transferencia de {$this->amount}€";
+    }
+}
+
+class TransactionManager {
+    private array $executedCommands = [];
+    
+    public function executeCommand(BankCommand $command): bool {
+        echo "▶️ Ejecutando: {$command->getDescription()}\\n";
+        
+        if ($command->execute()) {
+            $this->executedCommands[] = $command;
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public function undoLast(): void {
+        if (empty($this->executedCommands)) {
+            echo "❌ No hay transacciones para deshacer\\n";
+            return;
+        }
+        
+        $command = array_pop($this->executedCommands);
+        echo "⬅️ Deshaciendo: {$command->getDescription()}\\n";
+        $command->undo();
+    }
+}
+
+// Uso
+$account1 = new BankAccount("ES001", 1000);
+$account2 = new BankAccount("ES002", 500);
+
+$manager = new TransactionManager();
+
+echo "--- Transacciones ---\\n";
+$manager->executeCommand(new DepositCommand($account1, 200));
+$manager->executeCommand(new WithdrawCommand($account1, 100));
+$manager->executeCommand(new TransferCommand($account1, $account2, 300));
+
+echo "\\n--- Deshaciendo última transacción ---\\n";
+$manager->undoLast();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Control Remoto (Smart Home)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de domótica con control remoto
+
+interface Command {
+    public function execute(): void;
+    public function undo(): void;
+}
+
+// Receivers
+class Light {
+    public function __construct(private string $location) {}
+    
+    public function on(): void {
+        echo "💡 Luz {$this->location} encendida\\n";
+    }
+    
+    public function off(): void {
+        echo "🌑 Luz {$this->location} apagada\\n";
+    }
+}
+
+class Thermostat {
+    private int $temperature = 20;
+    
+    public function setTemperature(int $temp): void {
+        $this->temperature = $temp;
+        echo "🌡️ Temperatura ajustada a {$temp}°C\\n";
+    }
+    
+    public function getTemperature(): int {
+        return $this->temperature;
+    }
+}
+
+class GarageDoor {
+    public function open(): void {
+        echo "🚪 Puerta del garaje abierta\\n";
+    }
+    
+    public function close(): void {
+        echo "🔒 Puerta del garaje cerrada\\n";
+    }
+}
+
+// Comandos
+class LightOnCommand implements Command {
+    public function __construct(private Light $light) {}
+    
+    public function execute(): void {
+        $this->light->on();
+    }
+    
+    public function undo(): void {
+        $this->light->off();
+    }
+}
+
+class LightOffCommand implements Command {
+    public function __construct(private Light $light) {}
+    
+    public function execute(): void {
+        $this->light->off();
+    }
+    
+    public function undo(): void {
+        $this->light->on();
+    }
+}
+
+class ThermostatCommand implements Command {
+    private int $previousTemp;
+    
+    public function __construct(
+        private Thermostat $thermostat,
+        private int $temperature
+    ) {}
+    
+    public function execute(): void {
+        $this->previousTemp = $this->thermostat->getTemperature();
+        $this->thermostat->setTemperature($this->temperature);
+    }
+    
+    public function undo(): void {
+        $this->thermostat->setTemperature($this->previousTemp);
+    }
+}
+
+class GarageDoorOpenCommand implements Command {
+    public function __construct(private GarageDoor $door) {}
+    
+    public function execute(): void {
+        $this->door->open();
+    }
+    
+    public function undo(): void {
+        $this->door->close();
+    }
+}
+
+// Macro Command: ejecuta múltiples comandos
+class MacroCommand implements Command {
+    public function __construct(private array $commands) {}
+    
+    public function execute(): void {
+        foreach ($this->commands as $command) {
+            $command->execute();
+        }
+    }
+    
+    public function undo(): void {
+        // Deshacer en orden inverso
+        foreach (array_reverse($this->commands) as $command) {
+            $command->undo();
+        }
+    }
+}
+
+// Control Remoto
+class RemoteControl {
+    private array $commands = [];
+    private array $history = [];
+    
+    public function setCommand(int $slot, Command $command): void {
+        $this->commands[$slot] = $command;
+    }
+    
+    public function pressButton(int $slot): void {
+        if (isset($this->commands[$slot])) {
+            $this->commands[$slot]->execute();
+            $this->history[] = $this->commands[$slot];
+        }
+    }
+    
+    public function pressUndo(): void {
+        if (!empty($this->history)) {
+            $command = array_pop($this->history);
+            $command->undo();
+        }
+    }
+}
+
+// Uso
+$livingRoomLight = new Light("Sala");
+$bedroomLight = new Light("Dormitorio");
+$thermostat = new Thermostat();
+$garageDoor = new GarageDoor();
+
+$remote = new RemoteControl();
+
+// Configurar botones
+$remote->setCommand(0, new LightOnCommand($livingRoomLight));
+$remote->setCommand(1, new LightOnCommand($bedroomLight));
+$remote->setCommand(2, new ThermostatCommand($thermostat, 24));
+$remote->setCommand(3, new GarageDoorOpenCommand($garageDoor));
+
+// Macro: "Modo Noche"
+$nightMode = new MacroCommand([
+    new LightOffCommand($livingRoomLight),
+    new LightOffCommand($bedroomLight),
+    new ThermostatCommand($thermostat, 18),
+    new GarageDoorOpenCommand($garageDoor)
+]);
+$remote->setCommand(4, $nightMode);
+
+echo "--- Presionando botones ---\\n";
+$remote->pressButton(0);
+$remote->pressButton(2);
+
+echo "\\n--- Activando modo noche ---\\n";
+$remote->pressButton(4);
+
+echo "\\n--- Deshacer ---\\n";
+$remote->pressUndo();
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Command:</strong><br>
+            • <strong>Undo/Redo</strong>: Fácil implementar deshacer/rehacer<br>
+            • <strong>Desacoplamiento</strong>: Separa quien invoca de quien ejecuta<br>
+            • <strong>Composición</strong>: Crear macros combinando comandos<br>
+            • <strong>Logging</strong>: Registrar todas las operaciones<br>
+            • <strong>Queue</strong>: Encolar comandos para ejecución diferida
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Más clases</strong>: Un comando por cada acción<br>
+            • <strong>Complejidad</strong>: Puede ser excesivo para operaciones simples<br>
+            • <strong>Memoria</strong>: Historial puede consumir mucha memoria
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Cuándo Usar Command:</strong><br>
+            • Necesitas undo/redo<br>
+            • Quieres encolar operaciones<br>
+            • Necesitas logging de operaciones<br>
+            • Quieres parametrizar objetos con acciones<br>
+            • Implementar transacciones<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Operaciones muy simples<br>
+            • No necesitas historial ni undo<br>
+            • Performance crítica
+        </div>
+    `,
+    'patron-iterator': `
+        <h1>Patrón Iterator (Iterador)</h1>
+        
+        <p>El <strong>patrón Iterator</strong> proporciona una forma de acceder secuencialmente a los elementos de un objeto agregado sin exponer su representación subyacente.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Iterator?</strong><br>
+            • <strong>Propósito</strong>: Recorrer colecciones sin exponer estructura interna<br>
+            • <strong>Problema</strong>: Acceder a elementos de diferentes estructuras de datos<br>
+            • <strong>Solución</strong>: Interfaz común para recorrer cualquier colección<br>
+            • <strong>Analogía</strong>: Como un cursor de base de datos<br>
+            • <strong>Tipo</strong>: Patrón de comportamiento
+        </div>
+
+        <h3>Iterator Nativo de PHP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// PHP tiene interfaz Iterator nativa
+
+class BookCollection implements Iterator {
+    private array $books = [];
+    private int $position = 0;
+    
+    public function addBook(string $book): void {
+        $this->books[] = $book;
+    }
+    
+    public function current(): mixed {
+        return $this->books[$this->position];
+    }
+    
+    public function key(): mixed {
+        return $this->position;
+    }
+    
+    public function next(): void {
+        $this->position++;
+    }
+    
+    public function rewind(): void {
+        $this->position = 0;
+    }
+    
+    public function valid(): bool {
+        return isset($this->books[$this->position]);
+    }
+}
+
+// Uso
+$collection = new BookCollection();
+$collection->addBook("Clean Code");
+$collection->addBook("Design Patterns");
+$collection->addBook("Refactoring");
+
+foreach ($collection as $key => $book) {
+    echo "{$key}: {$book}\\n";
+}
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Iterador Personalizado de Productos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Iterador con filtros y ordenamiento
+
+class Product {
+    public function __construct(
+        public string $name,
+        public float $price,
+        public string $category
+    ) {}
+}
+
+class ProductIterator implements Iterator {
+    private int $position = 0;
+    
+    public function __construct(private array $products) {}
+    
+    public function current(): Product {
+        return $this->products[$this->position];
+    }
+    
+    public function key(): int {
+        return $this->position;
+    }
+    
+    public function next(): void {
+        $this->position++;
+    }
+    
+    public function rewind(): void {
+        $this->position = 0;
+    }
+    
+    public function valid(): bool {
+        return isset($this->products[$this->position]);
+    }
+}
+
+class ProductCollection implements IteratorAggregate {
+    private array $products = [];
+    
+    public function addProduct(Product $product): void {
+        $this->products[] = $product;
+    }
+    
+    public function getIterator(): ProductIterator {
+        return new ProductIterator($this->products);
+    }
+    
+    public function getByCategory(string $category): ProductIterator {
+        $filtered = array_filter(
+            $this->products,
+            fn($p) => $p->category === $category
+        );
+        return new ProductIterator(array_values($filtered));
+    }
+    
+    public function getByPriceRange(float $min, float $max): ProductIterator {
+        $filtered = array_filter(
+            $this->products,
+            fn($p) => $p->price >= $min && $p->price <= $max
+        );
+        return new ProductIterator(array_values($filtered));
+    }
+}
+
+// Uso
+$products = new ProductCollection();
+$products->addProduct(new Product("Laptop", 999, "Electronics"));
+$products->addProduct(new Product("Mouse", 29, "Electronics"));
+$products->addProduct(new Product("Desk", 299, "Furniture"));
+
+echo "--- Todos los productos ---\\n";
+foreach ($products as $product) {
+    echo "{$product->name}: {$product->price}€\\n";
+}
+
+echo "\\n--- Solo electrónicos ---\\n";
+foreach ($products->getByCategory("Electronics") as $product) {
+    echo "{$product->name}: {$product->price}€\\n";
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Iterator:</strong><br>
+            • <strong>Encapsulación</strong>: Oculta estructura interna<br>
+            • <strong>Múltiples iteradores</strong>: Varios recorridos simultáneos<br>
+            • <strong>SRP</strong>: Separa lógica de recorrido de la colección<br>
+            • <strong>Polimorfismo</strong>: Interfaz común para diferentes colecciones
+        </div>
+    `,
+    'patron-state': `
+        <h1>Patrón State (Estado)</h1>
+        
+        <p>El <strong>patrón State</strong> permite que un objeto altere su comportamiento cuando su estado interno cambia. El objeto parecerá cambiar de clase.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón State?</strong><br>
+            • <strong>Propósito</strong>: Cambiar comportamiento según estado interno<br>
+            • <strong>Problema</strong>: Múltiples if/else según estado<br>
+            • <strong>Solución</strong>: Encapsular cada estado en una clase<br>
+            • <strong>Analogía</strong>: Como un reproductor de música (play, pause, stop)<br>
+            • <strong>Tipo</strong>: Patrón de comportamiento
+        </div>
+
+        <h3>Ejemplo Real: Pedido con Estados</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de pedidos con diferentes estados
+
+interface OrderState {
+    public function process(Order $order): void;
+    public function ship(Order $order): void;
+    public function deliver(Order $order): void;
+    public function cancel(Order $order): void;
+}
+
+class PendingState implements OrderState {
+    public function process(Order $order): void {
+        echo "⚙️ Procesando pedido...\n";
+        $order->setState(new ProcessingState());
+    }
+    
+    public function ship(Order $order): void {
+        echo "❌ No se puede enviar un pedido pendiente\n";
+    }
+    
+    public function deliver(Order $order): void {
+        echo "❌ No se puede entregar un pedido pendiente\n";
+    }
+    
+    public function cancel(Order $order): void {
+        echo "🚫 Pedido cancelado\n";
+        $order->setState(new CancelledState());
+    }
+}
+
+class ProcessingState implements OrderState {
+    public function process(Order $order): void {
+        echo "❌ El pedido ya está en proceso\n";
+    }
+    
+    public function ship(Order $order): void {
+        echo "📦 Enviando pedido...\n";
+        $order->setState(new ShippedState());
+    }
+    
+    public function deliver(Order $order): void {
+        echo "❌ No se puede entregar sin enviar primero\n";
+    }
+    
+    public function cancel(Order $order): void {
+        echo "🚫 Pedido cancelado\n";
+        $order->setState(new CancelledState());
+    }
+}
+
+class ShippedState implements OrderState {
+    public function process(Order $order): void {
+        echo "❌ El pedido ya fue procesado\n";
+    }
+    
+    public function ship(Order $order): void {
+        echo "❌ El pedido ya fue enviado\n";
+    }
+    
+    public function deliver(Order $order): void {
+        echo "✅ Pedido entregado\n";
+        $order->setState(new DeliveredState());
+    }
+    
+    public function cancel(Order $order): void {
+        echo "❌ No se puede cancelar un pedido enviado\n";
+    }
+}
+
+class DeliveredState implements OrderState {
+    public function process(Order $order): void {
+        echo "❌ El pedido ya fue entregado\n";
+    }
+    
+    public function ship(Order $order): void {
+        echo "❌ El pedido ya fue entregado\n";
+    }
+    
+    public function deliver(Order $order): void {
+        echo "❌ El pedido ya fue entregado\n";
+    }
+    
+    public function cancel(Order $order): void {
+        echo "❌ No se puede cancelar un pedido entregado\n";
+    }
+}
+
+class CancelledState implements OrderState {
+    public function process(Order $order): void {
+        echo "❌ El pedido está cancelado\n";
+    }
+    
+    public function ship(Order $order): void {
+        echo "❌ El pedido está cancelado\n";
+    }
+    
+    public function deliver(Order $order): void {
+        echo "❌ El pedido está cancelado\n";
+    }
+    
+    public function cancel(Order $order): void {
+        echo "❌ El pedido ya está cancelado\n";
+    }
+}
+
+class Order {
+    private OrderState $state;
+    
+    public function __construct(private int $id) {
+        $this->state = new PendingState();
+    }
+    
+    public function setState(OrderState $state): void {
+        $this->state = $state;
+    }
+    
+    public function process(): void {
+        $this->state->process($this);
+    }
+    
+    public function ship(): void {
+        $this->state->ship($this);
+    }
+    
+    public function deliver(): void {
+        $this->state->deliver($this);
+    }
+    
+    public function cancel(): void {
+        $this->state->cancel($this);
+    }
+}
+
+// Uso
+$order = new Order(123);
+$order->process();
+$order->ship();
+$order->deliver();
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del State:</strong><br>
+            • <strong>SRP</strong>: Cada estado en su propia clase<br>
+            • <strong>OCP</strong>: Fácil añadir nuevos estados<br>
+            • <strong>Elimina condicionales</strong>: No más if/else gigantes<br>
+            • <strong>Claridad</strong>: Transiciones de estado explícitas
+        </div>
+    `,
+    'patron-template-method': `
+        <h1>Patrón Template Method (Método Plantilla)</h1>
+        
+        <p>El <strong>patrón Template Method</strong> define el esqueleto de un algoritmo en una operación, delegando algunos pasos a las subclases. Permite que las subclases redefinan ciertos pasos sin cambiar la estructura del algoritmo.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Template Method?</strong><br>
+            • <strong>Propósito</strong>: Definir estructura de algoritmo, delegar detalles<br>
+            • <strong>Problema</strong>: Código duplicado con pequeñas variaciones<br>
+            • <strong>Solución</strong>: Método plantilla con pasos abstractos<br>
+            • <strong>Analogía</strong>: Como una receta de cocina con pasos variables<br>
+            • <strong>Tipo</strong>: Patrón de comportamiento
+        </div>
+
+        <h3>Ejemplo Real: Procesamiento de Documentos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Procesador de documentos con template method
+
+abstract class DocumentProcessor {
+    // Template Method
+    final public function process(): void {
+        $this->openDocument();
+        $this->parseContent();
+        $this->validateData();
+        $this->saveToDatabase();
+        $this->closeDocument();
+        echo "✅ Documento procesado\n";
+    }
+    
+    protected function openDocument(): void {
+        echo "📂 Abriendo documento...\n";
+    }
+    
+    // Métodos abstractos que subclases deben implementar
+    abstract protected function parseContent(): void;
+    abstract protected function validateData(): void;
+    
+    protected function saveToDatabase(): void {
+        echo "💾 Guardando en base de datos...\n";
+    }
+    
+    protected function closeDocument(): void {
+        echo "🔒 Cerrando documento\n";
+    }
+}
+
+class PDFProcessor extends DocumentProcessor {
+    protected function parseContent(): void {
+        echo "📄 Parseando contenido PDF...\n";
+    }
+    
+    protected function validateData(): void {
+        echo "✓ Validando datos PDF\n";
+    }
+}
+
+class XMLProcessor extends DocumentProcessor {
+    protected function parseContent(): void {
+        echo "🏷️ Parseando contenido XML...\n";
+    }
+    
+    protected function validateData(): void {
+        echo "✓ Validando esquema XML\n";
+    }
+}
+
+// Uso
+$pdfProcessor = new PDFProcessor();
+$pdfProcessor->process();
+
+echo "\n";
+
+$xmlProcessor = new XMLProcessor();
+$xmlProcessor->process();
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Template Method:</strong><br>
+            • <strong>Reutilización</strong>: Código común en clase base<br>
+            • <strong>Control</strong>: Estructura del algoritmo fija<br>
+            • <strong>DRY</strong>: Evita duplicación de código<br>
+            • <strong>Extensibilidad</strong>: Fácil añadir variantes
+        </div>
+    `,
+    'patron-chain-responsibility': `
+        <h1>Patrón Chain of Responsibility (Cadena de Responsabilidad)</h1>
+        
+        <p>El <strong>patrón Chain of Responsibility</strong> evita acoplar el emisor de una solicitud a su receptor, dando a más de un objeto la oportunidad de manejar la solicitud. Encadena los objetos receptores y pasa la solicitud a lo largo de la cadena hasta que un objeto la maneje.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es Chain of Responsibility?</strong><br>
+            • <strong>Propósito</strong>: Pasar solicitud por cadena de manejadores<br>
+            • <strong>Problema</strong>: Múltiples objetos pueden manejar una solicitud<br>
+            • <strong>Solución</strong>: Cadena de manejadores que procesan o pasan<br>
+            • <strong>Analogía</strong>: Como escalado de soporte técnico (nivel 1, 2, 3)<br>
+            • <strong>Tipo</strong>: Patrón de comportamiento
+        </div>
+
+        <h3>Ejemplo Real: Sistema de Autenticación</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Middleware de autenticación en cadena
+
+abstract class AuthHandler {
+    private ?AuthHandler $next = null;
+    
+    public function setNext(AuthHandler $handler): AuthHandler {
+        $this->next = $handler;
+        return $handler;
+    }
+    
+    public function handle(array $request): bool {
+        if ($this->check($request)) {
+            if ($this->next) {
+                return $this->next->handle($request);
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    abstract protected function check(array $request): bool;
+}
+
+class RateLimitHandler extends AuthHandler {
+    protected function check(array $request): bool {
+        echo "🚦 Verificando límite de peticiones...\n";
+        // Simular verificación
+        return true;
+    }
+}
+
+class AuthenticationHandler extends AuthHandler {
+    protected function check(array $request): bool {
+        echo "🔐 Verificando credenciales...\n";
+        return isset($request['token']) && $request['token'] === 'valid';
+    }
+}
+
+class AuthorizationHandler extends AuthHandler {
+    protected function check(array $request): bool {
+        echo "👮 Verificando permisos...\n";
+        return isset($request['role']) && $request['role'] === 'admin';
+    }
+}
+
+class ValidationHandler extends AuthHandler {
+    protected function check(array $request): bool {
+        echo "✓ Validando datos...\n";
+        return !empty($request['data']);
+    }
+}
+
+// Uso
+$rateLimit = new RateLimitHandler();
+$auth = new AuthenticationHandler();
+$authz = new AuthorizationHandler();
+$validation = new ValidationHandler();
+
+$rateLimit->setNext($auth)
+          ->setNext($authz)
+          ->setNext($validation);
+
+$request = [
+    'token' => 'valid',
+    'role' => 'admin',
+    'data' => ['name' => 'Juan']
+];
+
+if ($rateLimit->handle($request)) {
+    echo "✅ Solicitud autorizada\n";
+} else {
+    echo "❌ Solicitud denegada\n";
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de Chain of Responsibility:</strong><br>
+            • <strong>Desacoplamiento</strong>: Emisor no conoce receptor<br>
+            • <strong>Flexibilidad</strong>: Cambiar cadena dinámicamente<br>
+            • <strong>SRP</strong>: Cada handler una responsabilidad<br>
+            • <strong>OCP</strong>: Fácil añadir nuevos handlers
+        </div>
+    `,
+    
+    // 2. Fundamentos y Componentes de Symfony
+    'arquitectura-kernel-bundles': `
+        <h1>Arquitectura del Kernel y Bundles</h1>
+        
+        <p>El <strong>Kernel</strong> es el corazón de Symfony. Es el componente central que inicializa la aplicación, registra bundles, maneja peticiones HTTP y coordina todos los componentes del framework.</p>
+
+        <div class="info-box">
+            <strong>🎯 ¿Qué es el Kernel?</strong><br>
+            El Kernel es la clase principal que:<br><br>
+            • <strong>Inicializa</strong> la aplicación Symfony<br>
+            • <strong>Registra</strong> todos los bundles<br>
+            • <strong>Compila</strong> el contenedor de servicios<br>
+            • <strong>Maneja</strong> peticiones HTTP y las convierte en respuestas<br>
+            • <strong>Gestiona</strong> entornos (dev, prod, test)
+        </div>
+
+        <h2>Estructura del Kernel</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Kernel.php - El Kernel de tu aplicación
+
+namespace App;
+
+use Symfony\\Bundle\\FrameworkBundle\\Kernel\\MicroKernelTrait;
+use Symfony\\Component\\HttpKernel\\Kernel as BaseKernel;
+
+class Kernel extends BaseKernel
+{
+    use MicroKernelTrait;
+
+    // 1. Registrar bundles
+    public function registerBundles(): iterable
+    {
+        $contents = require $this->getProjectDir().'/config/bundles.php';
+        
+        foreach ($contents as $class => $envs) {
+            if ($envs[$this->environment] ?? $envs['all'] ?? false) {
+                yield new $class();
+            }
+        }
+    }
+    
+    // 2. Configurar rutas
+    protected function configureRoutes(): void
+    {
+        $this->import('../config/{routes}/'.$this->environment.'/*.yaml');
+        $this->import('../config/{routes}/*.yaml');
+    }
+    
+    // 3. Configurar contenedor
+    protected function configureContainer(): void
+    {
+        $this->import('../config/{packages}/*.yaml');
+        $this->import('../config/{packages}/'.$this->environment.'/*.yaml');
+        $this->import('../config/{services}.yaml');
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Ciclo de Vida del Kernel</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// public/index.php - Punto de entrada
+
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+
+return function (array $context) {
+    // 1. Crear instancia del Kernel
+    $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+    
+    // 2. Crear Request desde globales PHP
+    $request = Request::createFromGlobals();
+    
+    // 3. Manejar request y obtener response
+    $response = $kernel->handle($request);
+    
+    // 4. Enviar response al navegador
+    $response->send();
+    
+    // 5. Terminar request
+    $kernel->terminate($request, $response);
+};
+?&gt;</code></pre></div>
+
+        <h3>Proceso Interno del Kernel</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Proceso simplificado de handle()
+
+class Kernel extends BaseKernel
+{
+    public function handle(Request $request): Response
+    {
+        // 1. Boot: Inicializar bundles y contenedor
+        if (!$this->booted) {
+            $this->boot();
+        }
+        
+        // 2. Dispatch evento kernel.request
+        $event = new RequestEvent($this, $request);
+        $this->dispatcher->dispatch($event, KernelEvents::REQUEST);
+        
+        // 3. Resolver controlador
+        $controller = $this->resolver->getController($request);
+        
+        // 4. Dispatch evento kernel.controller
+        $event = new ControllerEvent($this, $controller, $request);
+        $this->dispatcher->dispatch($event, KernelEvents::CONTROLLER);
+        
+        // 5. Ejecutar controlador
+        $response = $controller($request);
+        
+        // 6. Dispatch evento kernel.response
+        $event = new ResponseEvent($this, $request, $response);
+        $this->dispatcher->dispatch($event, KernelEvents::RESPONSE);
+        
+        // 7. Retornar response
+        return $event->getResponse();
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>¿Qué son los Bundles?</h2>
+        <div class="info-box">
+            <strong>📦 Bundle</strong><br>
+            Un Bundle es un <strong>paquete reutilizable</strong> de código que agrupa funcionalidad relacionada. Es similar a un plugin o módulo en otros frameworks.<br><br>
+            • Contiene: Controladores, servicios, configuración, templates, assets<br>
+            • Se registra en el Kernel<br>
+            • Puede extender otros bundles<br>
+            • Puede ser compartido entre proyectos
+        </div>
+
+        <h3>Estructura de un Bundle</h3>
+        <div class="code-block"><pre><code>src/
+└── MyCustomBundle/
+    ├── Controller/
+    │   └── DefaultController.php
+    ├── DependencyInjection/
+    │   ├── Configuration.php          # Configuración del bundle
+    │   └── MyCustomExtension.php      # Carga servicios
+    ├── Resources/
+    │   ├── config/
+    │   │   └── services.yaml
+    │   └── views/
+    │       └── default/
+    │           └── index.html.twig
+    ├── Service/
+    │   └── MyService.php
+    └── MyCustomBundle.php             # Clase principal del bundle
+?&gt;</code></pre></div>
+
+        <h3>Crear un Bundle Personalizado</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/MyCustomBundle/MyCustomBundle.php
+
+namespace App\\MyCustomBundle;
+
+use Symfony\\Component\\HttpKernel\\Bundle\\Bundle;
+
+class MyCustomBundle extends Bundle
+{
+    // Métodos opcionales para personalizar el bundle
+    
+    public function boot(): void
+    {
+        // Ejecutado cuando el bundle se inicializa
+        parent::boot();
+    }
+    
+    public function build(ContainerBuilder $container): void
+    {
+        // Registrar compiler passes, extensiones, etc.
+        parent::build($container);
+        
+        $container->addCompilerPass(new CustomCompilerPass());
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>Extension: Cargar Configuración</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/MyCustomBundle/DependencyInjection/MyCustomExtension.php
+
+namespace App\\MyCustomBundle\\DependencyInjection;
+
+use Symfony\\Component\\Config\\FileLocator;
+use Symfony\\Component\\DependencyInjection\\ContainerBuilder;
+use Symfony\\Component\\DependencyInjection\\Extension\\Extension;
+use Symfony\\Component\\DependencyInjection\\Loader\\YamlFileLoader;
+
+class MyCustomExtension extends Extension
+{
+    public function load(array $configs, ContainerBuilder $container): void
+    {
+        // 1. Procesar configuración
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+        
+        // 2. Registrar parámetros
+        $container->setParameter('my_custom.api_key', $config['api_key']);
+        
+        // 3. Cargar servicios
+        $loader = new YamlFileLoader(
+            $container,
+            new FileLocator(__DIR__.'/../Resources/config')
+        );
+        $loader->load('services.yaml');
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>Configuration: Definir Opciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/MyCustomBundle/DependencyInjection/Configuration.php
+
+namespace App\\MyCustomBundle\\DependencyInjection;
+
+use Symfony\\Component\\Config\\Definition\\Builder\\TreeBuilder;
+use Symfony\\Component\\Config\\Definition\\ConfigurationInterface;
+
+class Configuration implements ConfigurationInterface
+{
+    public function getConfigTreeBuilder(): TreeBuilder
+    {
+        $treeBuilder = new TreeBuilder('my_custom');
+        
+        $treeBuilder->getRootNode()
+            ->children()
+                ->scalarNode('api_key')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                ->end()
+                ->arrayNode('options')
+                    ->children()
+                        ->booleanNode('debug')->defaultFalse()->end()
+                        ->integerNode('timeout')->defaultValue(30)->end()
+                    ->end()
+                ->end()
+            ->end();
+        
+        return $treeBuilder;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Bundles Principales de Symfony</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// config/bundles.php - Bundles registrados
+
+return [
+    // Core
+    Symfony\\Bundle\\FrameworkBundle\\FrameworkBundle::class => ['all' => true],
+    
+    // Doctrine ORM
+    Doctrine\\Bundle\\DoctrineBundle\\DoctrineBundle::class => ['all' => true],
+    Doctrine\\Bundle\\MigrationsBundle\\DoctrineMigrationsBundle::class => ['all' => true],
+    
+    // Twig
+    Symfony\\Bundle\\TwigBundle\\TwigBundle::class => ['all' => true],
+    
+    // Security
+    Symfony\\Bundle\\SecurityBundle\\SecurityBundle::class => ['all' => true],
+    
+    // Maker (solo dev)
+    Symfony\\Bundle\\MakerBundle\\MakerBundle::class => ['dev' => true],
+    
+    // Debug (solo dev)
+    Symfony\\Bundle\\DebugBundle\\DebugBundle::class => ['dev' => true, 'test' => true],
+    Symfony\\Bundle\\WebProfilerBundle\\WebProfilerBundle::class => ['dev' => true, 'test' => true],
+];
+?&gt;</code></pre></div>
+
+        <h2>Entornos del Kernel</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Symfony soporta múltiples entornos
+
+// 1. Desarrollo (dev)
+$kernel = new Kernel('dev', true);  // debug = true
+// - Profiler activo
+// - Sin caché de configuración
+// - Errores detallados
+
+// 2. Producción (prod)
+$kernel = new Kernel('prod', false);  // debug = false
+// - Sin profiler
+// - Caché optimizado
+// - Errores genéricos
+
+// 3. Testing (test)
+$kernel = new Kernel('test', true);
+// - Base de datos de prueba
+// - Sin emails reales
+// - Configuración aislada
+?&gt;</code></pre></div>
+
+        <h3>Variables de Entorno</h3>
+        <div class="code-block"><pre><code># .env - Configuración del entorno
+
+APP_ENV=dev
+APP_DEBUG=1
+APP_SECRET=your-secret-key
+
+# Cambiar entorno
+APP_ENV=prod    # Producción
+APP_ENV=test    # Testing
+APP_ENV=dev     # Desarrollo
+?&gt;</code></pre></div>
+
+        <h2>Ejemplo Práctico: Custom Bundle</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Crear un bundle para integración con API externa
+
+namespace App\\PaymentBundle;
+
+use Symfony\\Component\\HttpKernel\\Bundle\\Bundle;
+
+class PaymentBundle extends Bundle
+{
+    // Bundle para procesar pagos
+}
+
+// Extension
+class PaymentExtension extends Extension
+{
+    public function load(array $configs, ContainerBuilder $container): void
+    {
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+        
+        // Registrar servicio de pago
+        $container->register('payment.processor', PaymentProcessor::class)
+            ->setArguments([
+                $config['api_key'],
+                $config['api_secret'],
+                $config['environment']
+            ]);
+    }
+}
+
+// Uso en config/packages/payment.yaml
+payment:
+    api_key: '%env(PAYMENT_API_KEY)%'
+    api_secret: '%env(PAYMENT_API_SECRET)%'
+    environment: 'sandbox'
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de la Arquitectura Kernel + Bundles:</strong><br>
+            • <strong>Modularidad</strong>: Funcionalidad organizada en bundles<br>
+            • <strong>Reutilización</strong>: Bundles compartibles entre proyectos<br>
+            • <strong>Flexibilidad</strong>: Activar/desactivar bundles por entorno<br>
+            • <strong>Extensibilidad</strong>: Fácil extender funcionalidad<br>
+            • <strong>Separación</strong>: Cada bundle con su responsabilidad
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Buenas Prácticas:</strong><br>
+            • No crear bundles innecesarios (Symfony Flex prefiere estructura plana)<br>
+            • Usar bundles solo para código reutilizable entre proyectos<br>
+            • Preferir servicios en src/ para lógica específica de la app<br>
+            • Bundles de terceros vía Composer, no manualmente
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Resumen:</strong><br>
+            • <strong>Kernel</strong>: Corazón de Symfony, maneja todo el ciclo de vida<br>
+            • <strong>Bundles</strong>: Paquetes modulares de funcionalidad<br>
+            • <strong>Entornos</strong>: dev, prod, test con configuraciones diferentes<br>
+            • <strong>MicroKernelTrait</strong>: Simplifica configuración del kernel<br>
+            • <strong>Extension</strong>: Carga configuración y servicios del bundle
+        </div>
+    `,
+    'rutas-controladores-http': `
+        <h1>Rutas, Controladores y Respuestas HTTP</h1>
+        
+        <p>El sistema de <strong>routing</strong> de Symfony mapea URLs a controladores. Los <strong>controladores</strong> procesan peticiones y retornan <strong>respuestas HTTP</strong>.</p>
+
+        <h2>Definir Rutas con Atributos PHP 8</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/ProductController.php
+
+namespace App\\Controller;
+
+use Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;
+use Symfony\\Component\\HttpFoundation\\Response;
+use Symfony\\Component\\Routing\\Attribute\\Route;
+
+class ProductController extends AbstractController
+{
+    #[Route('/products', name: 'product_list', methods: ['GET'])]
+    public function list(): Response
+    {
+        return $this->render('product/list.html.twig');
+    }
+    
+    #[Route('/products/{id}', name: 'product_show', requirements: ['id' => '\\d+'])]
+    public function show(int $id): Response
+    {
+        return $this->json(['id' => $id]);
+    }
+    
+    #[Route('/products/new', name: 'product_new', methods: ['GET', 'POST'])]
+    public function new(Request $request): Response
+    {
+        // Crear producto
+        return $this->redirectToRoute('product_list');
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Tipos de Respuestas</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\HttpFoundation\\Response;
+use Symfony\\Component\\HttpFoundation\\JsonResponse;
+use Symfony\\Component\\HttpFoundation\\RedirectResponse;
+use Symfony\\Component\\HttpFoundation\\BinaryFileResponse;
+
+// 1. Response HTML
+return new Response('<h1>Hola</h1>');
+
+// 2. Response con Twig
+return $this->render('template.html.twig', ['data' => $data]);
+
+// 3. JSON Response
+return $this->json(['status' => 'success']);
+
+// 4. Redirect
+return $this->redirectToRoute('route_name', ['id' => 123]);
+
+// 5. File Download
+return $this->file('/path/to/file.pdf');
+
+// 6. Stream Response
+return new StreamedResponse(function() {
+    echo 'Streaming...';
+});
+?&gt;</code></pre></div>
+
+        <h2>Parámetros de Ruta</h2>
+        <div class="code-block"><pre><code>&lt;?php
+#[Route('/blog/{slug}', name: 'blog_show')]
+public function show(string $slug): Response
+{
+    // $slug automáticamente inyectado
+}
+
+// Parámetros opcionales
+#[Route('/blog/{page}', name: 'blog_list', defaults: ['page' => 1])]
+public function list(int $page): Response { }
+
+// Requisitos (regex)
+#[Route('/api/{version}', requirements: ['version' => 'v1|v2'])]
+public function api(string $version): Response { }
+?&gt;</code></pre></div>
+    `,
+    'plantillas-twig-extensiones': `
+        <h1>Plantillas Twig y sus Extensiones</h1>
+        
+        <p><strong>Twig</strong> es el motor de plantillas de Symfony. Proporciona sintaxis clara, seguridad (auto-escaping) y extensibilidad.</p>
+
+        <h2>Sintaxis Básica de Twig</h2>
+        <div class="code-block"><pre><code>{# templates/product/show.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body %}
+    <h1>{{ product.name }}</h1>
+    <p>Precio: {{ product.price|number_format(2) }}€</p>
+    
+    {# Condicionales #}
+    {% if product.stock > 0 %}
+        <span class="available">Disponible</span>
+    {% else %}
+        <span class="sold-out">Agotado</span>
+    {% endif %}
+    
+    {# Bucles #}
+    {% for image in product.images %}
+        <img src="{{ image.url }}" alt="{{ image.alt }}">
+    {% endfor %}
+    
+    {# Incluir parciales #}
+    {% include 'product/_reviews.html.twig' %}
+{% endblock %}
+?&gt;</code></pre></div>
+
+        <h2>Filtros de Twig</h2>
+        <div class="code-block"><pre><code>{# Filtros comunes #}
+
+{{ name|upper }}                    {# MAYÚSCULAS #}
+{{ text|lower }}                    {# minúsculas #}
+{{ date|date('Y-m-d') }}           {# Formatear fecha #}
+{{ price|number_format(2) }}       {# 1234.56 #}
+{{ html|striptags }}               {# Quitar HTML #}
+{{ text|truncate(100) }}           {# Truncar texto #}
+{{ array|length }}                 {# Longitud #}
+{{ value|default('N/A') }}         {# Valor por defecto #}
+{{ text|escape }}                  {# Escapar HTML #}
+?&gt;</code></pre></div>
+
+        <h2>Crear Extensión Twig Personalizada</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Twig/AppExtension.php
+
+namespace App\\Twig;
+
+use Twig\\Extension\\AbstractExtension;
+use Twig\\TwigFilter;
+use Twig\\TwigFunction;
+
+class AppExtension extends AbstractExtension
+{
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('price', [$this, 'formatPrice']),
+        ];
+    }
+    
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('area', [$this, 'calculateArea']),
+        ];
+    }
+    
+    public function formatPrice(float $price): string
+    {
+        return number_format($price, 2) . '€';
+    }
+    
+    public function calculateArea(int $width, int $height): int
+    {
+        return $width * $height;
+    }
+}
+
+// Uso en Twig:
+// {{ product.price|price }}
+// {{ area(10, 20) }}
+?&gt;</code></pre></div>
+    `,
+    'inyeccion-dependencias-contenedor': `
+        <h1>Inyección de Dependencias y Contenedor de Servicios</h1>
+        
+        <p>El <strong>Contenedor de Servicios</strong> (Service Container) es el corazón de la inyección de dependencias en Symfony. Gestiona la creación y configuración de objetos.</p>
+
+        <h2>Definir Servicios</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Service/MailerService.php
+
+namespace App\\Service;
+
+class MailerService
+{
+    public function __construct(
+        private string $from,
+        private LoggerInterface $logger
+    ) {}
+    
+    public function send(string $to, string $subject): void
+    {
+        $this->logger->info("Sending email to {$to}");
+        // Lógica de envío
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Configurar Servicios (YAML)</h2>
+        <div class="code-block"><pre><code># config/services.yaml
+
+services:
+    _defaults:
+        autowire: true      # Inyección automática
+        autoconfigure: true # Auto-configuración
+
+    App\\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Servicio específico
+    App\\Service\\MailerService:
+        arguments:
+            $from: '%env(MAILER_FROM)%'
+?&gt;</code></pre></div>
+
+        <h2>Inyección en Controladores</h2>
+        <div class="code-block"><pre><code>&lt;?php
+class ProductController extends AbstractController
+{
+    #[Route('/products')]
+    public function list(
+        ProductRepository $repository,
+        MailerService $mailer
+    ): Response {
+        $products = $repository->findAll();
+        return $this->render('product/list.html.twig', [
+            'products' => $products
+        ]);
+    }
+}
+?&gt;</code></pre></div>
+    `,
+    'ciclo-vida-peticion-http': `
+        <h1>Ciclo de Vida de una Petición HTTP</h1>
+        
+        <p>Comprender el <strong>ciclo de vida de una petición</strong> es fundamental para trabajar con Symfony efectivamente.</p>
+
+        <h2>Flujo Completo</h2>
+        <div class="code-block"><pre><code>1. Request llega a public/index.php
+   ↓
+2. Kernel::handle(Request) se ejecuta
+   ↓
+3. Evento: kernel.request
+   - Firewalls de seguridad
+   - Locale listener
+   ↓
+4. Router resuelve la ruta
+   ↓
+5. Evento: kernel.controller
+   - ParamConverter
+   - Security voters
+   ↓
+6. Controller se ejecuta
+   ↓
+7. Evento: kernel.view (si no hay Response)
+   ↓
+8. Evento: kernel.response
+   - Profiler
+   - CORS headers
+   ↓
+9. Response se envía al cliente
+   ↓
+10. Evento: kernel.terminate
+    - Tareas asíncronas
+    - Logging
+?&gt;</code></pre></div>
+
+        <h2>Eventos del Kernel</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;
+use Symfony\\Component\\HttpKernel\\Event\\RequestEvent;
+use Symfony\\Component\\HttpKernel\\Event\\ResponseEvent;
+use Symfony\\Component\\HttpKernel\\KernelEvents;
+
+class RequestSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::REQUEST => 'onKernelRequest',
+            KernelEvents::RESPONSE => 'onKernelResponse',
+        ];
+    }
+    
+    public function onKernelRequest(RequestEvent $event): void
+    {
+        $request = $event->getRequest();
+        // Modificar request antes del controller
+    }
+    
+    public function onKernelResponse(ResponseEvent $event): void
+    {
+        $response = $event->getResponse();
+        // Modificar response antes de enviar
+        $response->headers->set('X-Custom-Header', 'value');
+    }
+}
+?&gt;</code></pre></div>
+    `,
+    'consola-symfony-bin-console': `
+        <h1>Consola de Symfony (bin/console)</h1>
+        
+        <p>La <strong>consola de Symfony</strong> proporciona comandos CLI para tareas comunes: cache, debug, migraciones, etc.</p>
+
+        <h2>Comandos Esenciales</h2>
+        <div class="code-block"><pre><code># Listar todos los comandos
+php bin/console list
+
+# Limpiar caché
+php bin/console cache:clear
+
+# Ver rutas
+php bin/console debug:router
+
+# Ver servicios
+php bin/console debug:container
+
+# Ver configuración
+php bin/console debug:config framework
+
+# Crear entidad
+php bin/console make:entity Product
+
+# Crear controlador
+php bin/console make:controller ProductController
+
+# Ejecutar migraciones
+php bin/console doctrine:migrations:migrate
+?&gt;</code></pre></div>
+
+        <h2>Crear Comando Personalizado</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Command/SendNewsletterCommand.php
+
+namespace App\\Command;
+
+use Symfony\\Component\\Console\\Attribute\\AsCommand;
+use Symfony\\Component\\Console\\Command\\Command;
+use Symfony\\Component\\Console\\Input\\InputInterface;
+use Symfony\\Component\\Console\\Output\\OutputInterface;
+use Symfony\\Component\\Console\\Input\\InputArgument;
+
+#[AsCommand(
+    name: 'app:send-newsletter',
+    description: 'Envía newsletter a usuarios'
+)]
+class SendNewsletterCommand extends Command
+{
+    protected function configure(): void
+    {
+        $this->addArgument('email', InputArgument::REQUIRED, 'Email del destinatario');
+    }
+    
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $email = $input->getArgument('email');
+        
+        $output->writeln("Enviando newsletter a {$email}...");
+        
+        // Lógica de envío
+        
+        $output->writeln('<info>Newsletter enviado!</info>');
+        
+        return Command::SUCCESS;
+    }
+}
+
+// Ejecutar: php bin/console app:send-newsletter user@example.com
+?&gt;</code></pre></div>
+    `,
+    'configuracion-variables-dotenv': `
+        <h1>Configuración y Variables de Entorno (DotEnv)</h1>
+        
+        <p>Symfony usa archivos <strong>.env</strong> para gestionar configuración sensible y específica del entorno.</p>
+
+        <h2>Archivos de Entorno</h2>
+        <div class="code-block"><pre><code># .env - Valores por defecto (commitear)
+APP_ENV=dev
+APP_SECRET=change-me
+DATABASE_URL="mysql://user:pass@127.0.0.1:3306/dbname"
+
+# .env.local - Sobrescribe .env (NO commitear)
+DATABASE_URL="mysql://root:@127.0.0.1:3306/mydb_local"
+
+# .env.prod - Producción
+APP_ENV=prod
+APP_DEBUG=0
+
+# .env.test - Testing
+DATABASE_URL="sqlite:///%kernel.project_dir%/var/test.db"
+?&gt;</code></pre></div>
+
+        <h2>Usar Variables de Entorno</h2>
+        <div class="code-block"><pre><code># config/packages/framework.yaml
+
+framework:
+    secret: '%env(APP_SECRET)%'
+    
+# En servicios
+services:
+    App\\Service\\ApiClient:
+        arguments:
+            $apiKey: '%env(API_KEY)%'
+            $apiUrl: '%env(API_URL)%'
+?&gt;</code></pre></div>
+
+        <h2>Acceder en PHP</h2>
+        <div class="code-block"><pre><code>&lt;?php
+class ApiClient
+{
+    public function __construct(
+        private string $apiKey,
+        private string $apiUrl
+    ) {}
+}
+
+// O directamente (no recomendado)
+$secret = $_ENV['APP_SECRET'];
+$secret = getenv('APP_SECRET');
+?&gt;</code></pre></div>
+
+        <h2>Procesadores de Variables</h2>
+        <div class="code-block"><pre><code># Convertir a base64
+APP_SECRET: '%env(base64:SECRET_KEY)%'
+
+# Resolver archivo
+CERT_PATH: '%env(file:resolve:CERT_FILE)%'
+
+# JSON decode
+API_CONFIG: '%env(json:API_CONFIG_JSON)%'
+
+# Valor por defecto
+API_TIMEOUT: '%env(default:api_timeout_default:API_TIMEOUT)%'
+?&gt;</code></pre></div>
+    `,
+    
+    // 3. Doctrine ORM
+    'mapeo-entidades-repositorios': `
+        <h1>Mapeo de Entidades y Repositorios</h1>
+        
+        <p><strong>Doctrine ORM</strong> es el Object-Relational Mapper de Symfony. Permite trabajar con bases de datos usando objetos PHP en lugar de SQL directo.</p>
+
+        <div class="info-box">
+            <strong>🎯 ¿Qué es una Entidad?</strong><br>
+            Una <strong>Entidad</strong> es una clase PHP que representa una tabla de base de datos. Cada instancia de la entidad representa una fila.<br><br>
+            • Mapeada a tabla con atributos PHP 8<br>
+            • Propiedades = columnas<br>
+            • Métodos getter/setter para acceso<br>
+            • Gestionada por EntityManager
+        </div>
+
+        <h2>Crear una Entidad</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Entity/Product.php
+
+namespace App\\Entity;
+
+use Doctrine\\ORM\\Mapping as ORM;
+
+#[ORM\\Entity(repositoryClass: ProductRepository::class)]
+#[ORM\\Table(name: 'products')]
+class Product
+{
+    #[ORM\\Id]
+    #[ORM\\GeneratedValue]
+    #[ORM\\Column(type: 'integer')]
+    private ?int $id = null;
+
+    #[ORM\\Column(type: 'string', length: 255)]
+    private string $name;
+
+    #[ORM\\Column(type: 'decimal', precision: 10, scale: 2)]
+    private float $price;
+
+    #[ORM\\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\\Column(type: 'datetime')]
+    private \\DateTimeInterface $createdAt;
+
+    public function __construct()
+    {
+        $this->createdAt = new \\DateTime();
+    }
+
+    // Getters y Setters
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getPrice(): float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(float $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Tipos de Columnas</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Tipos de datos comunes en Doctrine
+
+#[ORM\\Column(type: 'string', length: 255)]        // VARCHAR(255)
+private string $name;
+
+#[ORM\\Column(type: 'text')]                       // TEXT
+private string $description;
+
+#[ORM\\Column(type: 'integer')]                    // INT
+private int $quantity;
+
+#[ORM\\Column(type: 'decimal', precision: 10, scale: 2)]  // DECIMAL(10,2)
+private float $price;
+
+#[ORM\\Column(type: 'boolean')]                    // BOOLEAN
+private bool $isActive;
+
+#[ORM\\Column(type: 'datetime')]                   // DATETIME
+private \\DateTimeInterface $createdAt;
+
+#[ORM\\Column(type: 'json')]                       // JSON
+private array $metadata;
+
+#[ORM\\Column(type: 'string', nullable: true)]     // NULL permitido
+private ?string $optional = null;
+?&gt;</code></pre></div>
+
+        <h2>Repositorios</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Repository/ProductRepository.php
+
+namespace App\\Repository;
+
+use App\\Entity\\Product;
+use Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository;
+use Doctrine\\Persistence\\ManagerRegistry;
+
+class ProductRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Product::class);
+    }
+
+    // Métodos de búsqueda personalizados
+    public function findByPriceRange(float $min, float $max): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.price >= :min')
+            ->andWhere('p.price <= :max')
+            ->setParameter('min', $min)
+            ->setParameter('max', $max)
+            ->orderBy('p.price', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findActiveProducts(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.isActive = true')
+            ->getQuery()
+            ->getResult();
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Operaciones CRUD</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Doctrine\\ORM\\EntityManagerInterface;
+
+class ProductController extends AbstractController
+{
+    // CREATE
+    #[Route('/product/new')]
+    public function new(EntityManagerInterface $em): Response
+    {
+        $product = new Product();
+        $product->setName('Laptop');
+        $product->setPrice(999.99);
+        
+        $em->persist($product);  // Preparar para guardar
+        $em->flush();            // Ejecutar INSERT
+        
+        return $this->json(['id' => $product->getId()]);
+    }
+    
+    // READ
+    #[Route('/product/{id}')]
+    public function show(Product $product): Response
+    {
+        // ParamConverter automáticamente busca por ID
+        return $this->json([
+            'name' => $product->getName(),
+            'price' => $product->getPrice()
+        ]);
+    }
+    
+    // UPDATE
+    #[Route('/product/{id}/edit')]
+    public function edit(Product $product, EntityManagerInterface $em): Response
+    {
+        $product->setPrice(899.99);
+        
+        // No necesita persist() para entidades ya gestionadas
+        $em->flush();  // Ejecutar UPDATE
+        
+        return $this->json(['success' => true]);
+    }
+    
+    // DELETE
+    #[Route('/product/{id}/delete')]
+    public function delete(Product $product, EntityManagerInterface $em): Response
+    {
+        $em->remove($product);  // Marcar para eliminar
+        $em->flush();           // Ejecutar DELETE
+        
+        return $this->json(['success' => true]);
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Métodos de Búsqueda del Repositorio</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Métodos heredados de EntityRepository
+
+// Buscar por ID
+$product = $repository->find(1);
+
+// Buscar uno por criterios
+$product = $repository->findOneBy(['name' => 'Laptop']);
+
+// Buscar todos
+$products = $repository->findAll();
+
+// Buscar por criterios
+$products = $repository->findBy(
+    ['isActive' => true],      // Criterios
+    ['price' => 'DESC'],       // Orden
+    10,                        // Límite
+    0                          // Offset
+);
+?&gt;</code></pre></div>
+    `,
+    'migraciones-doctrine-migrations': `
+        <h1>Migraciones de Base de Datos con Doctrine Migrations</h1>
+        
+        <p>Las <strong>migraciones</strong> son archivos versionados que modifican el esquema de la base de datos de forma controlada y reversible.</p>
+
+        <h2>Comandos de Migraciones</h2>
+        <div class="code-block"><pre><code># Crear migración automática (compara entidades con BD)
+php bin/console make:migration
+
+# Ver estado de migraciones
+php bin/console doctrine:migrations:status
+
+# Ejecutar migraciones pendientes
+php bin/console doctrine:migrations:migrate
+
+# Ejecutar migración específica
+php bin/console doctrine:migrations:execute --up 20231119120000
+
+# Revertir última migración
+php bin/console doctrine:migrations:migrate prev
+
+# Ver SQL sin ejecutar
+php bin/console doctrine:migrations:migrate --dry-run
+?&gt;</code></pre></div>
+
+        <h2>Archivo de Migración</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// migrations/Version20231119120000.php
+
+namespace DoctrineMigrations;
+
+use Doctrine\\DBAL\\Schema\\Schema;
+use Doctrine\\Migrations\\AbstractMigration;
+
+final class Version20231119120000 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Crear tabla products';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $this->addSql('CREATE TABLE products (
+            id INT AUTO_INCREMENT NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            price NUMERIC(10, 2) NOT NULL,
+            created_at DATETIME NOT NULL,
+            PRIMARY KEY(id)
+        ) DEFAULT CHARACTER SET utf8mb4');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $this->addSql('DROP TABLE products');
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Flujo de Trabajo</h2>
+        <div class="code-block"><pre><code>1. Modificar entidad (agregar campo)
+   ↓
+2. php bin/console make:migration
+   ↓
+3. Revisar archivo de migración generado
+   ↓
+4. php bin/console doctrine:migrations:migrate
+   ↓
+5. Cambios aplicados a BD
+?&gt;</code></pre></div>
+    `,
+    'dql-doctrine-query-language': `
+        <h1>DQL (Doctrine Query Language)</h1>
+        
+        <p><strong>DQL</strong> es un lenguaje de consultas orientado a objetos similar a SQL pero que trabaja con entidades en lugar de tablas.</p>
+
+        <h2>Query Builder</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Consultas con QueryBuilder (recomendado)
+
+$products = $repository->createQueryBuilder('p')
+    ->where('p.price > :price')
+    ->setParameter('price', 100)
+    ->orderBy('p.name', 'ASC')
+    ->setMaxResults(10)
+    ->getQuery()
+    ->getResult();
+
+// Con JOIN
+$products = $repository->createQueryBuilder('p')
+    ->leftJoin('p.category', 'c')
+    ->addSelect('c')
+    ->where('c.name = :category')
+    ->setParameter('category', 'Electronics')
+    ->getQuery()
+    ->getResult();
+
+// Agregaciones
+$total = $repository->createQueryBuilder('p')
+    ->select('SUM(p.price) as total')
+    ->getQuery()
+    ->getSingleScalarResult();
+?&gt;</code></pre></div>
+
+        <h2>DQL Puro</h2>
+        <div class="code-block"><pre><code>&lt;?php
+$dql = 'SELECT p FROM App\\Entity\\Product p WHERE p.price > :price';
+
+$query = $em->createQuery($dql);
+$query->setParameter('price', 100);
+$products = $query->getResult();
+
+// Un solo resultado
+$product = $query->getSingleResult();
+
+// Resultado escalar
+$count = $query->getSingleScalarResult();
+?&gt;</code></pre></div>
+
+        <h2>Métodos de Resultado</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Array de objetos
+$products = $query->getResult();
+
+// Un solo objeto (lanza excepción si no existe o hay más de uno)
+$product = $query->getSingleResult();
+
+// Un solo objeto o null
+$product = $query->getOneOrNullResult();
+
+// Valor escalar (para COUNT, SUM, etc.)
+$total = $query->getSingleScalarResult();
+
+// Array de arrays (en lugar de objetos)
+$data = $query->getArrayResult();
+?&gt;</code></pre></div>
+    `,
+    'relaciones-entidades': `
+        <h1>Relaciones entre Entidades</h1>
+        
+        <p>Doctrine soporta los 4 tipos de relaciones: <strong>OneToOne</strong>, <strong>ManyToOne</strong>, <strong>OneToMany</strong> y <strong>ManyToMany</strong>.</p>
+
+        <h2>ManyToOne / OneToMany</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Product (Many) -> Category (One)
+class Product
+{
+    #[ORM\\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
+    #[ORM\\JoinColumn(nullable: false)]
+    private Category $category;
+
+    public function getCategory(): Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(Category $category): self
+    {
+        $this->category = $category;
+        return $this;
+    }
+}
+
+// Category (One) -> Products (Many)
+class Category
+{
+    #[ORM\\OneToMany(targetEntity: Product::class, mappedBy: 'category')]
+    private Collection $products;
+
+    public function __construct()
+    {
+        $this->products = new ArrayCollection();
+    }
+
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+            $product->setCategory($this);
+        }
+        return $this;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>ManyToMany</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Product <-> Tag (muchos a muchos)
+class Product
+{
+    #[ORM\\ManyToMany(targetEntity: Tag::class, inversedBy: 'products')]
+    #[ORM\\JoinTable(name: 'product_tags')]
+    private Collection $tags;
+
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+        }
+        return $this;
+    }
+}
+
+class Tag
+{
+    #[ORM\\ManyToMany(targetEntity: Product::class, mappedBy: 'tags')]
+    private Collection $products;
+}
+?&gt;</code></pre></div>
+
+        <h2>OneToOne</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// User <-> Profile (uno a uno)
+class User
+{
+    #[ORM\\OneToOne(targetEntity: Profile::class, cascade: ['persist', 'remove'])]
+    private Profile $profile;
+}
+
+class Profile
+{
+    #[ORM\\OneToOne(targetEntity: User::class, mappedBy: 'profile')]
+    private User $user;
+}
+?&gt;</code></pre></div>
+    `,
+    'eventos-doctrine-lifecycle': `
+        <h1>Eventos de Doctrine (Lifecycle Callbacks)</h1>
+        
+        <p>Los <strong>eventos de ciclo de vida</strong> permiten ejecutar código automáticamente cuando ocurren ciertos eventos en las entidades.</p>
+
+        <h2>Lifecycle Callbacks en la Entidad</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Doctrine\\ORM\\Mapping as ORM;
+
+#[ORM\\Entity]
+#[ORM\\HasLifecycleCallbacks]
+class Product
+{
+    #[ORM\\Column(type: 'datetime')]
+    private \\DateTimeInterface $createdAt;
+
+    #[ORM\\Column(type: 'datetime')]
+    private \\DateTimeInterface $updatedAt;
+
+    #[ORM\\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \\DateTime();
+        $this->updatedAt = new \\DateTime();
+    }
+
+    #[ORM\\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updatedAt = new \\DateTime();
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Entity Listener</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/EventListener/ProductListener.php
+
+namespace App\\EventListener;
+
+use App\\Entity\\Product;
+use Doctrine\\ORM\\Event\\PrePersistEventArgs;
+use Doctrine\\ORM\\Event\\PreUpdateEventArgs;
+
+class ProductListener
+{
+    public function prePersist(Product $product, PrePersistEventArgs $args): void
+    {
+        // Lógica antes de INSERT
+    }
+
+    public function preUpdate(Product $product, PreUpdateEventArgs $args): void
+    {
+        // Lógica antes de UPDATE
+    }
+}
+
+// config/services.yaml
+services:
+    App\\EventListener\\ProductListener:
+        tags:
+            - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\\Entity\\Product }
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\\Entity\\Product }
+?&gt;</code></pre></div>
+
+        <h2>Eventos Disponibles</h2>
+        <div class="code-block"><pre><code>prePersist    - Antes de INSERT
+postPersist   - Después de INSERT
+
+preUpdate     - Antes de UPDATE
+postUpdate    - Después de UPDATE
+
+preRemove     - Antes de DELETE
+postRemove    - Después de DELETE
+
+postLoad      - Después de cargar desde BD
+?&gt;</code></pre></div>
+    `,
+    'fixtures-datos-doctrinefixtures': `
+        <h1>Fixtures de Datos con DoctrineFixturesBundle</h1>
+        
+        <p>Los <strong>fixtures</strong> son datos de prueba que se cargan en la base de datos para desarrollo y testing.</p>
+
+        <h2>Instalar Fixtures</h2>
+        <div class="code-block"><pre><code>composer require --dev orm-fixtures
+?&gt;</code></pre></div>
+
+        <h2>Crear Fixture</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/DataFixtures/ProductFixtures.php
+
+namespace App\\DataFixtures;
+
+use App\\Entity\\Product;
+use Doctrine\\Bundle\\FixturesBundle\\Fixture;
+use Doctrine\\Persistence\\ObjectManager;
+
+class ProductFixtures extends Fixture
+{
+    public function load(ObjectManager $manager): void
+    {
+        // Crear 10 productos
+        for ($i = 1; $i <= 10; $i++) {
+            $product = new Product();
+            $product->setName('Product ' . $i);
+            $product->setPrice(rand(10, 1000));
+            $product->setDescription('Description for product ' . $i);
+            
+            $manager->persist($product);
+        }
+
+        $manager->flush();
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Cargar Fixtures</h2>
+        <div class="code-block"><pre><code># Cargar todos los fixtures (BORRA datos existentes)
+php bin/console doctrine:fixtures:load
+
+# Agregar sin borrar (append)
+php bin/console doctrine:fixtures:load --append
+
+# Cargar fixture específico
+php bin/console doctrine:fixtures:load --group=dev
+?&gt;</code></pre></div>
+
+        <h2>Fixtures con Relaciones</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Doctrine\\Common\\DataFixtures\\DependentFixtureInterface;
+
+class ProductFixtures extends Fixture implements DependentFixtureInterface
+{
+    public function load(ObjectManager $manager): void
+    {
+        $product = new Product();
+        $product->setName('Laptop');
+        
+        // Obtener referencia de otro fixture
+        $category = $this->getReference('category-electronics');
+        $product->setCategory($category);
+        
+        $manager->persist($product);
+        $manager->flush();
+    }
+
+    public function getDependencies(): array
+    {
+        return [CategoryFixtures::class];
+    }
+}
+
+class CategoryFixtures extends Fixture
+{
+    public function load(ObjectManager $manager): void
+    {
+        $category = new Category();
+        $category->setName('Electronics');
+        
+        $manager->persist($category);
+        $manager->flush();
+        
+        // Guardar referencia para otros fixtures
+        $this->addReference('category-electronics', $category);
+    }
+}
+?&gt;</code></pre></div>
+    `,
+    'caching-consultas-resultados': `
+        <h1>Caching de Consultas y Resultados</h1>
+        
+        <p>Doctrine proporciona <strong>caché de consultas</strong> y <strong>caché de resultados</strong> para mejorar el rendimiento.</p>
+
+        <h2>Configurar Caché</h2>
+        <div class="code-block"><pre><code># config/packages/doctrine.yaml
+
+doctrine:
+    orm:
+        metadata_cache_driver:
+            type: pool
+            pool: doctrine.system_cache_pool
+        query_cache_driver:
+            type: pool
+            pool: doctrine.query_cache_pool
+        result_cache_driver:
+            type: pool
+            pool: doctrine.result_cache_pool
+
+framework:
+    cache:
+        pools:
+            doctrine.result_cache_pool:
+                adapter: cache.app
+            doctrine.system_cache_pool:
+                adapter: cache.system
+            doctrine.query_cache_pool:
+                adapter: cache.app
+?&gt;</code></pre></div>
+
+        <h2>Usar Caché de Resultados</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Cachear resultado de consulta
+$query = $repository->createQueryBuilder('p')
+    ->where('p.isActive = true')
+    ->getQuery()
+    ->useResultCache(true, 3600, 'active_products_cache'); // TTL: 1 hora
+
+$products = $query->getResult();
+
+// Invalidar caché
+$cache = $em->getConfiguration()->getResultCache();
+$cache->delete('active_products_cache');
+?&gt;</code></pre></div>
+
+        <h2>Second Level Cache</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Habilitar en entidad
+#[ORM\\Entity]
+#[ORM\\Cache(usage: 'NONSTRICT_READ_WRITE', region: 'product_cache')]
+class Product
+{
+    // ...
+}
+
+// Configuración
+doctrine:
+    orm:
+        second_level_cache:
+            enabled: true
+            region_cache_driver:
+                type: pool
+                pool: doctrine.second_level_cache_pool
+?&gt;</code></pre></div>
+
+        <div class="warning-box">
+            <strong>⚠️ Importante:</strong><br>
+            • El caché puede causar datos obsoletos<br>
+            • Usar TTL apropiado según caso de uso<br>
+            • Invalidar caché cuando datos cambian<br>
+            • Monitorear uso de memoria
+        </div>
+    `,
+    
+    // 4. Formas y Validaciones
+    'creacion-formularios-form': `
+        <h1>Creación de Formularios con el Componente Form</h1>
+        
+        <p>El <strong>componente Form</strong> de Symfony es uno de los más potentes del framework. Permite crear, renderizar y procesar formularios de manera declarativa, con validación automática y protección CSRF integrada.</p>
+
+        <div class="info-box">
+            <strong>🎯 ¿Por qué usar el Componente Form?</strong><br>
+            • <strong>Abstracción</strong>: Define formularios en PHP, no HTML<br>
+            • <strong>Validación automática</strong>: Integración con el componente Validator<br>
+            • <strong>Reutilización</strong>: Formularios como clases reutilizables<br>
+            • <strong>Seguridad</strong>: Protección CSRF automática<br>
+            • <strong>Mapeo automático</strong>: De request a entidades<br>
+            • <strong>Temas personalizables</strong>: Control total del HTML generado
+        </div>
+
+        <h2>Instalación</h2>
+        <div class="code-block"><pre><code>composer require symfony/form
+composer require symfony/validator
+composer require symfony/twig-bundle
+?></code></pre></div>
+
+        <h2>Crear un Formulario Simple</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Form/ProductType.php
+
+namespace App\\Form;
+
+use App\\Entity\\Product;
+use Symfony\\Component\\Form\\AbstractType;
+use Symfony\\Component\\Form\\Extension\\Core\\Type\\TextType;
+use Symfony\\Component\\Form\\Extension\\Core\\Type\\NumberType;
+use Symfony\\Component\\Form\\Extension\\Core\\Type\\TextareaType;
+use Symfony\\Component\\Form\\Extension\\Core\\Type\\SubmitType;
+use Symfony\\Component\\Form\\FormBuilderInterface;
+use Symfony\\Component\\OptionsResolver\\OptionsResolver;
+
+class ProductType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name', TextType::class, [
+                'label' => 'Nombre del Producto',
+                'attr' => [
+                    'placeholder' => 'Ingrese el nombre',
+                    'class' => 'form-control'
+                ],
+                'required' => true
+            ])
+            ->add('price', NumberType::class, [
+                'label' => 'Precio',
+                'scale' => 2,
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('description', TextareaType::class, [
+                'label' => 'Descripción',
+                'required' => false,
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control'
+                ]
+            ])
+            ->add('save', SubmitType::class, [
+                'label' => 'Guardar Producto',
+                'attr' => ['class' => 'btn btn-primary']
+            ]);
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Product::class,
+        ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Usar el Formulario en un Controlador</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/ProductController.php
+
+namespace App\\Controller;
+
+use App\\Entity\\Product;
+use App\\Form\\ProductType;
+use Doctrine\\ORM\\EntityManagerInterface;
+use Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;
+use Symfony\\Component\\HttpFoundation\\Request;
+use Symfony\\Component\\HttpFoundation\\Response;
+use Symfony\\Component\\Routing\\Attribute\\Route;
+
+class ProductController extends AbstractController
+{
+    #[Route('/product/new', name: 'product_new')]
+    public function new(Request $request, EntityManagerInterface $em): Response
+    {
+        // 1. Crear instancia de la entidad
+        $product = new Product();
+        
+        // 2. Crear el formulario
+        $form = $this->createForm(ProductType::class, $product);
+        
+        // 3. Manejar el request
+        $form->handleRequest($request);
+        
+        // 4. Verificar si el formulario fue enviado y es válido
+        if ($form->isSubmitted() && $form->isValid()) {
+            // $product ahora contiene los datos del formulario
+            
+            // 5. Guardar en base de datos
+            $em->persist($product);
+            $em->flush();
+            
+            // 6. Mensaje flash y redirección
+            $this->addFlash('success', 'Producto creado exitosamente!');
+            
+            return $this->redirectToRoute('product_list');
+        }
+        
+        // 7. Renderizar template con el formulario
+        return $this->render('product/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Editar una Entidad Existente</h2>
+        <div class="code-block"><pre><code>&lt;?php
+#[Route('/product/{id}/edit', name: 'product_edit')]
+public function edit(
+    Product $product, 
+    Request $request, 
+    EntityManagerInterface $em
+): Response {
+    // El formulario se crea con la entidad existente
+    $form = $this->createForm(ProductType::class, $product);
+    
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        // No necesita persist() porque la entidad ya está gestionada
+        $em->flush();
+        
+        $this->addFlash('success', 'Producto actualizado!');
+        
+        return $this->redirectToRoute('product_show', [
+            'id' => $product->getId()
+        ]);
+    }
+    
+    return $this->render('product/edit.html.twig', [
+        'form' => $form->createView(),
+        'product' => $product,
+    ]);
+}
+?></code></pre></div>
+
+        <h2>Formulario sin Entidad (DTO)</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Para formularios que no mapean directamente a una entidad
+
+class ContactType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name', TextType::class)
+            ->add('email', EmailType::class)
+            ->add('subject', TextType::class)
+            ->add('message', TextareaType::class)
+            ->add('send', SubmitType::class);
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        // Sin data_class, devuelve array asociativo
+        $resolver->setDefaults([]);
+    }
+}
+
+// En el controlador
+#[Route('/contact', name: 'contact')]
+public function contact(Request $request): Response
+{
+    $form = $this->createForm(ContactType::class);
+    
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        // Obtener datos como array
+        $data = $form->getData();
+        
+        // $data = [
+        //     'name' => 'John Doe',
+        //     'email' => 'john@example.com',
+        //     'subject' => 'Consulta',
+        //     'message' => 'Hola...'
+        // ]
+        
+        // Procesar datos (enviar email, etc.)
+        
+        return $this->redirectToRoute('contact_success');
+    }
+    
+    return $this->render('contact/index.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+?></code></pre></div>
+
+        <h2>Crear Formulario Directamente en el Controlador</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Para formularios simples, sin crear clase FormType
+
+#[Route('/search', name: 'product_search')]
+public function search(Request $request): Response
+{
+    $form = $this->createFormBuilder()
+        ->add('query', TextType::class, [
+            'label' => 'Buscar',
+            'required' => false
+        ])
+        ->add('category', ChoiceType::class, [
+            'choices' => [
+                'Electrónica' => 'electronics',
+                'Ropa' => 'clothing',
+                'Libros' => 'books',
+            ],
+            'required' => false
+        ])
+        ->add('search', SubmitType::class, ['label' => 'Buscar'])
+        ->getForm();
+    
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        $data = $form->getData();
+        
+        // Realizar búsqueda con $data['query'] y $data['category']
+    }
+    
+    return $this->render('product/search.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+?></code></pre></div>
+
+        <h2>Validación con Constraints</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Validator\\Constraints as Assert;
+
+class ProductType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name', TextType::class, [
+                'constraints' => [
+                    new Assert\\NotBlank([
+                        'message' => 'El nombre no puede estar vacío'
+                    ]),
+                    new Assert\\Length([
+                        'min' => 3,
+                        'max' => 255,
+                        'minMessage' => 'El nombre debe tener al menos {{ limit }} caracteres',
+                        'maxMessage' => 'El nombre no puede exceder {{ limit }} caracteres',
+                    ]),
+                ],
+            ])
+            ->add('price', NumberType::class, [
+                'constraints' => [
+                    new Assert\\NotBlank(),
+                    new Assert\\Positive([
+                        'message' => 'El precio debe ser positivo'
+                    ]),
+                    new Assert\\LessThan([
+                        'value' => 10000,
+                        'message' => 'El precio no puede exceder {{ compared_value }}'
+                    ]),
+                ],
+            ])
+            ->add('email', EmailType::class, [
+                'constraints' => [
+                    new Assert\\Email([
+                        'message' => 'El email {{ value }} no es válido',
+                    ]),
+                ],
+            ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Opciones Comunes de Campos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+$builder->add('fieldName', TextType::class, [
+    // Etiqueta del campo
+    'label' => 'Nombre del Campo',
+    
+    // Campo requerido
+    'required' => true,
+    
+    // Valor por defecto
+    'data' => 'Valor inicial',
+    
+    // Atributos HTML
+    'attr' => [
+        'class' => 'form-control',
+        'placeholder' => 'Ingrese valor',
+        'maxlength' => 100,
+    ],
+    
+    // Atributos del label
+    'label_attr' => [
+        'class' => 'form-label'
+    ],
+    
+    // Ayuda/descripción
+    'help' => 'Texto de ayuda para el usuario',
+    
+    // Deshabilitar campo
+    'disabled' => false,
+    
+    // Mapear a propiedad diferente
+    'property_path' => 'differentProperty',
+    
+    // No mapear a ninguna propiedad
+    'mapped' => false,
+]);
+?></code></pre></div>
+
+        <h2>Eventos de Formulario</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Form\\FormEvent;
+use Symfony\\Component\\Form\\FormEvents;
+
+class ProductType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('name', TextType::class);
+        
+        // PRE_SET_DATA: Antes de poblar el formulario con datos
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            $product = $event->getData();
+            $form = $event->getForm();
+            
+            // Agregar campos dinámicamente según los datos
+            if ($product && $product->getId()) {
+                $form->add('updatedAt', DateTimeType::class, [
+                    'disabled' => true
+                ]);
+            }
+        });
+        
+        // PRE_SUBMIT: Antes de vincular datos del request
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            $data = $event->getData();
+            
+            // Modificar datos antes de vincular
+            if (isset($data['name'])) {
+                $data['name'] = strtoupper($data['name']);
+                $event->setData($data);
+            }
+        });
+        
+        // POST_SUBMIT: Después de vincular y validar
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            $product = $event->getData();
+            
+            // Lógica adicional después de validación
+        });
+    }
+}
+?></code></pre></div>
+
+        <h2>Formularios Anidados</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Formulario para entidad con relación
+
+class OrderType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('orderNumber', TextType::class)
+            ->add('customer', CustomerType::class)  // Formulario anidado
+            ->add('items', CollectionType::class, [
+                'entry_type' => OrderItemType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+            ]);
+    }
+}
+
+class CustomerType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name', TextType::class)
+            ->add('email', EmailType::class)
+            ->add('phone', TelType::class);
+    }
+}
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Componente Form:</strong><br>
+            • <strong>Productividad</strong>: Menos código HTML manual<br>
+            • <strong>Mantenibilidad</strong>: Formularios centralizados y reutilizables<br>
+            • <strong>Validación</strong>: Integrada y automática<br>
+            • <strong>Seguridad</strong>: CSRF, XSS protection automática<br>
+            • <strong>Flexibilidad</strong>: Eventos, extensiones, temas personalizados
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Buenas Prácticas:</strong><br>
+            • Crear clases FormType para formularios reutilizables<br>
+            • Usar FormBuilder solo para formularios muy simples<br>
+            • Validar en la entidad con atributos, no solo en el formulario<br>
+            • Usar eventos para lógica dinámica compleja<br>
+            • Separar lógica de negocio del formulario
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Resumen:</strong><br>
+            • <strong>FormType</strong>: Clase que define estructura del formulario<br>
+            • <strong>buildForm()</strong>: Método donde se agregan campos<br>
+            • <strong>handleRequest()</strong>: Procesa datos del request<br>
+            • <strong>isSubmitted()</strong>: Verifica si formulario fue enviado<br>
+            • <strong>isValid()</strong>: Ejecuta validación<br>
+            • <strong>getData()</strong>: Obtiene datos procesados
+        </div>
+    `,
+    'tipos-campos-opciones': `
+        <h1>Tipos de Campos y Opciones Avanzados</h1>
+        
+        <p>Symfony proporciona más de <strong>40 tipos de campos</strong> predefinidos para cubrir casi cualquier necesidad. Cada tipo tiene opciones específicas para personalizar su comportamiento.</p>
+
+        <h2>Tipos de Campos de Texto</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Form\\Extension\\Core\\Type\\*;
+
+// TextType - Input de texto simple
+$builder->add('name', TextType::class, [
+    'attr' => ['maxlength' => 100]
+]);
+
+// TextareaType - Área de texto multilínea
+$builder->add('description', TextareaType::class, [
+    'attr' => ['rows' => 5, 'cols' => 50]
+]);
+
+// EmailType - Input type="email"
+$builder->add('email', EmailType::class);
+
+// PasswordType - Input type="password"
+$builder->add('password', PasswordType::class, [
+    'always_empty' => false  // No vaciar en edición
+]);
+
+// SearchType - Input type="search"
+$builder->add('query', SearchType::class);
+
+// UrlType - Input type="url"
+$builder->add('website', UrlType::class, [
+    'default_protocol' => 'https'
+]);
+
+// TelType - Input type="tel"
+$builder->add('phone', TelType::class);
+
+// ColorType - Input type="color"
+$builder->add('favoriteColor', ColorType::class);
+?&gt;</code></pre></div>
+
+        <h2>Tipos Numéricos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// NumberType - Números decimales
+$builder->add('price', NumberType::class, [
+    'scale' => 2,  // Decimales
+    'rounding_mode' => \\NumberFormatter::ROUND_HALFUP
+]);
+
+// IntegerType - Solo enteros
+$builder->add('quantity', IntegerType::class, [
+    'attr' => ['min' => 0, 'max' => 1000]
+]);
+
+// MoneyType - Campos monetarios
+$builder->add('amount', MoneyType::class, [
+    'currency' => 'EUR',
+    'divisor' => 100  // Almacenar en centavos
+]);
+
+// PercentType - Porcentajes
+$builder->add('discount', PercentType::class, [
+    'type' => 'integer',  // 0-100 en lugar de 0-1
+    'symbol' => '%'
+]);
+
+// RangeType - Input type="range" (slider)
+$builder->add('volume', RangeType::class, [
+    'attr' => [
+        'min' => 0,
+        'max' => 100,
+        'step' => 5
+    ]
+]);
+?&gt;</code></pre></div>
+
+        <h2>Tipos de Fecha y Hora</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// DateType - Selector de fecha
+$builder->add('birthDate', DateType::class, [
+    'widget' => 'single_text',  // HTML5 date picker
+    'format' => 'yyyy-MM-dd',
+    'years' => range(date('Y') - 100, date('Y'))
+]);
+
+// TimeType - Selector de hora
+$builder->add('startTime', TimeType::class, [
+    'widget' => 'single_text',  // HTML5 time picker
+    'input' => 'datetime',
+    'with_seconds' => false
+]);
+
+// DateTimeType - Fecha y hora
+$builder->add('publishedAt', DateTimeType::class, [
+    'widget' => 'single_text',
+    'html5' => true
+]);
+
+// DateIntervalType - Intervalos de tiempo
+$builder->add('duration', DateIntervalType::class, [
+    'widget' => 'integer',
+    'with_years' => false,
+    'with_months' => false,
+    'with_days' => true,
+    'with_hours' => true
+]);
+
+// BirthdayType - Fechas de nacimiento (optimizado)
+$builder->add('birthday', BirthdayType::class, [
+    'placeholder' => [
+        'year' => 'Año', 'month' => 'Mes', 'day' => 'Día'
+    ]
+]);
+?&gt;</code></pre></div>
+
+        <h2>Tipos de Selección</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// ChoiceType - Select, radio buttons, checkboxes
+$builder->add('category', ChoiceType::class, [
+    'choices' => [
+        'Electrónica' => 'electronics',
+        'Ropa' => 'clothing',
+        'Libros' => 'books',
+    ],
+    'expanded' => false,  // false = select, true = radio/checkbox
+    'multiple' => false,  // false = radio/select, true = checkbox
+    'placeholder' => 'Seleccione una categoría',
+    'choice_attr' => function($choice, $key, $value) {
+        return ['data-price' => $value === 'electronics' ? '1000' : '100'];
+    }
+]);
+
+// EntityType - Select de entidades Doctrine
+$builder->add('category', EntityType::class, [
+    'class' => Category::class,
+    'choice_label' => 'name',  // Propiedad a mostrar
+    'query_builder' => function (CategoryRepository $repo) {
+        return $repo->createQueryBuilder('c')
+            ->where('c.active = true')
+            ->orderBy('c.name', 'ASC');
+    },
+    'multiple' => false,
+    'expanded' => false
+]);
+
+// CountryType - Selector de países
+$builder->add('country', CountryType::class, [
+    'preferred_choices' => ['ES', 'FR', 'DE'],
+    'placeholder' => 'Seleccione un país'
+]);
+
+// LanguageType - Selector de idiomas
+$builder->add('language', LanguageType::class, [
+    'preferred_choices' => ['es', 'en', 'fr']
+]);
+
+// LocaleType - Selector de locales
+$builder->add('locale', LocaleType::class);
+
+// TimezoneType - Selector de zonas horarias
+$builder->add('timezone', TimezoneType::class);
+
+// CurrencyType - Selector de monedas
+$builder->add('currency', CurrencyType::class);
+?&gt;</code></pre></div>
+
+        <h2>Tipos Booleanos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// CheckboxType - Checkbox simple
+$builder->add('agreeTerms', CheckboxType::class, [
+    'label' => 'Acepto los términos y condiciones',
+    'required' => true,
+    'mapped' => false  // No mapear a entidad
+]);
+
+// RadioType - Radio button individual
+$builder->add('gender', ChoiceType::class, [
+    'choices' => [
+        'Masculino' => 'm',
+        'Femenino' => 'f',
+        'Otro' => 'o'
+    ],
+    'expanded' => true,  // Renderizar como radio buttons
+    'multiple' => false
+]);
+?&gt;</code></pre></div>
+
+        <h2>Tipos de Colección</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// CollectionType - Colección dinámica de formularios
+$builder->add('emails', CollectionType::class, [
+    'entry_type' => EmailType::class,
+    'entry_options' => [
+        'label' => false,
+        'attr' => ['class' => 'email-input']
+    ],
+    'allow_add' => true,     // Permitir agregar
+    'allow_delete' => true,  // Permitir eliminar
+    'by_reference' => false, // Importante para OneToMany
+    'prototype' => true,     // Generar template JS
+    'prototype_name' => '__name__',
+    'label' => 'Emails de contacto'
+]);
+
+// Ejemplo con formularios anidados
+$builder->add('phoneNumbers', CollectionType::class, [
+    'entry_type' => PhoneNumberType::class,
+    'allow_add' => true,
+    'allow_delete' => true,
+    'by_reference' => false
+]);
+?&gt;</code></pre></div>
+
+        <h2>Tipos de Archivo</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// FileType - Subida de archivos
+$builder->add('attachment', FileType::class, [
+    'label' => 'Adjuntar archivo (PDF)',
+    'mapped' => false,
+    'required' => false,
+    'constraints' => [
+        new File([
+            'maxSize' => '5M',
+            'mimeTypes' => [
+                'application/pdf',
+                'application/x-pdf',
+            ],
+            'mimeTypesMessage' => 'Por favor suba un PDF válido',
+        ])
+    ],
+]);
+?&gt;</code></pre></div>
+
+        <h2>Tipos Ocultos y Especiales</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// HiddenType - Input hidden
+$builder->add('token', HiddenType::class, [
+    'data' => bin2hex(random_bytes(32))
+]);
+
+// ButtonType - Botón simple (no submit)
+$builder->add('cancel', ButtonType::class, [
+    'attr' => ['class' => 'btn btn-secondary']
+]);
+
+// SubmitType - Botón submit
+$builder->add('save', SubmitType::class, [
+    'label' => 'Guardar',
+    'attr' => ['class' => 'btn btn-primary']
+]);
+
+// ResetType - Botón reset
+$builder->add('reset', ResetType::class);
+?&gt;</code></pre></div>
+
+        <h2>Opciones Avanzadas Comunes</h2>
+        <div class="code-block"><pre><code>&lt;?php
+$builder->add('field', TextType::class, [
+    // Transformadores de datos
+    'empty_data' => '',  // Valor cuando está vacío
+    
+    // Validación
+    'constraints' => [/* ... */],
+    'invalid_message' => 'Valor inválido',
+    
+    // Mapeo
+    'property_path' => 'differentProperty',
+    'mapped' => true,
+    'by_reference' => true,
+    
+    // Herencia
+    'inherit_data' => false,
+    
+    // Prioridad de renderizado
+    'priority' => 0,
+    
+    // Autocompletado
+    'autocomplete' => true,
+    
+    // Traducción
+    'label_translation_parameters' => ['%name%' => 'valor'],
+    'attr_translation_parameters' => [],
+    
+    // Ayuda
+    'help' => 'Texto de ayuda',
+    'help_attr' => ['class' => 'help-text'],
+    'help_html' => false,
+]);
+?&gt;</code></pre></div>
+
+        <h2>Campos Dinámicos con Eventos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Form\\FormEvent;
+use Symfony\\Component\\Form\\FormEvents;
+
+class ProductType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('category', EntityType::class, [
+            'class' => Category::class,
+            'placeholder' => 'Seleccione categoría'
+        ]);
+        
+        // Agregar subcategoría dinámicamente
+        $formModifier = function (FormInterface $form, ?Category $category) {
+            $subcategories = $category ? $category->getSubcategories() : [];
+            
+            $form->add('subcategory', EntityType::class, [
+                'class' => Subcategory::class,
+                'choices' => $subcategories,
+                'placeholder' => 'Seleccione subcategoría',
+            ]);
+        };
+        
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function (FormEvent $event) use ($formModifier) {
+                $product = $event->getData();
+                $formModifier($event->getForm(), $product?->getCategory());
+            }
+        );
+        
+        $builder->get('category')->addEventListener(
+            FormEvents::POST_SUBMIT,
+            function (FormEvent $event) use ($formModifier) {
+                $category = $event->getForm()->getData();
+                $formModifier($event->getForm()->getParent(), $category);
+            }
+        );
+    }
+}
+?&gt;</code></pre></div>
+
+        <div class="info-box">
+            <strong>🎯 Tipos de Campos Más Usados:</strong><br>
+            • <strong>TextType</strong>: Texto simple<br>
+            • <strong>EmailType</strong>: Emails con validación<br>
+            • <strong>ChoiceType</strong>: Selects, radios, checkboxes<br>
+            • <strong>EntityType</strong>: Relaciones con Doctrine<br>
+            • <strong>DateType</strong>: Fechas<br>
+            • <strong>FileType</strong>: Subida de archivos<br>
+            • <strong>CollectionType</strong>: Formularios dinámicos
+        </div>
+    `,
+    'manejo-subida-archivos': `
+        <h1>Manejo de Subida de Archivos en Formularios</h1>
+        
+        <p>La subida de archivos en Symfony se maneja con el tipo <strong>FileType</strong> y el componente <strong>File</strong> de Symfony. Es importante validar, procesar y almacenar archivos de forma segura.</p>
+
+        <h2>Configuración Básica</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Entity/Product.php
+
+use Symfony\\Component\\HttpFoundation\\File\\File;
+use Symfony\\Component\\Validator\\Constraints as Assert;
+
+class Product
+{
+    #[ORM\\Column(type: 'string', nullable: true)]
+    private ?string $imagePath = null;
+
+    #[Assert\\Image(
+        maxSize: '5M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
+        mimeTypesMessage: 'Por favor suba una imagen válida (JPG, PNG, GIF)'
+    )]
+    private ?File $imageFile = null;
+
+    public function getImagePath(): ?string
+    {
+        return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): self
+    {
+        $this->imagePath = $imagePath;
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile): self
+    {
+        $this->imageFile = $imageFile;
+        return $this;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Formulario con FileType</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Form/ProductType.php
+
+use Symfony\\Component\\Form\\Extension\\Core\\Type\\FileType;
+use Symfony\\Component\\Validator\\Constraints\\File;
+use Symfony\\Component\\Validator\\Constraints\\Image;
+
+class ProductType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name', TextType::class)
+            ->add('imageFile', FileType::class, [
+                'label' => 'Imagen del Producto',
+                'mapped' => false,  // No mapear directamente a la entidad
+                'required' => false,
+                'constraints' => [
+                    new Image([
+                        'maxSize' => '5M',
+                        'maxSizeMessage' => 'La imagen no puede exceder {{ limit }} {{ suffix }}',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                            'image/webp'
+                        ],
+                        'mimeTypesMessage' => 'Formato de imagen no válido',
+                        'maxWidth' => 4000,
+                        'maxHeight' => 4000,
+                        'allowPortrait' => true,
+                        'allowLandscape' => true,
+                    ])
+                ],
+            ]);
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Procesar Subida en el Controlador</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\HttpFoundation\\File\\Exception\\FileException;
+use Symfony\\Component\\HttpFoundation\\File\\UploadedFile;
+use Symfony\\Component\\String\\Slugger\\SluggerInterface;
+
+class ProductController extends AbstractController
+{
+    #[Route('/product/new', name: 'product_new')]
+    public function new(
+        Request $request,
+        EntityManagerInterface $em,
+        SluggerInterface $slugger
+    ): Response {
+        $product = new Product();
+        $form = $this->createForm(ProductType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $imageFile */
+            $imageFile = $form->get('imageFile')->getData();
+
+            if ($imageFile) {
+                // Obtener nombre original y generar nombre seguro
+                $originalFilename = pathinfo(
+                    $imageFile->getClientOriginalName(),
+                    PATHINFO_FILENAME
+                );
+                
+                // Slug para nombre seguro
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                // Mover archivo al directorio configurado
+                try {
+                    $imageFile->move(
+                        $this->getParameter('images_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Error al subir la imagen');
+                    return $this->redirectToRoute('product_new');
+                }
+
+                // Guardar nombre del archivo en la entidad
+                $product->setImagePath($newFilename);
+            }
+
+            $em->persist($product);
+            $em->flush();
+
+            $this->addFlash('success', 'Producto creado exitosamente!');
+            return $this->redirectToRoute('product_list');
+        }
+
+        return $this->render('product/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Configuración de Directorios</h2>
+        <div class="code-block"><pre><code># config/services.yaml
+
+parameters:
+    images_directory: '%kernel.project_dir%/public/uploads/images'
+    documents_directory: '%kernel.project_dir%/public/uploads/documents'
+
+services:
+    # ...
+?&gt;</code></pre></div>
+
+        <h2>Servicio de Subida de Archivos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Service/FileUploader.php
+
+namespace App\\Service;
+
+use Symfony\\Component\\HttpFoundation\\File\\Exception\\FileException;
+use Symfony\\Component\\HttpFoundation\\File\\UploadedFile;
+use Symfony\\Component\\String\\Slugger\\SluggerInterface;
+
+class FileUploader
+{
+    public function __construct(
+        private string $targetDirectory,
+        private SluggerInterface $slugger
+    ) {}
+
+    public function upload(UploadedFile $file): string
+    {
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $this->slugger->slug($originalFilename);
+        $fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+
+        try {
+            $file->move($this->getTargetDirectory(), $fileName);
+        } catch (FileException $e) {
+            throw new \\Exception('Error al subir archivo: ' . $e->getMessage());
+        }
+
+        return $fileName;
+    }
+
+    public function getTargetDirectory(): string
+    {
+        return $this->targetDirectory;
+    }
+}
+
+// config/services.yaml
+services:
+    App\\Service\\FileUploader:
+        arguments:
+            $targetDirectory: '%images_directory%'
+
+// Uso en controlador
+public function new(
+    Request $request,
+    FileUploader $fileUploader,
+    EntityManagerInterface $em
+): Response {
+    // ...
+    if ($imageFile) {
+        $newFilename = $fileUploader->upload($imageFile);
+        $product->setImagePath($newFilename);
+    }
+    // ...
+}
+?&gt;</code></pre></div>
+
+        <h2>Múltiples Archivos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Formulario
+$builder->add('attachments', FileType::class, [
+    'label' => 'Adjuntar archivos',
+    'multiple' => true,
+    'mapped' => false,
+    'required' => false,
+    'constraints' => [
+        new All([
+            new File([
+                'maxSize' => '10M',
+                'mimeTypes' => [
+                    'application/pdf',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'image/jpeg',
+                    'image/png'
+                ]
+            ])
+        ])
+    ],
+]);
+
+// Controlador
+$attachments = $form->get('attachments')->getData();
+
+if ($attachments) {
+    foreach ($attachments as $attachment) {
+        $filename = $fileUploader->upload($attachment);
+        
+        // Crear entidad para cada archivo
+        $document = new Document();
+        $document->setFilename($filename);
+        $document->setProduct($product);
+        
+        $em->persist($document);
+    }
+}
+?&gt;</code></pre></div>
+
+        <h2>Validaciones Avanzadas</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Validator\\Constraints as Assert;
+
+// Validar imagen con dimensiones
+new Assert\\Image([
+    'maxSize' => '5M',
+    'minWidth' => 200,
+    'maxWidth' => 4000,
+    'minHeight' => 200,
+    'maxHeight' => 4000,
+    'maxRatio' => 2,  // Ancho/Alto máximo
+    'minRatio' => 0.5,
+    'allowSquare' => true,
+    'allowLandscape' => true,
+    'allowPortrait' => true,
+    'detectCorrupted' => true
+]);
+
+// Validar archivo genérico
+new Assert\\File([
+    'maxSize' => '10M',
+    'mimeTypes' => [
+        'application/pdf',
+        'application/x-pdf',
+    ],
+    'mimeTypesMessage' => 'Por favor suba un PDF válido',
+    'uploadIniSizeErrorMessage' => 'El archivo excede el tamaño máximo permitido',
+    'uploadFormSizeErrorMessage' => 'El archivo es demasiado grande',
+    'uploadErrorMessage' => 'Error al subir el archivo'
+]);
+?&gt;</code></pre></div>
+
+        <h2>Eliminar Archivo Anterior</h2>
+        <div class="code-block"><pre><code>&lt;?php
+public function edit(
+    Product $product,
+    Request $request,
+    FileUploader $fileUploader,
+    EntityManagerInterface $em
+): Response {
+    $form = $this->createForm(ProductType::class, $product);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $imageFile = $form->get('imageFile')->getData();
+
+        if ($imageFile) {
+            // Eliminar imagen anterior si existe
+            if ($product->getImagePath()) {
+                $oldImagePath = $this->getParameter('images_directory') . '/' . $product->getImagePath();
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            // Subir nueva imagen
+            $newFilename = $fileUploader->upload($imageFile);
+            $product->setImagePath($newFilename);
+        }
+
+        $em->flush();
+        return $this->redirectToRoute('product_show', ['id' => $product->getId()]);
+    }
+
+    return $this->render('product/edit.html.twig', [
+        'form' => $form->createView(),
+        'product' => $product,
+    ]);
+}
+?&gt;</code></pre></div>
+
+        <h2>Mostrar Imagen en Twig</h2>
+        <div class="code-block"><pre><code>{# templates/product/show.html.twig #}
+
+{% if product.imagePath %}
+    <img src="{{ asset('uploads/images/' ~ product.imagePath) }}" 
+         alt="{{ product.name }}"
+         class="img-fluid">
+{% else %}
+    <img src="{{ asset('images/placeholder.png') }}" 
+         alt="Sin imagen"
+         class="img-fluid">
+{% endif %}
+?&gt;</code></pre></div>
+
+        <div class="warning-box">
+            <strong>⚠️ Seguridad en Subida de Archivos:</strong><br>
+            • <strong>Validar siempre</strong> tipo MIME y extensión<br>
+            • <strong>Renombrar archivos</strong> para evitar sobrescritura<br>
+            • <strong>Limitar tamaño</strong> de archivos<br>
+            • <strong>No confiar</strong> en extensión del cliente<br>
+            • <strong>Almacenar fuera</strong> del document root si es posible<br>
+            • <strong>Escanear</strong> archivos con antivirus en producción
+        </div>
+    `,
+    'grupos-validacion-contextos': `
+        <h1>Grupos de Validación y Contextos</h1>
+        
+        <p>Los <strong>grupos de validación</strong> permiten aplicar diferentes conjuntos de reglas de validación según el contexto. Esto es útil cuando una entidad necesita validaciones diferentes para crear, editar o eliminar.</p>
+
+        <h2>Definir Grupos en la Entidad</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Entity/User.php
+
+use Symfony\\Component\\Validator\\Constraints as Assert;
+
+class User
+{
+    #[ORM\\Column(type: 'string', length: 255)]
+    #[Assert\\NotBlank(groups: ['registration', 'profile'])]
+    #[Assert\\Length(
+        min: 3,
+        max: 255,
+        groups: ['registration', 'profile']
+    )]
+    private string $username;
+
+    #[ORM\\Column(type: 'string', length: 255)]
+    #[Assert\\NotBlank(groups: ['registration', 'profile'])]
+    #[Assert\\Email(groups: ['registration', 'profile'])]
+    private string $email;
+
+    #[Assert\\NotBlank(groups: ['registration'])]
+    #[Assert\\Length(
+        min: 8,
+        minMessage: 'La contraseña debe tener al menos {{ limit }} caracteres',
+        groups: ['registration']
+    )]
+    #[Assert\\Regex(
+        pattern: '/^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)/',
+        message: 'La contraseña debe contener al menos una mayúscula, una minúscula y un número',
+        groups: ['registration']
+    )]
+    private ?string $plainPassword = null;
+
+    #[ORM\\Column(type: 'boolean')]
+    #[Assert\\IsTrue(
+        message: 'Debe aceptar los términos y condiciones',
+        groups: ['registration']
+    )]
+    private bool $agreeTerms = false;
+
+    #[ORM\\Column(type: 'string', length: 20, nullable: true)]
+    #[Assert\\NotBlank(groups: ['profile_complete'])]
+    #[Assert\\Regex(
+        pattern: '/^[0-9]{9,15}$/',
+        groups: ['profile_complete']
+    )]
+    private ?string $phone = null;
+}
+?></code></pre></div>
+
+        <h2>Usar Grupos en Formularios</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Form/RegistrationFormType.php
+
+class RegistrationFormType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('username', TextType::class)
+            ->add('email', EmailType::class)
+            ->add('plainPassword', PasswordType::class)
+            ->add('agreeTerms', CheckboxType::class);
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => User::class,
+            'validation_groups' => ['registration'],  // Aplicar grupo
+        ]);
+    }
+}
+
+// src/Form/ProfileFormType.php
+
+class ProfileFormType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('username', TextType::class)
+            ->add('email', EmailType::class)
+            ->add('phone', TelType::class, ['required' => false]);
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => User::class,
+            'validation_groups' => ['profile'],  // Grupo diferente
+        ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Grupos Dinámicos con Callback</h2>
+        <div class="code-block"><pre><code>&lt;?php
+class ProductType extends AbstractType
+{
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Product::class,
+            'validation_groups' => function (FormInterface $form) {
+                $data = $form->getData();
+                
+                // Grupos según estado del producto
+                if ($data->isPublished()) {
+                    return ['Default', 'published'];
+                }
+                
+                return ['Default', 'draft'];
+            },
+        ]);
+    }
+}
+
+// En la entidad
+class Product
+{
+    #[Assert\\NotBlank(groups: ['Default'])]
+    private string $name;
+
+    #[Assert\\NotBlank(groups: ['published'])]
+    #[Assert\\Length(min: 100, groups: ['published'])]
+    private ?string $description = null;
+
+    #[Assert\\NotBlank(groups: ['published'])]
+    #[Assert\\Positive(groups: ['published'])]
+    private ?float $price = null;
+}
+?></code></pre></div>
+
+        <h2>Secuencia de Grupos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Validator\\Constraints\\GroupSequence;
+
+// Validar grupos en orden, detener si uno falla
+#[GroupSequence(['User', 'Strict'])]
+class User
+{
+    #[Assert\\NotBlank]
+    #[Assert\\Email]
+    private string $email;
+
+    #[Assert\\NotBlank(groups: ['Strict'])]
+    #[Assert\\Length(min: 8, groups: ['Strict'])]
+    private string $password;
+}
+
+// Uso en formulario
+$resolver->setDefaults([
+    'validation_groups' => new GroupSequence(['User', 'Strict']),
+]);
+?></code></pre></div>
+
+        <h2>Validación Condicional</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Validator\\Context\\ExecutionContextInterface;
+
+class Order
+{
+    #[Assert\\NotBlank]
+    private string $shippingMethod;
+
+    #[Assert\\NotBlank(groups: ['home_delivery'])]
+    private ?string $address = null;
+
+    #[Assert\\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        // Validación condicional
+        if ($this->shippingMethod === 'home_delivery' && !$this->address) {
+            $context->buildViolation('La dirección es obligatoria para envío a domicilio')
+                ->atPath('address')
+                ->addViolation();
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Grupos en Controlador</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Validator\\Validator\\ValidatorInterface;
+
+class UserController extends AbstractController
+{
+    #[Route('/user/validate', name: 'user_validate')]
+    public function validate(
+        Request $request,
+        ValidatorInterface $validator
+    ): Response {
+        $user = new User();
+        // ... poblar datos
+        
+        // Validar con grupos específicos
+        $errors = $validator->validate($user, null, ['registration']);
+        
+        if (count($errors) > 0) {
+            foreach ($errors as $error) {
+                $this->addFlash('error', $error->getMessage());
+            }
+        }
+        
+        return $this->redirectToRoute('user_list');
+    }
+}
+?></code></pre></div>
+
+        <h2>Grupos Predeterminados</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Symfony define estos grupos automáticamente:
+
+// 'Default' - Grupo por defecto si no se especifica
+#[Assert\\NotBlank]  // Equivale a groups: ['Default']
+
+// Nombre de la clase - Grupo con el nombre de la entidad
+class User
+{
+    #[Assert\\NotBlank(groups: ['User'])]
+    private string $name;
+}
+
+// Uso combinado
+$resolver->setDefaults([
+    'validation_groups' => ['Default', 'registration'],
+]);
+?></code></pre></div>
+
+        <div class="info-box">
+            <strong>🎯 Casos de Uso Comunes:</strong><br>
+            • <strong>Registro vs Edición</strong>: Contraseña obligatoria solo en registro<br>
+            • <strong>Publicación</strong>: Validaciones estrictas al publicar contenido<br>
+            • <strong>Pasos de formulario</strong>: Validar cada paso por separado<br>
+            • <strong>Roles</strong>: Validaciones diferentes según rol del usuario<br>
+            • <strong>Estados</strong>: Validaciones según estado de la entidad
+        </div>
+    `,
+    'validadores-personalizados': `
+        <h1>Validadores Personalizados</h1>
+        
+        <p>Cuando las validaciones integradas no son suficientes, puedes crear <strong>validadores personalizados</strong> (custom constraints) para implementar lógica de validación específica de tu aplicación.</p>
+
+        <h2>Crear un Constraint Personalizado</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Validator/Constraints/ValidDni.php
+
+namespace App\\Validator\\Constraints;
+
+use Symfony\\Component\\Validator\\Constraint;
+
+#[\\Attribute]
+class ValidDni extends Constraint
+{
+    public string $message = 'El DNI "{{ value }}" no es válido.';
+    public string $mode = 'strict';
+
+    public function __construct(
+        ?string $mode = null,
+        ?string $message = null,
+        ?array $groups = null,
+        mixed $payload = null
+    ) {
+        parent::__construct([], $groups, $payload);
+        
+        $this->mode = $mode ?? $this->mode;
+        $this->message = $message ?? $this->message;
+    }
+}
+?></code></pre></div>
+
+        <h2>Crear el Validador</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Validator/Constraints/ValidDniValidator.php
+
+namespace App\\Validator\\Constraints;
+
+use Symfony\\Component\\Validator\\Constraint;
+use Symfony\\Component\\Validator\\ConstraintValidator;
+use Symfony\\Component\\Validator\\Exception\\UnexpectedTypeException;
+use Symfony\\Component\\Validator\\Exception\\UnexpectedValueException;
+
+class ValidDniValidator extends ConstraintValidator
+{
+    public function validate(mixed $value, Constraint $constraint): void
+    {
+        if (!$constraint instanceof ValidDni) {
+            throw new UnexpectedTypeException($constraint, ValidDni::class);
+        }
+
+        // Permitir valores nulos o vacíos (usar NotBlank para requerir)
+        if (null === $value || '' === $value) {
+            return;
+        }
+
+        if (!is_string($value)) {
+            throw new UnexpectedValueException($value, 'string');
+        }
+
+        // Lógica de validación del DNI español
+        if (!$this->isValidDni($value)) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ value }}', $value)
+                ->addViolation();
+        }
+    }
+
+    private function isValidDni(string $dni): bool
+    {
+        // Validar formato: 8 dígitos + letra
+        if (!preg_match('/^[0-9]{8}[A-Z]$/', $dni)) {
+            return false;
+        }
+
+        // Validar letra de control
+        $number = substr($dni, 0, 8);
+        $letter = substr($dni, 8, 1);
+        $validLetters = 'TRWAGMYFPDXBNJZSQVHLCKE';
+        
+        return $letter === $validLetters[$number % 23];
+    }
+}
+?></code></pre></div>
+
+        <h2>Usar el Validador Personalizado</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// En una entidad
+use App\\Validator\\Constraints as AppAssert;
+
+class User
+{
+    #[ORM\\Column(type: 'string', length: 9)]
+    #[AppAssert\\ValidDni]
+    private string $dni;
+}
+
+// En un formulario
+use App\\Validator\\Constraints\\ValidDni;
+
+$builder->add('dni', TextType::class, [
+    'constraints' => [
+        new ValidDni([
+            'message' => 'Por favor ingrese un DNI válido'
+        ])
+    ]
+]);
+?></code></pre></div>
+
+        <h2>Validador con Dependencias</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Validator/Constraints/UniqueEmail.php
+
+#[\\Attribute]
+class UniqueEmail extends Constraint
+{
+    public string $message = 'El email "{{ email }}" ya está registrado.';
+}
+
+// src/Validator/Constraints/UniqueEmailValidator.php
+
+use App\\Repository\\UserRepository;
+use Symfony\\Component\\Validator\\Constraint;
+use Symfony\\Component\\Validator\\ConstraintValidator;
+
+class UniqueEmailValidator extends ConstraintValidator
+{
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
+
+    public function validate(mixed $value, Constraint $constraint): void
+    {
+        if (!$constraint instanceof UniqueEmail) {
+            throw new UnexpectedTypeException($constraint, UniqueEmail::class);
+        }
+
+        if (null === $value || '' === $value) {
+            return;
+        }
+
+        // Buscar email en base de datos
+        $existingUser = $this->userRepository->findOneBy(['email' => $value]);
+
+        if ($existingUser) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ email }}', $value)
+                ->addViolation();
+        }
+    }
+}
+
+// Registrar como servicio (autoconfigure hace esto automáticamente)
+// config/services.yaml
+services:
+    App\\Validator\\Constraints\\UniqueEmailValidator:
+        tags:
+            - { name: validator.constraint_validator }
+?></code></pre></div>
+
+        <h2>Validador de Clase Completa</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Validator/Constraints/PasswordMatch.php
+
+#[\\Attribute(\\Attribute::TARGET_CLASS)]
+class PasswordMatch extends Constraint
+{
+    public string $message = 'Las contraseñas no coinciden.';
+
+    public function getTargets(): string
+    {
+        return self::CLASS_CONSTRAINT;
+    }
+}
+
+// src/Validator/Constraints/PasswordMatchValidator.php
+
+class PasswordMatchValidator extends ConstraintValidator
+{
+    public function validate(mixed $value, Constraint $constraint): void
+    {
+        if (!$constraint instanceof PasswordMatch) {
+            throw new UnexpectedTypeException($constraint, PasswordMatch::class);
+        }
+
+        // $value es el objeto completo
+        if (!method_exists($value, 'getPassword') || !method_exists($value, 'getConfirmPassword')) {
+            throw new \\InvalidArgumentException('El objeto debe tener métodos getPassword y getConfirmPassword');
+        }
+
+        $password = $value->getPassword();
+        $confirmPassword = $value->getConfirmPassword();
+
+        if ($password !== $confirmPassword) {
+            $this->context->buildViolation($constraint->message)
+                ->atPath('confirmPassword')
+                ->addViolation();
+        }
+    }
+}
+
+// Uso en entidad
+#[PasswordMatch]
+class RegistrationDTO
+{
+    private string $password;
+    private string $confirmPassword;
+    
+    // getters y setters
+}
+?></code></pre></div>
+
+        <h2>Validador Asíncrono</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Validator/Constraints/ValidCreditCard.php
+
+#[\\Attribute]
+class ValidCreditCard extends Constraint
+{
+    public string $message = 'La tarjeta de crédito no es válida.';
+}
+
+// src/Validator/Constraints/ValidCreditCardValidator.php
+
+use Symfony\\Contracts\\HttpClient\\HttpClientInterface;
+
+class ValidCreditCardValidator extends ConstraintValidator
+{
+    public function __construct(
+        private HttpClientInterface $httpClient
+    ) {}
+
+    public function validate(mixed $value, Constraint $constraint): void
+    {
+        if (!$constraint instanceof ValidCreditCard) {
+            throw new UnexpectedTypeException($constraint, ValidCreditCard::class);
+        }
+
+        if (null === $value || '' === $value) {
+            return;
+        }
+
+        // Llamar a API externa para validar tarjeta
+        try {
+            $response = $this->httpClient->request('POST', 'https://api.payment.com/validate', [
+                'json' => ['card_number' => $value]
+            ]);
+
+            $data = $response->toArray();
+
+            if (!$data['valid']) {
+                $this->context->buildViolation($constraint->message)
+                    ->addViolation();
+            }
+        } catch (\\Exception $e) {
+            // Manejar error de API
+            $this->context->buildViolation('Error al validar la tarjeta')
+                ->addViolation();
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Validador con Opciones Múltiples</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Validator/Constraints/StrongPassword.php
+
+#[\\Attribute]
+class StrongPassword extends Constraint
+{
+    public string $message = 'La contraseña no cumple los requisitos de seguridad.';
+    public int $minLength = 8;
+    public bool $requireUppercase = true;
+    public bool $requireLowercase = true;
+    public bool $requireNumbers = true;
+    public bool $requireSpecialChars = false;
+
+    public function __construct(
+        ?int $minLength = null,
+        ?bool $requireUppercase = null,
+        ?bool $requireLowercase = null,
+        ?bool $requireNumbers = null,
+        ?bool $requireSpecialChars = null,
+        ?string $message = null,
+        ?array $groups = null,
+        mixed $payload = null
+    ) {
+        parent::__construct([], $groups, $payload);
+        
+        $this->minLength = $minLength ?? $this->minLength;
+        $this->requireUppercase = $requireUppercase ?? $this->requireUppercase;
+        $this->requireLowercase = $requireLowercase ?? $this->requireLowercase;
+        $this->requireNumbers = $requireNumbers ?? $this->requireNumbers;
+        $this->requireSpecialChars = $requireSpecialChars ?? $this->requireSpecialChars;
+        $this->message = $message ?? $this->message;
+    }
+}
+
+// Validator
+class StrongPasswordValidator extends ConstraintValidator
+{
+    public function validate(mixed $value, Constraint $constraint): void
+    {
+        if (!$constraint instanceof StrongPassword) {
+            throw new UnexpectedTypeException($constraint, StrongPassword::class);
+        }
+
+        if (null === $value || '' === $value) {
+            return;
+        }
+
+        $errors = [];
+
+        if (strlen($value) < $constraint->minLength) {
+            $errors[] = sprintf('mínimo %d caracteres', $constraint->minLength);
+        }
+
+        if ($constraint->requireUppercase && !preg_match('/[A-Z]/', $value)) {
+            $errors[] = 'al menos una mayúscula';
+        }
+
+        if ($constraint->requireLowercase && !preg_match('/[a-z]/', $value)) {
+            $errors[] = 'al menos una minúscula';
+        }
+
+        if ($constraint->requireNumbers && !preg_match('/[0-9]/', $value)) {
+            $errors[] = 'al menos un número';
+        }
+
+        if ($constraint->requireSpecialChars && !preg_match('/[^A-Za-z0-9]/', $value)) {
+            $errors[] = 'al menos un carácter especial';
+        }
+
+        if (!empty($errors)) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ requirements }}', implode(', ', $errors))
+                ->addViolation();
+        }
+    }
+}
+
+// Uso
+#[StrongPassword(
+    minLength: 12,
+    requireSpecialChars: true,
+    message: 'La contraseña debe tener {{ requirements }}'
+)]
+private string $password;
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de Validadores Personalizados:</strong><br>
+            • <strong>Reutilización</strong>: Lógica centralizada<br>
+            • <strong>Testeable</strong>: Fácil de probar unitariamente<br>
+            • <strong>Mantenible</strong>: Cambios en un solo lugar<br>
+            • <strong>Expresivo</strong>: Código más legible<br>
+            • <strong>Flexible</strong>: Opciones configurables
+        </div>
+    `,
+    'integracion-formularios-twig': `
+        <h1>Integración de Formularios con Twig</h1>
+        
+        <p>Twig proporciona funciones y filtros especializados para renderizar formularios de manera flexible. Puedes renderizar el formulario completo automáticamente o personalizar cada elemento.</p>
+
+        <h2>Renderizado Automático Completo</h2>
+        <div class="code-block"><pre><code>{# templates/product/new.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Crear Producto</h1>
+
+    {# Renderizar formulario completo #}
+    {{ form(form) }}
+{% endblock %}
+?></code></pre></div>
+
+        <h2>Renderizado Manual por Partes</h2>
+        <div class="code-block"><pre><code>{# Control total sobre el HTML #}
+
+{{ form_start(form) }}
+    
+    {# Renderizar campo individual #}
+    {{ form_row(form.name) }}
+    
+    {# Renderizar con clases personalizadas #}
+    {{ form_row(form.email, {'attr': {'class': 'custom-input'}}) }}
+    
+    {# Renderizar campo por campo #}
+    <div class="form-group">
+        {{ form_label(form.price) }}
+        {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.price) }}
+        {{ form_help(form.price) }}
+    </div>
+    
+    {# Botón de submit #}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+
+{{ form_end(form) }}
+?></code></pre></div>
+
+        <h2>Funciones de Twig para Formularios</h2>
+        <div class="code-block"><pre><code>{# form_start() - Abre el formulario con <form> #}
+{{ form_start(form, {'attr': {'class': 'my-form', 'novalidate': 'novalidate'}}) }}
+
+{# form_end() - Cierra </form> y renderiza campos ocultos (CSRF, etc.) #}
+{{ form_end(form) }}
+
+{# form_widget() - Renderiza el input del campo #}
+{{ form_widget(form.name) }}
+{{ form_widget(form.name, {'attr': {'placeholder': 'Nombre'}}) }}
+
+{# form_label() - Renderiza el <label> #}
+{{ form_label(form.name) }}
+{{ form_label(form.name, 'Nombre del Producto') }}
+
+{# form_errors() - Renderiza errores del campo #}
+{{ form_errors(form.name) }}
+
+{# form_help() - Renderiza texto de ayuda #}
+{{ form_help(form.name) }}
+
+{# form_row() - Renderiza label + widget + errors + help #}
+{{ form_row(form.name) }}
+
+{# form_rest() - Renderiza campos no renderizados aún #}
+{{ form_rest(form) }}
+?></code></pre></div>
+
+        <h2>Personalización Avanzada</h2>
+        <div class="code-block"><pre><code>{# Formulario con Bootstrap 5 #}
+
+<div class="container">
+    <h1>Registro de Usuario</h1>
+    
+    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    {{ form_label(form.username, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.username, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.username) }}
+                    <div class="form-text">{{ form_help(form.username) }}</div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="mb-3">
+                    {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            {{ form_row(form.password, {
+                'label': 'Contraseña',
+                'attr': {'class': 'form-control'},
+                'label_attr': {'class': 'form-label'}
+            }) }}
+        </div>
+        
+        <div class="mb-3 form-check">
+            {{ form_widget(form.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+            {{ form_label(form.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+            {{ form_errors(form.agreeTerms) }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Registrarse</button>
+        
+    {{ form_end(form) }}
+</div>
+?></code></pre></div>
+
+        <h2>Iterar sobre Campos</h2>
+        <div class="code-block"><pre><code>{# Renderizar todos los campos dinámicamente #}
+
+{{ form_start(form) }}
+    
+    {% for field in form %}
+        {% if field.vars.name != '_token' %}
+            <div class="form-group">
+                {{ form_row(field) }}
+            </div>
+        {% endif %}
+    {% endfor %}
+    
+    <button type="submit">Enviar</button>
+    
+{{ form_end(form) }}
+
+{# Renderizar solo campos específicos #}
+{% for field in form.children %}
+    {% if field.vars.block_prefixes[1] == 'text' %}
+        {{ form_row(field) }}
+    {% endif %}
+{% endfor %}
+?></code></pre></div>
+
+        <h2>Formularios Anidados</h2>
+        <div class="code-block"><pre><code>{# Formulario con subformularios #}
+
+{{ form_start(form) }}
+    
+    <h2>Información del Pedido</h2>
+    {{ form_row(form.orderNumber) }}
+    
+    <h3>Cliente</h3>
+    <div class="customer-section">
+        {{ form_row(form.customer.name) }}
+        {{ form_row(form.customer.email) }}
+        {{ form_row(form.customer.phone) }}
+    </div>
+    
+    <h3>Artículos</h3>
+    <div id="items-collection">
+        {% for item in form.items %}
+            <div class="item-row">
+                {{ form_row(item.product) }}
+                {{ form_row(item.quantity) }}
+                {{ form_row(item.price) }}
+            </div>
+        {% endfor %}
+    </div>
+    
+    <button type="submit">Guardar Pedido</button>
+    
+{{ form_end(form) }}
+?></code></pre></div>
+
+        <h2>CollectionType con JavaScript</h2>
+        <div class="code-block"><pre><code>{# Formulario con colección dinámica #}
+
+<div class="emails-collection" data-prototype="{{ form_widget(form.emails.vars.prototype)|e('html_attr') }}">
+    <h3>Emails</h3>
+    
+    {% for email in form.emails %}
+        <div class="email-item">
+            {{ form_widget(email) }}
+            <button type="button" class="remove-email">Eliminar</button>
+        </div>
+    {% endfor %}
+    
+    <button type="button" class="add-email">Agregar Email</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const collectionHolder = document.querySelector('.emails-collection');
+    const addButton = document.querySelector('.add-email');
+    
+    let index = collectionHolder.querySelectorAll('.email-item').length;
+    
+    addButton.addEventListener('click', function() {
+        const prototype = collectionHolder.dataset.prototype;
+        const newForm = prototype.replace(/__name__/g, index);
+        
+        const div = document.createElement('div');
+        div.className = 'email-item';
+        div.innerHTML = newForm + '<button type="button" class="remove-email">Eliminar</button>';
+        
+        collectionHolder.insertBefore(div, addButton);
+        index++;
+        
+        // Agregar listener para eliminar
+        div.querySelector('.remove-email').addEventListener('click', function() {
+            div.remove();
+        });
+    });
+    
+    // Listeners para botones de eliminar existentes
+    document.querySelectorAll('.remove-email').forEach(button => {
+        button.addEventListener('click', function() {
+            this.closest('.email-item').remove();
+        });
+    });
+});
+</script>
+?></code></pre></div>
+
+        <h2>Temas de Formulario (Form Themes)</h2>
+        <div class="code-block"><pre><code>{# Aplicar tema Bootstrap 5 globalmente #}
+{# config/packages/twig.yaml #}
+twig:
+    form_themes:
+        - 'bootstrap_5_layout.html.twig'
+
+{# Aplicar tema a un formulario específico #}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{# Aplicar múltiples temas #}
+{% form_theme form 'bootstrap_5_layout.html.twig' 'form/custom_theme.html.twig' %}
+
+{# Tema inline #}
+{% form_theme form _self %}
+
+{% block _product_name_widget %}
+    <div class="custom-widget">
+        <input type="text" {{ block('widget_attributes') }} value="{{ value }}" />
+        <span class="icon">📝</span>
+    </div>
+{% endblock %}
+?></code></pre></div>
+
+        <h2>Personalizar Renderizado de Campos</h2>
+        <div class="code-block"><pre><code>{# templates/form/custom_theme.html.twig #}
+
+{# Personalizar todos los campos de texto #}
+{% block text_widget %}
+    <div class="input-wrapper">
+        <input type="text" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}/>
+        <span class="input-icon">✏️</span>
+    </div>
+{% endblock %}
+
+{# Personalizar campo específico por nombre #}
+{% block _product_price_widget %}
+    <div class="price-input">
+        <span class="currency">€</span>
+        <input type="number" {{ block('widget_attributes') }} value="{{ value }}" step="0.01" />
+    </div>
+{% endblock %}
+
+{# Personalizar label de campo específico #}
+{% block _product_name_label %}
+    <label class="required-label">
+        {{ label }}
+        <span class="required-asterisk">*</span>
+    </label>
+{% endblock %}
+
+{# Personalizar errores #}
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        <div class="alert alert-danger">
+            <ul class="error-list">
+                {% for error in errors %}
+                    <li>{{ error.message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+?></code></pre></div>
+
+        <h2>Variables Disponibles en Templates</h2>
+        <div class="code-block"><pre><code>{# Acceder a variables del formulario #}
+
+{# Nombre del campo #}
+{{ form.name.vars.name }}
+
+{# Valor del campo #}
+{{ form.name.vars.value }}
+
+{# ID del campo #}
+{{ form.name.vars.id }}
+
+{# Label #}
+{{ form.name.vars.label }}
+
+{# ¿Es requerido? #}
+{% if form.name.vars.required %}
+    <span class="required">*</span>
+{% endif %}
+
+{# ¿Está deshabilitado? #}
+{% if form.name.vars.disabled %}
+    <span class="disabled-badge">Deshabilitado</span>
+{% endif %}
+
+{# Atributos HTML #}
+{{ form.name.vars.attr.class }}
+
+{# Errores #}
+{% if form.name.vars.errors|length > 0 %}
+    <div class="has-error">
+        {% for error in form.name.vars.errors %}
+            {{ error.message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{# Ayuda #}
+{{ form.name.vars.help }}
+?></code></pre></div>
+
+        <h2>Formularios AJAX</h2>
+        <div class="code-block"><pre><code>{# Enviar formulario con AJAX #}
+
+<div id="form-container">
+    {{ form_start(form, {'attr': {'id': 'product-form'}}) }}
+        {{ form_widget(form) }}
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    {{ form_end(form) }}
+</div>
+
+<div id="form-messages"></div>
+
+<script>
+document.getElementById('product-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const messagesDiv = document.getElementById('form-messages');
+    
+    try {
+        const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            messagesDiv.innerHTML = '<div class=\"alert alert-success\">Guardado exitosamente</div>';
+            this.reset();
+        } else {
+            // Mostrar errores de validación
+            messagesDiv.innerHTML = '<div class=\"alert alert-danger\">' + data.errors.join('<br>') + '</div>';
+        }
+    } catch (error) {
+        messagesDiv.innerHTML = '<div class=\"alert alert-danger\">Error al enviar formulario</div>';
+    }
+});
+</script>
+?></code></pre></div>
+
+        <div class="info-box">
+            <strong>🎯 Funciones Principales de Twig:</strong><br>
+            • <strong>form()</strong>: Renderiza formulario completo<br>
+            • <strong>form_start()</strong>: Abre tag &lt;form&gt;<br>
+            • <strong>form_end()</strong>: Cierra &lt;/form&gt; y campos ocultos<br>
+            • <strong>form_row()</strong>: Label + widget + errors + help<br>
+            • <strong>form_widget()</strong>: Solo el input<br>
+            • <strong>form_label()</strong>: Solo el label<br>
+            • <strong>form_errors()</strong>: Solo los errores<br>
+            • <strong>form_help()</strong>: Solo el texto de ayuda
+        </div>
+    `,
+    'manejo-errores-mensajes-validacion': `
+        <h1>Manejo de Errores y Mensajes de Validación</h1>
+        
+        <p>El manejo correcto de errores y mensajes de validación es crucial para una buena experiencia de usuario. Symfony proporciona múltiples formas de personalizar y mostrar errores de validación.</p>
+
+        <h2>Mostrar Errores en Twig</h2>
+        <div class="code-block"><pre><code>{# Mostrar todos los errores del formulario #}
+{{ form_errors(form) }}
+
+{# Mostrar errores de un campo específico #}
+{{ form_errors(form.email) }}
+
+{# Verificar si hay errores #}
+{% if not form.vars.valid %}
+    <div class="alert alert-danger">
+        El formulario contiene errores. Por favor corrígelos.
+    </div>
+{% endif %}
+
+{# Iterar sobre errores de un campo #}
+{% if form.email.vars.errors|length > 0 %}
+    <ul class="error-list">
+        {% for error in form.email.vars.errors %}
+            <li>{{ error.message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+?></code></pre></div>
+
+        <h2>Personalizar Mensajes de Error</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// En la entidad
+use Symfony\\Component\\Validator\\Constraints as Assert;
+
+class User
+{
+    #[Assert\\NotBlank(message: 'El email no puede estar vacío')]
+    #[Assert\\Email(message: 'El email "{{ value }}" no es válido')]
+    private string $email;
+
+    #[Assert\\Length(
+        min: 8,
+        max: 50,
+        minMessage: 'La contraseña debe tener al menos {{ limit }} caracteres',
+        maxMessage: 'La contraseña no puede exceder {{ limit }} caracteres'
+    )]
+    private string $password;
+
+    #[Assert\\Regex(
+        pattern: '/^[a-zA-Z0-9]+$/',
+        message: 'El nombre de usuario solo puede contener letras y números'
+    )]
+    private string $username;
+}
+?></code></pre></div>
+
+        <h2>Mensajes de Error en Formularios</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// En el FormType
+class UserType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('email', EmailType::class, [
+                'invalid_message' => 'Por favor ingrese un email válido',
+                'constraints' => [
+                    new Assert\\NotBlank([
+                        'message' => 'El email es obligatorio'
+                    ]),
+                    new Assert\\Email([
+                        'message' => 'El formato del email no es válido'
+                    ])
+                ]
+            ])
+            ->add('password', PasswordType::class, [
+                'invalid_message' => 'La contraseña no es válida',
+                'constraints' => [
+                    new Assert\\NotBlank([
+                        'message' => 'La contraseña es obligatoria'
+                    ]),
+                    new Assert\\Length([
+                        'min' => 8,
+                        'minMessage' => 'La contraseña debe tener al menos {{ limit }} caracteres'
+                    ])
+                ]
+            ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Traducción de Mensajes</h2>
+        <div class="code-block"><pre><code># translations/validators.es.yaml
+
+# Mensajes de validación predeterminados
+"This value should not be blank.": "Este campo no puede estar vacío."
+"This value is not a valid email address.": "Este no es un email válido."
+"This value is too short.": "Este valor es demasiado corto."
+"This value is too long.": "Este valor es demasiado largo."
+
+# Mensajes personalizados
+user.email.required: "El email es obligatorio"
+user.password.too_short: "La contraseña debe tener al menos %min% caracteres"
+user.username.invalid: "El nombre de usuario contiene caracteres no válidos"
+
+# Uso en constraints
+&lt;?php
+#[Assert\\NotBlank(message: 'user.email.required')]
+private string $email;
+?></code></pre></div>
+
+        <h2>Errores Globales del Formulario</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Agregar errores manualmente en el controlador
+
+public function register(Request $request): Response
+{
+    $form = $this->createForm(RegistrationFormType::class);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $user = $form->getData();
+        
+        // Verificar si el email ya existe
+        if ($this->userRepository->findOneBy(['email' => $user->getEmail()])) {
+            // Agregar error al campo específico
+            $form->get('email')->addError(
+                new FormError('Este email ya está registrado')
+            );
+            
+            return $this->render('registration/register.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        }
+        
+        // Agregar error global al formulario
+        if (!$this->validateCaptcha($request)) {
+            $form->addError(
+                new FormError('La verificación CAPTCHA falló')
+            );
+        }
+        
+        // Continuar con el registro...
+    }
+    
+    return $this->render('registration/register.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+?></code></pre></div>
+
+        <h2>Personalizar Renderizado de Errores</h2>
+        <div class="code-block"><pre><code>{# templates/form/custom_errors.html.twig #}
+
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>¡Error!</strong>
+            <ul class="mb-0">
+                {% for error in errors %}
+                    <li>{{ error.message }}</li>
+                {% endfor %}
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{# Aplicar tema personalizado #}
+{% form_theme form 'form/custom_errors.html.twig' %}
+?></code></pre></div>
+
+        <h2>Errores con Iconos y Estilos</h2>
+        <div class="code-block"><pre><code>{# Template con estilos personalizados #}
+
+<div class="form-group {% if form.email.vars.errors|length > 0 %}has-error{% endif %}">
+    {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+    
+    <div class="input-group">
+        {{ form_widget(form.email, {'attr': {'class': 'form-control ' ~ (form.email.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+        
+        {% if form.email.vars.errors|length > 0 %}
+            <span class="input-group-text text-danger">
+                <i class="fas fa-exclamation-circle"></i>
+            </span>
+        {% endif %}
+    </div>
+    
+    {% if form.email.vars.errors|length > 0 %}
+        <div class="invalid-feedback d-block">
+            {% for error in form.email.vars.errors %}
+                <i class="fas fa-times-circle"></i> {{ error.message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+?></code></pre></div>
+
+        <h2>Validación en Tiempo Real con JavaScript</h2>
+        <div class="code-block"><pre><code>{# Validación mientras el usuario escribe #}
+
+<div class="form-group">
+    {{ form_label(form.email) }}
+    {{ form_widget(form.email, {'attr': {'id': 'email-input', 'class': 'form-control'}}) }}
+    <div id="email-error" class="invalid-feedback"></div>
+</div>
+
+<script>
+const emailInput = document.getElementById('email-input');
+const emailError = document.getElementById('email-error');
+
+emailInput.addEventListener('blur', async function() {
+    const email = this.value;
+    
+    // Validación básica del lado del cliente
+    if (!email) {
+        showError('El email es obligatorio');
+        return;
+    }
+    
+    if (!isValidEmail(email)) {
+        showError('El formato del email no es válido');
+        return;
+    }
+    
+    // Validación asíncrona con el servidor
+    try {
+        const response = await fetch('/api/validate-email', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email})
+        });
+        
+        const data = await response.json();
+        
+        if (!data.valid) {
+            showError(data.message);
+        } else {
+            clearError();
+        }
+    } catch (error) {
+        console.error('Error validando email:', error);
+    }
+});
+
+function showError(message) {
+    emailInput.classList.add('is-invalid');
+    emailError.textContent = message;
+    emailError.style.display = 'block';
+}
+
+function clearError() {
+    emailInput.classList.remove('is-invalid');
+    emailError.textContent = '';
+    emailError.style.display = 'none';
+}
+
+function isValidEmail(email) {
+    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+}
+</script>
+?></code></pre></div>
+
+        <h2>Mensajes Flash para Errores Globales</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// En el controlador
+if ($form->isSubmitted() && !$form->isValid()) {
+    $this->addFlash('error', 'El formulario contiene errores. Por favor revísalo.');
+}
+
+// En Twig
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+?></code></pre></div>
+
+        <h2>Agrupar Errores por Tipo</h2>
+        <div class="code-block"><pre><code>{# Mostrar resumen de errores al inicio del formulario #}
+
+{% if not form.vars.valid %}
+    <div class="alert alert-danger">
+        <h4>Por favor corrige los siguientes errores:</h4>
+        <ul>
+            {% for child in form.children %}
+                {% if child.vars.errors|length > 0 %}
+                    <li>
+                        <strong>{{ child.vars.label }}:</strong>
+                        <ul>
+                            {% for error in child.vars.errors %}
+                                <li>{{ error.message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+?></code></pre></div>
+
+        <h2>Validación Condicional con Mensajes Dinámicos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Validator\\Context\\ExecutionContextInterface;
+
+class Order
+{
+    #[Assert\\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        // Validación compleja con mensaje dinámico
+        if ($this->total < 10 && $this->shippingMethod === 'express') {
+            $context->buildViolation('El envío express requiere un pedido mínimo de {{ min }}€')
+                ->setParameter('{{ min }}', '10')
+                ->atPath('shippingMethod')
+                ->addViolation();
+        }
+        
+        if ($this->items->count() === 0) {
+            $context->buildViolation('Debe agregar al menos un artículo al pedido')
+                ->atPath('items')
+                ->addViolation();
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Errores en API REST</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Retornar errores como JSON
+
+#[Route('/api/user', methods: ['POST'])]
+public function createUser(Request $request, ValidatorInterface $validator): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+    
+    $user = new User();
+    $user->setEmail($data['email'] ?? '');
+    $user->setPassword($data['password'] ?? '');
+    
+    $errors = $validator->validate($user);
+    
+    if (count($errors) > 0) {
+        $errorMessages = [];
+        
+        foreach ($errors as $error) {
+            $errorMessages[$error->getPropertyPath()][] = $error->getMessage();
+        }
+        
+        return $this->json([
+            'success' => false,
+            'errors' => $errorMessages
+        ], 400);
+    }
+    
+    // Guardar usuario...
+    
+    return $this->json([
+        'success' => true,
+        'user' => ['id' => $user->getId()]
+    ], 201);
+}
+
+// Respuesta JSON de error:
+{
+    "success": false,
+    "errors": {
+        "email": ["El email no puede estar vacío", "El email no es válido"],
+        "password": ["La contraseña debe tener al menos 8 caracteres"]
+    }
+}
+?></code></pre></div>
+
+        <h2>Logging de Errores de Validación</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Psr\\Log\\LoggerInterface;
+
+class UserController extends AbstractController
+{
+    public function register(
+        Request $request,
+        LoggerInterface $logger
+    ): Response {
+        $form = $this->createForm(RegistrationFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            // Registrar errores de validación
+            foreach ($form->getErrors(true) as $error) {
+                $logger->warning('Validation error', [
+                    'field' => $error->getOrigin()?->getName(),
+                    'message' => $error->getMessage(),
+                    'user_ip' => $request->getClientIp()
+                ]);
+            }
+        }
+        
+        // ...
+    }
+}
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Mensajes claros</strong>: Explicar qué está mal y cómo corregirlo<br>
+            • <strong>Posición visible</strong>: Mostrar errores cerca del campo afectado<br>
+            • <strong>Estilo consistente</strong>: Usar colores y iconos uniformes<br>
+            • <strong>Validación progresiva</strong>: Cliente primero, servidor después<br>
+            • <strong>Feedback inmediato</strong>: Validar mientras el usuario escribe<br>
+            • <strong>Accesibilidad</strong>: Usar aria-labels y roles ARIA
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • No mostrar errores claramente<br>
+            • Mensajes técnicos incomprensibles<br>
+            • Perder datos del formulario al recargar<br>
+            • No validar en el servidor (solo cliente)<br>
+            • Errores genéricos sin contexto
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Resumen:</strong><br>
+            • <strong>form_errors()</strong>: Renderiza errores en Twig<br>
+            • <strong>addError()</strong>: Agregar errores manualmente<br>
+            • <strong>Mensajes personalizados</strong>: En constraints y FormTypes<br>
+            • <strong>Traducción</strong>: validators.yaml para i18n<br>
+            • <strong>Validación en tiempo real</strong>: JavaScript + API<br>
+            • <strong>Errores API</strong>: JSON estructurado para REST
+        </div>
+    `,
+    
+    // 5. Seguridad y Autenticación
+    'firewall-seguridad-acceso': `
+        <h1>Firewall de Seguridad y Acceso</h1>
+        
+        <p>El <strong>Security Firewall</strong> de Symfony es el componente central del sistema de seguridad. Define cómo se autentica a los usuarios, qué rutas están protegidas y qué permisos se requieren para acceder a cada sección.</p>
+
+        <h2>Instalación del Componente Security</h2>
+        <div class="code-block"><pre><code>composer require symfony/security-bundle
+?></code></pre></div>
+
+        <h2>Configuración Básica del Firewall</h2>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    # Configurar el hasher de contraseñas
+    password_hashers:
+        Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface: 'auto'
+    
+    # Proveedores de usuarios
+    providers:
+        app_user_provider:
+            entity:
+                class: App\\Entity\\User
+                property: email
+    
+    # Configuración del firewall
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        
+        main:
+            lazy: true
+            provider: app_user_provider
+            
+            # Punto de entrada para usuarios no autenticados
+            entry_point: form_login
+            
+            # Formulario de login
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+            
+            # Logout
+            logout:
+                path: app_logout
+                target: app_home
+            
+            # Remember me
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800  # 1 semana en segundos
+                path: /
+    
+    # Control de acceso
+    access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/profile, roles: ROLE_USER }
+?></code></pre></div>
+
+        <h2>Múltiples Firewalls</h2>
+        <div class="code-block"><pre><code># Configurar diferentes firewalls para diferentes secciones
+
+security:
+    firewalls:
+        # Firewall para API (sin estado, usa tokens)
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            custom_authenticators:
+                - App\\Security\\ApiTokenAuthenticator
+        
+        # Firewall para área de administración
+        admin:
+            pattern: ^/admin
+            provider: admin_user_provider
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: admin_dashboard
+            logout:
+                path: admin_logout
+                target: admin_login
+        
+        # Firewall principal para usuarios normales
+        main:
+            pattern: ^/
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+            logout:
+                path: app_logout
+    
+    access_control:
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/profile, roles: ROLE_USER }
+?></code></pre></div>
+
+        <h2>Controlador de Login</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/SecurityController.php
+
+namespace App\\Controller;
+
+use Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;
+use Symfony\\Component\\HttpFoundation\\Response;
+use Symfony\\Component\\Routing\\Attribute\\Route;
+use Symfony\\Component\\Security\\Http\\Authentication\\AuthenticationUtils;
+
+class SecurityController extends AbstractController
+{
+    #[Route('/login', name: 'app_login')]
+    public function login(AuthenticationUtils $authenticationUtils): Response
+    {
+        // Si el usuario ya está autenticado, redirigir
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        // Obtener error de login si existe
+        $error = $authenticationUtils->getLastAuthenticationError();
+        
+        // Último username ingresado
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('security/login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error,
+        ]);
+    }
+
+    #[Route('/logout', name: 'app_logout')]
+    public function logout(): void
+    {
+        // Este método puede estar vacío
+        // Symfony intercepta esta ruta automáticamente
+        throw new \\LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+}
+?></code></pre></div>
+
+        <h2>Template de Login</h2>
+        <div class="code-block"><pre><code>{# templates/security/login.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h3>Iniciar Sesión</h3>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Email</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="username" 
+                                   name="_username" 
+                                   value="{{ last_username }}" 
+                                   required 
+                                   autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   name="_password" 
+                                   required>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" 
+                                   class="form-check-input" 
+                                   id="remember_me" 
+                                   name="_remember_me">
+                            <label class="form-check-label" for="remember_me">
+                                Recordarme
+                            </label>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Iniciar Sesión
+                        </button>
+                    </form>
+
+                    <div class="mt-3 text-center">
+                        <a href="{{ path('app_forgot_password') }}">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+?></code></pre></div>
+
+        <h2>Control de Acceso Avanzado</h2>
+        <div class="code-block"><pre><code># Configuración avanzada de access_control
+
+security:
+    access_control:
+        # Permitir acceso público
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        
+        # Requerir autenticación
+        - { path: ^/profile, roles: ROLE_USER }
+        
+        # Requerir rol específico
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        
+        # Múltiples roles (OR)
+        - { path: ^/moderator, roles: [ROLE_MODERATOR, ROLE_ADMIN] }
+        
+        # Requerir HTTPS
+        - { path: ^/secure, roles: ROLE_USER, requires_channel: https }
+        
+        # Restringir por IP
+        - { path: ^/internal, roles: ROLE_USER, ips: [127.0.0.1, ::1] }
+        
+        # Restringir por método HTTP
+        - { path: ^/api/admin, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
+        
+        # Combinar condiciones
+        - { path: ^/super-admin, roles: ROLE_SUPER_ADMIN, requires_channel: https, ips: [192.168.1.0/24] }
+?></code></pre></div>
+
+        <h2>Proteger Controladores con Atributos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Security\\Http\\Attribute\\IsGranted;
+
+// Proteger toda la clase
+#[IsGranted('ROLE_ADMIN')]
+class AdminController extends AbstractController
+{
+    // Todos los métodos requieren ROLE_ADMIN
+    
+    #[Route('/admin/dashboard')]
+    public function dashboard(): Response
+    {
+        return $this->render('admin/dashboard.html.twig');
+    }
+    
+    // Requerir rol adicional para método específico
+    #[IsGranted('ROLE_SUPER_ADMIN')]
+    #[Route('/admin/settings')]
+    public function settings(): Response
+    {
+        return $this->render('admin/settings.html.twig');
+    }
+}
+
+// Proteger métodos individuales
+class ProductController extends AbstractController
+{
+    #[Route('/products')]
+    public function list(): Response
+    {
+        // Acceso público
+        return $this->render('product/list.html.twig');
+    }
+    
+    #[IsGranted('ROLE_USER')]
+    #[Route('/products/new')]
+    public function new(): Response
+    {
+        // Solo usuarios autenticados
+        return $this->render('product/new.html.twig');
+    }
+    
+    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/products/{id}/delete')]
+    public function delete(Product $product): Response
+    {
+        // Solo administradores
+        return $this->redirectToRoute('product_list');
+    }
+}
+?></code></pre></div>
+
+        <h2>Verificación Manual de Permisos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+class PostController extends AbstractController
+{
+    #[Route('/post/{id}/edit')]
+    public function edit(Post $post): Response
+    {
+        // Verificar si el usuario tiene permiso
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        
+        // Verificar si el usuario es el autor
+        if ($post->getAuthor() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('No tienes permiso para editar este post');
+        }
+        
+        // O usar denyAccessUnlessGranted con subject
+        $this->denyAccessUnlessGranted('EDIT', $post);
+        
+        return $this->render('post/edit.html.twig', ['post' => $post]);
+    }
+    
+    #[Route('/post/{id}')]
+    public function show(Post $post, Security $security): Response
+    {
+        // Verificar sin lanzar excepción
+        if ($security->isGranted('ROLE_ADMIN')) {
+            // Mostrar opciones de administrador
+        }
+        
+        if ($security->isGranted('EDIT', $post)) {
+            // Mostrar botón de editar
+        }
+        
+        return $this->render('post/show.html.twig', ['post' => $post]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Verificación en Twig</h2>
+        <div class="code-block"><pre><code>{# Verificar si el usuario está autenticado #}
+{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    <p>Bienvenido, {{ app.user.username }}!</p>
+{% endif %}
+
+{# Verificar rol #}
+{% if is_granted('ROLE_ADMIN') %}
+    <a href="{{ path('admin_dashboard') }}" class="btn btn-primary">Panel Admin</a>
+{% endif %}
+
+{# Verificar múltiples roles #}
+{% if is_granted('ROLE_MODERATOR') or is_granted('ROLE_ADMIN') %}
+    <button class="btn btn-warning">Moderar</button>
+{% endif %}
+
+{# Verificar permiso sobre objeto #}
+{% if is_granted('EDIT', post) %}
+    <a href="{{ path('post_edit', {id: post.id}) }}" class="btn btn-secondary">Editar</a>
+{% endif %}
+
+{# Obtener usuario actual #}
+{% if app.user %}
+    <p>Email: {{ app.user.email }}</p>
+    <p>Roles: {{ app.user.roles|join(', ') }}</p>
+{% endif %}
+?></code></pre></div>
+
+        <h2>Redirección Después del Login</h2>
+        <div class="code-block"><pre><code># Configurar redirección por defecto
+
+security:
+    firewalls:
+        main:
+            form_login:
+                # Ruta por defecto después del login
+                default_target_path: app_dashboard
+                
+                # Siempre redirigir a esta ruta (ignorar target_path)
+                always_use_default_target_path: false
+                
+                # Ruta si el login falla
+                failure_path: app_login
+                
+                # Usar el referer como target
+                use_referer: true
+
+# En el controlador
+public function someAction(): Response
+{
+    // Guardar URL de destino antes de redirigir al login
+    return $this->redirectToRoute('app_login', [
+        '_target_path' => $this->generateUrl('app_profile')
+    ]);
+}
+
+# En Twig
+<a href="{{ path('app_login', {'_target_path': path('app_dashboard')}) }}">Login</a>
+?></code></pre></div>
+
+        <h2>Eventos de Seguridad</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/EventListener/LoginListener.php
+
+namespace App\\EventListener;
+
+use Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener;
+use Symfony\\Component\\Security\\Http\\Event\\LoginSuccessEvent;
+use Symfony\\Component\\Security\\Http\\Event\\LoginFailureEvent;
+use Symfony\\Component\\Security\\Http\\Event\\LogoutEvent;
+use Psr\\Log\\LoggerInterface;
+
+#[AsEventListener(event: LoginSuccessEvent::class)]
+class LoginListener
+{
+    public function __construct(
+        private LoggerInterface $logger
+    ) {}
+
+    public function __invoke(LoginSuccessEvent $event): void
+    {
+        $user = $event->getUser();
+        $request = $event->getRequest();
+        
+        // Registrar login exitoso
+        $this->logger->info('User logged in', [
+            'username' => $user->getUserIdentifier(),
+            'ip' => $request->getClientIp()
+        ]);
+        
+        // Actualizar último login
+        if (method_exists($user, 'setLastLoginAt')) {
+            $user->setLastLoginAt(new \\DateTime());
+        }
+    }
+}
+
+#[AsEventListener(event: LoginFailureEvent::class)]
+class LoginFailureListener
+{
+    public function __construct(
+        private LoggerInterface $logger
+    ) {}
+
+    public function __invoke(LoginFailureEvent $event): void
+    {
+        $request = $event->getRequest();
+        
+        $this->logger->warning('Login failed', [
+            'username' => $request->request->get('_username'),
+            'ip' => $request->getClientIp()
+        ]);
+    }
+}
+
+#[AsEventListener(event: LogoutEvent::class)]
+class LogoutListener
+{
+    public function __invoke(LogoutEvent $event): void
+    {
+        $token = $event->getToken();
+        
+        if ($token && $user = $token->getUser()) {
+            // Lógica al cerrar sesión
+        }
+    }
+}
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Conceptos Clave del Firewall:</strong><br>
+            • <strong>Firewall</strong>: Define cómo se autentica y autoriza<br>
+            • <strong>Provider</strong>: Carga usuarios desde BD, memoria, etc.<br>
+            • <strong>Entry Point</strong>: Qué hacer si usuario no autenticado<br>
+            • <strong>Access Control</strong>: Reglas de acceso por ruta<br>
+            • <strong>Stateless</strong>: Para APIs sin sesión<br>
+            • <strong>Lazy</strong>: No cargar usuario hasta que sea necesario
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Buenas Prácticas:</strong><br>
+            • Usar HTTPS en producción<br>
+            • Habilitar CSRF en formularios<br>
+            • Configurar remember_me con secret seguro<br>
+            • Usar roles jerárquicos (ROLE_ADMIN hereda ROLE_USER)<br>
+            • Proteger rutas sensibles con access_control<br>
+            • Registrar intentos de login fallidos
+        </div>
+    `,
+    'autenticacion-sesiones-tokens-jwt': `
+        <h1>Autenticación Basada en Sesiones, Tokens y JWT</h1>
+        
+        <p>Symfony soporta múltiples métodos de autenticación: <strong>sesiones</strong> (tradicional para aplicaciones web), <strong>tokens API</strong> y <strong>JWT</strong> (JSON Web Tokens) para APIs RESTful y aplicaciones SPA.</p>
+
+        <h2>1. Autenticación por Sesión (Tradicional)</h2>
+        
+        <h3>Configuración Básica</h3>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    firewalls:
+        main:
+            lazy: true
+            provider: app_user_provider
+            
+            # Autenticación con formulario
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                default_target_path: app_dashboard
+            
+            # Logout
+            logout:
+                path: app_logout
+                target: app_home
+            
+            # Remember me (cookie persistente)
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 2592000  # 30 días
+                path: /
+                name: REMEMBERME
+                secure: true  # Solo HTTPS en producción
+                httponly: true
+                samesite: lax
+?></code></pre></div>
+
+        <h3>Entidad User para Sesiones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Entity/User.php
+
+namespace App\\Entity;
+
+use Doctrine\\ORM\\Mapping as ORM;
+use Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface;
+use Symfony\\Component\\Security\\Core\\User\\UserInterface;
+
+#[ORM\\Entity]
+#[ORM\\Table(name: 'users')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
+{
+    #[ORM\\Id]
+    #[ORM\\GeneratedValue]
+    #[ORM\\Column]
+    private ?int $id = null;
+
+    #[ORM\\Column(length: 180, unique: true)]
+    private string $email;
+
+    #[ORM\\Column]
+    private array $roles = [];
+
+    #[ORM\\Column]
+    private string $password;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    /**
+     * Identificador único del usuario (usado por Symfony)
+     */
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // Garantizar que todo usuario tenga al menos ROLE_USER
+        $roles[] = 'ROLE_USER';
+        
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    /**
+     * Borrar datos sensibles (si se almacenan temporalmente)
+     */
+    public function eraseCredentials(): void
+    {
+        // Si almacenas contraseña temporal, límpiala aquí
+        // $this->plainPassword = null;
+    }
+}
+?></code></pre></div>
+
+        <h2>2. Autenticación con API Token</h2>
+        
+        <h3>Crear Authenticator Personalizado</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/ApiTokenAuthenticator.php
+
+namespace App\\Security;
+
+use App\\Repository\\UserRepository;
+use Symfony\\Component\\HttpFoundation\\JsonResponse;
+use Symfony\\Component\\HttpFoundation\\Request;
+use Symfony\\Component\\HttpFoundation\\Response;
+use Symfony\\Component\\Security\\Core\\Authentication\\Token\\TokenInterface;
+use Symfony\\Component\\Security\\Core\\Exception\\AuthenticationException;
+use Symfony\\Component\\Security\\Http\\Authenticator\\AbstractAuthenticator;
+use Symfony\\Component\\Security\\Http\\Authenticator\\Passport\\Badge\\UserBadge;
+use Symfony\\Component\\Security\\Http\\Authenticator\\Passport\\Passport;
+use Symfony\\Component\\Security\\Http\\Authenticator\\Passport\\SelfValidatingPassport;
+
+class ApiTokenAuthenticator extends AbstractAuthenticator
+{
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
+
+    public function supports(Request $request): ?bool
+    {
+        // Verificar si la petición tiene el header Authorization
+        return $request->headers->has('Authorization');
+    }
+
+    public function authenticate(Request $request): Passport
+    {
+        $authHeader = $request->headers->get('Authorization');
+        
+        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+            throw new AuthenticationException('Token no proporcionado');
+        }
+
+        // Extraer token
+        $apiToken = substr($authHeader, 7);
+
+        if (!$apiToken) {
+            throw new AuthenticationException('Token vacío');
+        }
+
+        // Retornar passport con el token
+        return new SelfValidatingPassport(
+            new UserBadge($apiToken, function($apiToken) {
+                // Buscar usuario por token
+                $user = $this->userRepository->findOneBy(['apiToken' => $apiToken]);
+                
+                if (!$user) {
+                    throw new AuthenticationException('Token inválido');
+                }
+                
+                return $user;
+            })
+        );
+    }
+
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    {
+        // No hacer nada, dejar que la petición continúe
+        return null;
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    {
+        return new JsonResponse([
+            'message' => $exception->getMessage()
+        ], Response::HTTP_UNAUTHORIZED);
+    }
+}
+?></code></pre></div>
+
+        <h3>Configurar Firewall para API</h3>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    firewalls:
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            custom_authenticators:
+                - App\\Security\\ApiTokenAuthenticator
+    
+    access_control:
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_USER }
+?></code></pre></div>
+
+        <h3>Generar Token para Usuario</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Agregar campo apiToken a la entidad User
+
+#[ORM\\Column(type: 'string', length: 64, unique: true, nullable: true)]
+private ?string $apiToken = null;
+
+public function getApiToken(): ?string
+{
+    return $this->apiToken;
+}
+
+public function setApiToken(?string $apiToken): self
+{
+    $this->apiToken = $apiToken;
+    return $this;
+}
+
+// Generar token al crear usuario o en endpoint de login
+public function generateApiToken(): void
+{
+    $this->apiToken = bin2hex(random_bytes(32));
+}
+
+// Controlador de login API
+#[Route('/api/login', name: 'api_login', methods: ['POST'])]
+public function apiLogin(
+    Request $request,
+    UserRepository $userRepository,
+    UserPasswordHasherInterface $passwordHasher,
+    EntityManagerInterface $em
+): JsonResponse {
+    $data = json_decode($request->getContent(), true);
+    
+    $user = $userRepository->findOneBy(['email' => $data['email'] ?? '']);
+    
+    if (!$user || !$passwordHasher->isPasswordValid($user, $data['password'] ?? '')) {
+        return $this->json(['message' => 'Credenciales inválidas'], 401);
+    }
+    
+    // Generar nuevo token
+    $user->generateApiToken();
+    $em->flush();
+    
+    return $this->json([
+        'token' => $user->getApiToken(),
+        'user' => [
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'roles' => $user->getRoles()
+        ]
+    ]);
+}
+?></code></pre></div>
+
+        <h2>3. Autenticación con JWT (JSON Web Tokens)</h2>
+        
+        <h3>Instalación de LexikJWTAuthenticationBundle</h3>
+        <div class="code-block"><pre><code>composer require lexik/jwt-authentication-bundle
+
+# Generar claves SSH
+php bin/console lexik:jwt:generate-keypair
+?></code></pre></div>
+
+        <h3>Configuración JWT</h3>
+        <div class="code-block"><pre><code># config/packages/lexik_jwt_authentication.yaml
+
+lexik_jwt_authentication:
+    secret_key: '%env(resolve:JWT_SECRET_KEY)%'
+    public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
+    pass_phrase: '%env(JWT_PASSPHRASE)%'
+    token_ttl: 3600  # 1 hora
+
+# .env
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+JWT_PASSPHRASE=your_passphrase
+?></code></pre></div>
+
+        <h3>Configurar Firewall JWT</h3>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    firewalls:
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
+    
+    access_control:
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_USER }
+?></code></pre></div>
+
+        <h3>Rutas para JWT</h3>
+        <div class="code-block"><pre><code># config/routes.yaml
+
+api_login_check:
+    path: /api/login_check
+?></code></pre></div>
+
+        <h3>Usar JWT desde Cliente</h3>
+        <div class="code-block"><pre><code>// Login y obtener token
+fetch('/api/login_check', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        username: 'user@example.com',
+        password: 'password123'
+    })
+})
+.then(response => response.json())
+.then(data => {
+    // Guardar token
+    localStorage.setItem('jwt_token', data.token);
+    console.log('Token:', data.token);
+});
+
+// Hacer petición autenticada
+const token = localStorage.getItem('jwt_token');
+
+fetch('/api/protected-resource', {
+    method: 'GET',
+    headers: {
+        'Authorization': \`Bearer \${token}\`
+    }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+?></code></pre></div>
+
+        <h3>Personalizar Payload del JWT</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/EventListener/JWTCreatedListener.php
+
+namespace App\\EventListener;
+
+use Lexik\\Bundle\\JWTAuthenticationBundle\\Event\\JWTCreatedEvent;
+use Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener;
+
+#[AsEventListener(event: 'lexik_jwt_authentication.on_jwt_created')]
+class JWTCreatedListener
+{
+    public function __invoke(JWTCreatedEvent $event): void
+    {
+        $user = $event->getUser();
+        $payload = $event->getData();
+        
+        // Agregar datos personalizados al token
+        $payload['id'] = $user->getId();
+        $payload['email'] = $user->getEmail();
+        $payload['roles'] = $user->getRoles();
+        
+        $event->setData($payload);
+    }
+}
+
+// Decodificar JWT en el controlador
+#[Route('/api/me', methods: ['GET'])]
+public function me(): JsonResponse
+{
+    $user = $this->getUser();
+    
+    return $this->json([
+        'id' => $user->getId(),
+        'email' => $user->getEmail(),
+        'roles' => $user->getRoles()
+    ]);
+}
+?></code></pre></div>
+
+        <h3>Refresh Token</h3>
+        <div class="code-block"><pre><code>composer require gesdinet/jwt-refresh-token-bundle
+
+# config/packages/gesdinet_jwt_refresh_token.yaml
+gesdinet_jwt_refresh_token:
+    ttl: 2592000  # 30 días
+    
+# config/routes.yaml
+api_refresh_token:
+    path: /api/token/refresh
+
+# Uso desde cliente
+fetch('/api/token/refresh', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        refresh_token: refreshToken
+    })
+})
+.then(response => response.json())
+.then(data => {
+    localStorage.setItem('jwt_token', data.token);
+    localStorage.setItem('refresh_token', data.refresh_token);
+});
+?></code></pre></div>
+
+        <h2>Comparación de Métodos</h2>
+        <div class="code-block"><pre><code>┌─────────────────┬──────────────┬──────────────┬──────────────┐
+│ Característica  │   Sesión     │  API Token   │     JWT      │
+├─────────────────┼──────────────┼──────────────┼──────────────┤
+│ Stateful        │      Sí      │      Sí      │      No      │
+│ Escalabilidad   │    Baja      │    Media     │     Alta     │
+│ Uso típico      │  Web apps    │  APIs simples│  APIs REST   │
+│ Almacenamiento  │   Servidor   │   Base datos │   Cliente    │
+│ Expiración      │  Configurable│  Manual      │  Automática  │
+│ Revocación      │    Fácil     │    Fácil     │   Compleja   │
+│ Overhead        │    Bajo      │    Medio     │     Bajo     │
+└─────────────────┴──────────────┴──────────────┴──────────────┘
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Cuándo Usar Cada Método:</strong><br>
+            • <strong>Sesiones</strong>: Aplicaciones web tradicionales, SSR<br>
+            • <strong>API Token</strong>: APIs internas, integraciones simples<br>
+            • <strong>JWT</strong>: SPAs, aplicaciones móviles, microservicios<br>
+            • <strong>Combinado</strong>: Web con sesiones + API con JWT
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Seguridad:</strong><br>
+            • <strong>Sesiones</strong>: Usar HTTPS, httpOnly cookies, CSRF protection<br>
+            • <strong>Tokens</strong>: Almacenar de forma segura, rotar periódicamente<br>
+            • <strong>JWT</strong>: TTL corto, refresh tokens, validar firma<br>
+            • <strong>General</strong>: Rate limiting, logging, 2FA
+        </div>
+    `,
+    'proveedores-usuarios': `
+        <h1>Proveedores de Usuarios</h1>
+        
+        <p>Los <strong>User Providers</strong> son responsables de cargar usuarios desde diferentes fuentes (base de datos, memoria, LDAP, API externa). Symfony proporciona varios proveedores integrados y permite crear proveedores personalizados.</p>
+
+        <h2>1. Entity User Provider (Base de Datos)</h2>
+        
+        <h3>Configuración Básica</h3>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    providers:
+        app_user_provider:
+            entity:
+                class: App\\Entity\\User
+                property: email  # Campo único para identificar usuario
+?></code></pre></div>
+
+        <h3>Entidad User Completa</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Entity/User.php
+
+namespace App\\Entity;
+
+use App\\Repository\\UserRepository;
+use Doctrine\\ORM\\Mapping as ORM;
+use Symfony\\Bridge\\Doctrine\\Validator\\Constraints\\UniqueEntity;
+use Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface;
+use Symfony\\Component\\Security\\Core\\User\\UserInterface;
+
+#[ORM\\Entity(repositoryClass: UserRepository::class)]
+#[ORM\\Table(name: 'users')]
+#[UniqueEntity(fields: ['email'], message: 'Ya existe una cuenta con este email')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
+{
+    #[ORM\\Id]
+    #[ORM\\GeneratedValue]
+    #[ORM\\Column]
+    private ?int $id = null;
+
+    #[ORM\\Column(length: 180, unique: true)]
+    private string $email;
+
+    #[ORM\\Column]
+    private array $roles = [];
+
+    #[ORM\\Column]
+    private string $password;
+
+    #[ORM\\Column(length: 255, nullable: true)]
+    private ?string $name = null;
+
+    #[ORM\\Column(type: 'boolean')]
+    private bool $isVerified = false;
+
+    #[ORM\\Column(type: 'datetime_immutable')]
+    private \\DateTimeImmutable $createdAt;
+
+    #[ORM\\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\\DateTimeImmutable $lastLoginAt = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \\DateTimeImmutable();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Limpiar datos sensibles temporales
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
+        return $this;
+    }
+
+    public function getLastLoginAt(): ?\\DateTimeImmutable
+    {
+        return $this->lastLoginAt;
+    }
+
+    public function setLastLoginAt(?\\DateTimeImmutable $lastLoginAt): self
+    {
+        $this->lastLoginAt = $lastLoginAt;
+        return $this;
+    }
+}
+?></code></pre></div>
+
+        <h2>2. Memory User Provider (Usuarios en Configuración)</h2>
+        
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    providers:
+        in_memory_provider:
+            memory:
+                users:
+                    admin@example.com:
+                        password: '$2y$13$hashed_password_here'
+                        roles: ['ROLE_ADMIN']
+                    user@example.com:
+                        password: '$2y$13$another_hashed_password'
+                        roles: ['ROLE_USER']
+    
+    firewalls:
+        main:
+            provider: in_memory_provider
+            # ...
+
+# Generar password hasheado
+php bin/console security:hash-password
+?></code></pre></div>
+
+        <h2>3. Chain Provider (Múltiples Proveedores)</h2>
+        
+        <div class="code-block"><pre><code># Combinar múltiples proveedores
+
+security:
+    providers:
+        # Provider de base de datos
+        database_users:
+            entity:
+                class: App\\Entity\\User
+                property: email
+        
+        # Provider de memoria (para admin de emergencia)
+        admin_users:
+            memory:
+                users:
+                    emergency_admin:
+                        password: '$2y$13$hashed_password'
+                        roles: ['ROLE_SUPER_ADMIN']
+        
+        # Chain provider: busca en ambos
+        all_users:
+            chain:
+                providers: ['database_users', 'admin_users']
+    
+    firewalls:
+        main:
+            provider: all_users
+?></code></pre></div>
+
+        <h2>4. Custom User Provider</h2>
+        
+        <h3>Crear Provider Personalizado</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/ApiUserProvider.php
+
+namespace App\\Security;
+
+use App\\Entity\\User;
+use Symfony\\Component\\Security\\Core\\Exception\\UnsupportedUserException;
+use Symfony\\Component\\Security\\Core\\Exception\\UserNotFoundException;
+use Symfony\\Component\\Security\\Core\\User\\UserInterface;
+use Symfony\\Component\\Security\\Core\\User\\UserProviderInterface;
+use Symfony\\Contracts\\HttpClient\\HttpClientInterface;
+
+class ApiUserProvider implements UserProviderInterface
+{
+    public function __construct(
+        private HttpClientInterface $httpClient,
+        private string $apiUrl
+    ) {}
+
+    /**
+     * Cargar usuario desde API externa
+     */
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        try {
+            $response = $this->httpClient->request('GET', $this->apiUrl . '/users/' . $identifier);
+            $data = $response->toArray();
+            
+            // Crear objeto User desde datos de API
+            $user = new User();
+            $user->setEmail($data['email']);
+            $user->setRoles($data['roles'] ?? ['ROLE_USER']);
+            $user->setPassword($data['password_hash']);
+            $user->setName($data['name'] ?? null);
+            
+            return $user;
+        } catch (\\Exception $e) {
+            throw new UserNotFoundException(sprintf('Usuario "%s" no encontrado en API', $identifier));
+        }
+    }
+
+    /**
+     * Refrescar usuario (recargar desde fuente)
+     */
+    public function refreshUser(UserInterface $user): UserInterface
+    {
+        if (!$user instanceof User) {
+            throw new UnsupportedUserException(sprintf('Instancia de "%s" no soportada', get_class($user)));
+        }
+
+        return $this->loadUserByIdentifier($user->getUserIdentifier());
+    }
+
+    /**
+     * Verificar si este provider soporta la clase de usuario
+     */
+    public function supportsClass(string $class): bool
+    {
+        return User::class === $class || is_subclass_of($class, User::class);
+    }
+}
+?></code></pre></div>
+
+        <h3>Registrar Provider Personalizado</h3>
+        <div class="code-block"><pre><code># config/services.yaml
+
+services:
+    App\\Security\\ApiUserProvider:
+        arguments:
+            $apiUrl: '%env(API_URL)%'
+
+# config/packages/security.yaml
+
+security:
+    providers:
+        api_user_provider:
+            id: App\\Security\\ApiUserProvider
+    
+    firewalls:
+        main:
+            provider: api_user_provider
+?></code></pre></div>
+
+        <h2>5. LDAP User Provider</h2>
+        
+        <div class="code-block"><pre><code>composer require symfony/ldap
+
+# config/packages/security.yaml
+
+security:
+    providers:
+        ldap_user_provider:
+            ldap:
+                service: Symfony\\Component\\Ldap\\Ldap
+                base_dn: 'dc=example,dc=com'
+                search_dn: 'cn=admin,dc=example,dc=com'
+                search_password: 'admin_password'
+                default_roles: ['ROLE_USER']
+                uid_key: 'uid'
+    
+    firewalls:
+        main:
+            provider: ldap_user_provider
+            form_login_ldap:
+                service: Symfony\\Component\\Ldap\\Ldap
+                dn_string: 'uid={username},dc=example,dc=com'
+
+# config/services.yaml
+
+services:
+    Symfony\\Component\\Ldap\\Ldap:
+        arguments: ['@Symfony\\Component\\Ldap\\Adapter\\ExtLdap\\Adapter']
+    
+    Symfony\\Component\\Ldap\\Adapter\\ExtLdap\\Adapter:
+        arguments:
+            - host: 'ldap.example.com'
+              port: 389
+              encryption: 'ssl'
+?></code></pre></div>
+
+        <h2>6. Provider con Cache</h2>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/CachedUserProvider.php
+
+namespace App\\Security;
+
+use Symfony\\Component\\Security\\Core\\User\\UserInterface;
+use Symfony\\Component\\Security\\Core\\User\\UserProviderInterface;
+use Symfony\\Contracts\\Cache\\CacheInterface;
+use Symfony\\Contracts\\Cache\\ItemInterface;
+
+class CachedUserProvider implements UserProviderInterface
+{
+    public function __construct(
+        private UserProviderInterface $innerProvider,
+        private CacheInterface $cache,
+        private int $ttl = 3600
+    ) {}
+
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        return $this->cache->get(
+            'user_' . md5($identifier),
+            function (ItemInterface $item) use ($identifier) {
+                $item->expiresAfter($this->ttl);
+                return $this->innerProvider->loadUserByIdentifier($identifier);
+            }
+        );
+    }
+
+    public function refreshUser(UserInterface $user): UserInterface
+    {
+        // Invalidar cache y recargar
+        $this->cache->delete('user_' . md5($user->getUserIdentifier()));
+        return $this->loadUserByIdentifier($user->getUserIdentifier());
+    }
+
+    public function supportsClass(string $class): bool
+    {
+        return $this->innerProvider->supportsClass($class);
+    }
+}
+
+# Configuración
+services:
+    app.cached_user_provider:
+        class: App\\Security\\CachedUserProvider
+        arguments:
+            $innerProvider: '@security.user.provider.concrete.app_user_provider'
+            $cache: '@cache.app'
+            $ttl: 3600
+
+security:
+    providers:
+        cached_provider:
+            id: app.cached_user_provider
+?></code></pre></div>
+
+        <h2>7. Provider con Múltiples Identificadores</h2>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Permitir login con email o username
+
+// src/Repository/UserRepository.php
+
+namespace App\\Repository;
+
+use App\\Entity\\User;
+use Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository;
+use Doctrine\\Persistence\\ManagerRegistry;
+use Symfony\\Component\\Security\\Core\\Exception\\UnsupportedUserException;
+use Symfony\\Component\\Security\\Core\\User\\PasswordUpgraderInterface;
+use Symfony\\Component\\Security\\Core\\User\\UserInterface;
+
+class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, User::class);
+    }
+
+    /**
+     * Buscar usuario por email o username
+     */
+    public function loadUserByIdentifier(string $identifier): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.email = :identifier')
+            ->orWhere('u.username = :identifier')
+            ->setParameter('identifier', $identifier)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    {
+        if (!$user instanceof User) {
+            throw new UnsupportedUserException(sprintf('Instancia de "%s" no soportada', get_class($user)));
+        }
+
+        $user->setPassword($newHashedPassword);
+        $this->getEntityManager()->flush();
+    }
+}
+
+# config/packages/security.yaml
+
+security:
+    providers:
+        app_user_provider:
+            entity:
+                class: App\\Entity\\User
+                # No especificar property, usar método del repositorio
+?></code></pre></div>
+
+        <h2>8. Provider con Roles Dinámicos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/DynamicRoleUserProvider.php
+
+namespace App\\Security;
+
+use App\\Entity\\User;
+use App\\Repository\\UserRepository;
+use Symfony\\Component\\Security\\Core\\User\\UserInterface;
+use Symfony\\Component\\Security\\Core\\User\\UserProviderInterface;
+
+class DynamicRoleUserProvider implements UserProviderInterface
+{
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
+
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        $user = $this->userRepository->findOneBy(['email' => $identifier]);
+        
+        if (!$user) {
+            throw new UserNotFoundException();
+        }
+
+        // Agregar roles dinámicos basados en lógica de negocio
+        $roles = $user->getRoles();
+        
+        // Ejemplo: agregar rol según suscripción
+        if ($user->hasActiveSubscription()) {
+            $roles[] = 'ROLE_PREMIUM';
+        }
+        
+        // Ejemplo: agregar rol según actividad
+        if ($user->getPostCount() > 100) {
+            $roles[] = 'ROLE_CONTRIBUTOR';
+        }
+        
+        $user->setRoles(array_unique($roles));
+        
+        return $user;
+    }
+
+    public function refreshUser(UserInterface $user): UserInterface
+    {
+        return $this->loadUserByIdentifier($user->getUserIdentifier());
+    }
+
+    public function supportsClass(string $class): bool
+    {
+        return User::class === $class;
+    }
+}
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Tipos de Providers:</strong><br>
+            • <strong>Entity Provider</strong>: Usuarios desde Doctrine ORM<br>
+            • <strong>Memory Provider</strong>: Usuarios hardcodeados en config<br>
+            • <strong>Chain Provider</strong>: Combina múltiples providers<br>
+            • <strong>Custom Provider</strong>: Lógica personalizada (API, LDAP, etc.)<br>
+            • <strong>LDAP Provider</strong>: Autenticación contra directorio LDAP<br>
+            • <strong>Cached Provider</strong>: Mejora rendimiento con cache
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Métodos Requeridos en UserProviderInterface:</strong><br>
+            • <strong>loadUserByIdentifier()</strong>: Cargar usuario por identificador<br>
+            • <strong>refreshUser()</strong>: Refrescar datos del usuario<br>
+            • <strong>supportsClass()</strong>: Verificar si soporta clase de usuario
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Consideraciones:</strong><br>
+            • El provider debe lanzar <code>UserNotFoundException</code> si no encuentra usuario<br>
+            • <code>refreshUser()</code> se llama en cada request con sesión activa<br>
+            • Usar cache para providers que consultan APIs externas<br>
+            • Chain provider busca en orden hasta encontrar usuario<br>
+            • Memory provider útil para testing y usuarios de emergencia
+        </div>
+    `,
+    'volantes-seguridad-voters': `
+        <h1>Volantes de Seguridad (Voters)</h1>
+        
+        <p>Los <strong>Security Voters</strong> son el sistema de autorización más flexible de Symfony. Permiten implementar lógica de autorización compleja y granular, decidiendo si un usuario puede realizar una acción específica sobre un recurso.</p>
+
+        <h2>Concepto de Voters</h2>
+        <div class="code-block"><pre><code>Un Voter responde a la pregunta:
+"¿Puede este USUARIO realizar esta ACCIÓN sobre este RECURSO?"
+
+Ejemplo:
+- ¿Puede el usuario "john@example.com" EDITAR el post #123?
+- ¿Puede el usuario "admin" ELIMINAR el comentario #456?
+- ¿Puede el usuario "guest" VER el documento privado?
+?></code></pre></div>
+
+        <h2>Crear un Voter Básico</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/Voter/PostVoter.php
+
+namespace App\\Security\\Voter;
+
+use App\\Entity\\Post;
+use App\\Entity\\User;
+use Symfony\\Component\\Security\\Core\\Authentication\\Token\\TokenInterface;
+use Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter;
+
+class PostVoter extends Voter
+{
+    // Definir las acciones que este voter maneja
+    const VIEW = 'VIEW';
+    const EDIT = 'EDIT';
+    const DELETE = 'DELETE';
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        // Verificar si este voter soporta el atributo (acción)
+        if (!in_array($attribute, [self::VIEW, self::EDIT, self::DELETE])) {
+            return false;
+        }
+
+        // Verificar si el subject es un Post
+        if (!$subject instanceof Post) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+
+        // Si el usuario no está autenticado, denegar acceso
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        /** @var Post $post */
+        $post = $subject;
+
+        // Decidir según la acción
+        return match($attribute) {
+            self::VIEW => $this->canView($post, $user),
+            self::EDIT => $this->canEdit($post, $user),
+            self::DELETE => $this->canDelete($post, $user),
+            default => false
+        };
+    }
+
+    private function canView(Post $post, User $user): bool
+    {
+        // Cualquier usuario puede ver posts públicos
+        if ($post->isPublic()) {
+            return true;
+        }
+
+        // Solo el autor puede ver posts privados
+        return $user === $post->getAuthor();
+    }
+
+    private function canEdit(Post $post, User $user): bool
+    {
+        // Solo el autor puede editar
+        return $user === $post->getAuthor();
+    }
+
+    private function canDelete(Post $post, User $user): bool
+    {
+        // El autor o un admin pueden eliminar
+        return $user === $post->getAuthor() 
+            || in_array('ROLE_ADMIN', $user->getRoles());
+    }
+}
+?></code></pre></div>
+
+        <h2>Usar el Voter en Controladores</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Security\\Http\\Attribute\\IsGranted;
+
+class PostController extends AbstractController
+{
+    // Usar con atributo
+    #[Route('/post/{id}', name: 'post_show')]
+    #[IsGranted('VIEW', subject: 'post')]
+    public function show(Post $post): Response
+    {
+        return $this->render('post/show.html.twig', ['post' => $post]);
+    }
+
+    // Verificar manualmente
+    #[Route('/post/{id}/edit', name: 'post_edit')]
+    public function edit(Post $post): Response
+    {
+        $this->denyAccessUnlessGranted('EDIT', $post);
+        
+        // Lógica de edición...
+        return $this->render('post/edit.html.twig', ['post' => $post]);
+    }
+
+    // Verificar sin lanzar excepción
+    #[Route('/post/{id}', name: 'post_view')]
+    public function view(Post $post, Security $security): Response
+    {
+        $canEdit = $security->isGranted('EDIT', $post);
+        $canDelete = $security->isGranted('DELETE', $post);
+        
+        return $this->render('post/view.html.twig', [
+            'post' => $post,
+            'can_edit' => $canEdit,
+            'can_delete' => $canDelete,
+        ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Usar Voter en Twig</h2>
+        <div class="code-block"><pre><code>{# templates/post/show.html.twig #}
+
+<div class="post">
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
+    
+    <div class="actions">
+        {% if is_granted('EDIT', post) %}
+            <a href="{{ path('post_edit', {id: post.id}) }}" class="btn btn-primary">
+                Editar
+            </a>
+        {% endif %}
+        
+        {% if is_granted('DELETE', post) %}
+            <a href="{{ path('post_delete', {id: post.id}) }}" 
+               class="btn btn-danger"
+               onclick="return confirm('¿Estás seguro?')">
+                Eliminar
+            </a>
+        {% endif %}
+    </div>
+</div>
+?></code></pre></div>
+
+        <h2>Voter con Múltiples Entidades</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/Voter/CommentVoter.php
+
+class CommentVoter extends Voter
+{
+    const EDIT = 'EDIT';
+    const DELETE = 'DELETE';
+    const APPROVE = 'APPROVE';
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        return in_array($attribute, [self::EDIT, self::DELETE, self::APPROVE])
+            && $subject instanceof Comment;
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        /** @var Comment $comment */
+        $comment = $subject;
+
+        return match($attribute) {
+            self::EDIT => $this->canEdit($comment, $user),
+            self::DELETE => $this->canDelete($comment, $user),
+            self::APPROVE => $this->canApprove($comment, $user),
+            default => false
+        };
+    }
+
+    private function canEdit(Comment $comment, User $user): bool
+    {
+        // Puede editar si es el autor y no han pasado más de 15 minutos
+        if ($user !== $comment->getAuthor()) {
+            return false;
+        }
+
+        $now = new \\DateTime();
+        $createdAt = $comment->getCreatedAt();
+        $diff = $now->getTimestamp() - $createdAt->getTimestamp();
+        
+        return $diff < 900; // 15 minutos
+    }
+
+    private function canDelete(Comment $comment, User $user): bool
+    {
+        // Puede eliminar el autor, el dueño del post o un moderador
+        return $user === $comment->getAuthor()
+            || $user === $comment->getPost()->getAuthor()
+            || in_array('ROLE_MODERATOR', $user->getRoles());
+    }
+
+    private function canApprove(Comment $comment, User $user): bool
+    {
+        // Solo moderadores pueden aprobar
+        return in_array('ROLE_MODERATOR', $user->getRoles());
+    }
+}
+?></code></pre></div>
+
+        <h2>Voter con Dependencias</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/Voter/DocumentVoter.php
+
+use App\\Service\\SubscriptionService;
+
+class DocumentVoter extends Voter
+{
+    const DOWNLOAD = 'DOWNLOAD';
+    const VIEW = 'VIEW';
+
+    public function __construct(
+        private SubscriptionService $subscriptionService
+    ) {}
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        return in_array($attribute, [self::DOWNLOAD, self::VIEW])
+            && $subject instanceof Document;
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        /** @var Document $document */
+        $document = $subject;
+
+        return match($attribute) {
+            self::VIEW => $this->canView($document, $user),
+            self::DOWNLOAD => $this->canDownload($document, $user),
+            default => false
+        };
+    }
+
+    private function canView(Document $document, User $user): bool
+    {
+        // Documentos públicos: todos pueden ver
+        if ($document->isPublic()) {
+            return true;
+        }
+
+        // Documentos privados: solo el propietario
+        return $user === $document->getOwner();
+    }
+
+    private function canDownload(Document $document, User $user): bool
+    {
+        // Verificar si el usuario tiene suscripción activa
+        if (!$this->subscriptionService->hasActiveSubscription($user)) {
+            return false;
+        }
+
+        // Verificar si el documento es premium
+        if ($document->isPremium()) {
+            return $this->subscriptionService->hasPremiumAccess($user);
+        }
+
+        return true;
+    }
+}
+?></code></pre></div>
+
+        <h2>Voter sin Subject (Permisos Globales)</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/Voter/FeatureVoter.php
+
+class FeatureVoter extends Voter
+{
+    const CREATE_POST = 'CREATE_POST';
+    const ACCESS_ADMIN = 'ACCESS_ADMIN';
+    const EXPORT_DATA = 'EXPORT_DATA';
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        // Este voter no requiere subject
+        return in_array($attribute, [
+            self::CREATE_POST,
+            self::ACCESS_ADMIN,
+            self::EXPORT_DATA
+        ]) && $subject === null;
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        return match($attribute) {
+            self::CREATE_POST => $this->canCreatePost($user),
+            self::ACCESS_ADMIN => $this->canAccessAdmin($user),
+            self::EXPORT_DATA => $this->canExportData($user),
+            default => false
+        };
+    }
+
+    private function canCreatePost(User $user): bool
+    {
+        // Verificar si el usuario está verificado
+        if (!$user->isVerified()) {
+            return false;
+        }
+
+        // Verificar si no está baneado
+        if ($user->isBanned()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function canAccessAdmin(User $user): bool
+    {
+        return in_array('ROLE_ADMIN', $user->getRoles());
+    }
+
+    private function canExportData(User $user): bool
+    {
+        // Solo usuarios premium pueden exportar
+        return in_array('ROLE_PREMIUM', $user->getRoles());
+    }
+}
+
+// Uso sin subject
+$this->denyAccessUnlessGranted('CREATE_POST');
+$this->denyAccessUnlessGranted('ACCESS_ADMIN');
+?></code></pre></div>
+
+        <h2>Estrategias de Decisión de Voters</h2>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    access_decision_manager:
+        # Estrategia de decisión
+        strategy: affirmative  # Por defecto
+        
+        # Opciones:
+        # - affirmative: Si al menos un voter dice SÍ, se concede acceso
+        # - consensus: La mayoría debe decir SÍ
+        # - unanimous: Todos deben decir SÍ
+        # - priority: El primer voter que decida gana
+        
+        # Permitir si todos se abstienen
+        allow_if_all_abstain: false
+        
+        # Permitir si hay empate (solo para consensus)
+        allow_if_equal_granted_denied: true
+?></code></pre></div>
+
+        <h2>Voter con Prioridad</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Security/Voter/SuperAdminVoter.php
+
+class SuperAdminVoter extends Voter
+{
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        // Este voter soporta CUALQUIER atributo
+        return true;
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        // Super admin puede hacer TODO
+        if (in_array('ROLE_SUPER_ADMIN', $user->getRoles())) {
+            return true;
+        }
+
+        // Abstenerse para otros usuarios (dejar que otros voters decidan)
+        return false;
+    }
+}
+
+# Configurar prioridad en services.yaml
+services:
+    App\\Security\\Voter\\SuperAdminVoter:
+        tags:
+            - { name: security.voter, priority: 255 }  # Alta prioridad
+    
+    App\\Security\\Voter\\PostVoter:
+        tags:
+            - { name: security.voter, priority: 0 }  # Prioridad normal
+?></code></pre></div>
+
+        <h2>Testing de Voters</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// tests/Security/Voter/PostVoterTest.php
+
+namespace App\\Tests\\Security\\Voter;
+
+use App\\Entity\\Post;
+use App\\Entity\\User;
+use App\\Security\\Voter\\PostVoter;
+use PHPUnit\\Framework\\TestCase;
+use Symfony\\Component\\Security\\Core\\Authentication\\Token\\UsernamePasswordToken;
+use Symfony\\Component\\Security\\Core\\Authorization\\Voter\\VoterInterface;
+
+class PostVoterTest extends TestCase
+{
+    private PostVoter $voter;
+
+    protected function setUp(): void
+    {
+        $this->voter = new PostVoter();
+    }
+
+    public function testAuthorCanEditOwnPost(): void
+    {
+        $user = new User();
+        $post = new Post();
+        $post->setAuthor($user);
+
+        $token = new UsernamePasswordToken($user, 'main', ['ROLE_USER']);
+        
+        $result = $this->voter->vote($token, $post, ['EDIT']);
+        
+        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testUserCannotEditOthersPost(): void
+    {
+        $author = new User();
+        $otherUser = new User();
+        
+        $post = new Post();
+        $post->setAuthor($author);
+
+        $token = new UsernamePasswordToken($otherUser, 'main', ['ROLE_USER']);
+        
+        $result = $this->voter->vote($token, $post, ['EDIT']);
+        
+        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testAdminCanDeleteAnyPost(): void
+    {
+        $author = new User();
+        $admin = new User();
+        $admin->setRoles(['ROLE_ADMIN']);
+        
+        $post = new Post();
+        $post->setAuthor($author);
+
+        $token = new UsernamePasswordToken($admin, 'main', ['ROLE_ADMIN']);
+        
+        $result = $this->voter->vote($token, $post, ['DELETE']);
+        
+        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+    }
+}
+?></code></pre></div>
+
+        <h2>Debugging de Voters</h2>
+        <div class="code-block"><pre><code># Ver todos los voters registrados
+php bin/console debug:security
+
+# Ver decisión de voters para una acción específica
+php bin/console debug:security --voters
+
+# En el controlador, obtener información de decisión
+use Symfony\\Bundle\\SecurityBundle\\Security\\FirewallMap;
+use Symfony\\Component\\Security\\Core\\Authorization\\AccessDecisionManagerInterface;
+
+public function debug(
+    Post $post,
+    AccessDecisionManagerInterface $decisionManager,
+    TokenStorageInterface $tokenStorage
+): Response {
+    $token = $tokenStorage->getToken();
+    
+    // Verificar decisión
+    $decision = $decisionManager->decide($token, ['EDIT'], $post);
+    
+    // $decision será true o false
+    dd($decision);
+}
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de los Voters:</strong><br>
+            • <strong>Granularidad</strong>: Control fino sobre permisos<br>
+            • <strong>Reutilización</strong>: Lógica centralizada de autorización<br>
+            • <strong>Testeable</strong>: Fácil de probar unitariamente<br>
+            • <strong>Flexible</strong>: Lógica compleja con dependencias<br>
+            • <strong>Composable</strong>: Múltiples voters trabajan juntos<br>
+            • <strong>Mantenible</strong>: Cambios en un solo lugar
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Cuándo Usar Voters:</strong><br>
+            • <strong>Permisos basados en propiedad</strong>: "¿Es el autor?"<br>
+            • <strong>Lógica de negocio compleja</strong>: Suscripciones, tiempo, estado<br>
+            • <strong>Permisos contextuales</strong>: Dependen del recurso específico<br>
+            • <strong>Autorización granular</strong>: Más allá de roles simples
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Mejores Prácticas:</strong><br>
+            • Mantener voters simples y enfocados<br>
+            • Un voter por tipo de entidad<br>
+            • Usar constantes para nombres de atributos<br>
+            • Documentar la lógica de decisión<br>
+            • Testear todos los casos de uso<br>
+            • Considerar el rendimiento en voters con queries pesadas
+        </div>
+    `,
+    'encriptacion-contrasenas-password-hasher': `
+        <h1>Encriptación de Contraseñas (Password Hasher)</h1>
+        
+        <p>Symfony utiliza el componente <strong>PasswordHasher</strong> para hashear contraseñas de forma segura. Nunca se deben almacenar contraseñas en texto plano. El sistema usa algoritmos modernos como bcrypt, argon2i y argon2id.</p>
+
+        <h2>Configuración del Password Hasher</h2>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    password_hashers:
+        # Configuración automática (recomendado)
+        Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface: 'auto'
+        
+        # O especificar algoritmo manualmente
+        App\\Entity\\User:
+            algorithm: auto  # Usa el mejor disponible (bcrypt, argon2i, argon2id)
+            
+        # Configuración específica de bcrypt
+        App\\Entity\\Admin:
+            algorithm: bcrypt
+            cost: 12  # Mayor = más seguro pero más lento (4-31)
+        
+        # Configuración específica de argon2i
+        App\\Entity\\SuperAdmin:
+            algorithm: argon2i
+            memory_cost: 65536  # 64 MB
+            time_cost: 4
+            threads: 2
+?></code></pre></div>
+
+        <h2>Hashear Contraseña en Registro</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/RegistrationController.php
+
+namespace App\\Controller;
+
+use App\\Entity\\User;
+use App\\Form\\RegistrationFormType;
+use Doctrine\\ORM\\EntityManagerInterface;
+use Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;
+use Symfony\\Component\\HttpFoundation\\Request;
+use Symfony\\Component\\HttpFoundation\\Response;
+use Symfony\\Component\\PasswordHasher\\Hasher\\UserPasswordHasherInterface;
+use Symfony\\Component\\Routing\\Attribute\\Route;
+
+class RegistrationController extends AbstractController
+{
+    #[Route('/register', name: 'app_register')]
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user = new User();
+        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Obtener contraseña en texto plano del formulario
+            $plainPassword = $form->get('plainPassword')->getData();
+
+            // Hashear la contraseña
+            $hashedPassword = $passwordHasher->hashPassword(
+                $user,
+                $plainPassword
+            );
+            $user->setPassword($hashedPassword);
+
+            // Guardar usuario
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            $this->addFlash('success', '¡Cuenta creada exitosamente!');
+
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('registration/register.html.twig', [
+            'registrationForm' => $form->createView(),
+        ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Verificar Contraseña</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Verificar si una contraseña coincide con el hash
+
+use Symfony\\Component\\PasswordHasher\\Hasher\\UserPasswordHasherInterface;
+
+class SecurityService
+{
+    public function __construct(
+        private UserPasswordHasherInterface $passwordHasher
+    ) {}
+
+    public function verifyPassword(User $user, string $plainPassword): bool
+    {
+        return $this->passwordHasher->isPasswordValid($user, $plainPassword);
+    }
+}
+
+// Uso en controlador
+#[Route('/verify-password', name: 'verify_password')]
+public function verifyPassword(
+    Request $request,
+    UserPasswordHasherInterface $passwordHasher
+): Response {
+    $user = $this->getUser();
+    $submittedPassword = $request->request->get('password');
+    
+    if ($passwordHasher->isPasswordValid($user, $submittedPassword)) {
+        // Contraseña correcta
+        return $this->json(['valid' => true]);
+    }
+    
+    // Contraseña incorrecta
+    return $this->json(['valid' => false], 401);
+}
+?></code></pre></div>
+
+        <h2>Cambiar Contraseña</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/ProfileController.php
+
+#[Route('/profile/change-password', name: 'profile_change_password')]
+public function changePassword(
+    Request $request,
+    UserPasswordHasherInterface $passwordHasher,
+    EntityManagerInterface $entityManager
+): Response {
+    $user = $this->getUser();
+    $form = $this->createForm(ChangePasswordFormType::class);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        // Verificar contraseña actual
+        $currentPassword = $form->get('currentPassword')->getData();
+        
+        if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+            $this->addFlash('error', 'La contraseña actual es incorrecta');
+            return $this->redirectToRoute('profile_change_password');
+        }
+
+        // Hashear nueva contraseña
+        $newPassword = $form->get('newPassword')->getData();
+        $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+        
+        $user->setPassword($hashedPassword);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Contraseña actualizada exitosamente');
+        
+        return $this->redirectToRoute('app_profile');
+    }
+
+    return $this->render('profile/change_password.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+?></code></pre></div>
+
+        <h2>Formulario de Cambio de Contraseña</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Form/ChangePasswordFormType.php
+
+namespace App\\Form;
+
+use Symfony\\Component\\Form\\AbstractType;
+use Symfony\\Component\\Form\\Extension\\Core\\Type\\PasswordType;
+use Symfony\\Component\\Form\\Extension\\Core\\Type\\RepeatedType;
+use Symfony\\Component\\Form\\FormBuilderInterface;
+use Symfony\\Component\\Validator\\Constraints\\Length;
+use Symfony\\Component\\Validator\\Constraints\\NotBlank;
+use Symfony\\Component\\Validator\\Constraints\\NotCompromisedPassword;
+use Symfony\\Component\\Validator\\Constraints\\PasswordStrength;
+
+class ChangePasswordFormType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('currentPassword', PasswordType::class, [
+                'label' => 'Contraseña Actual',
+                'mapped' => false,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Por favor ingrese su contraseña actual',
+                    ]),
+                ],
+            ])
+            ->add('newPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'mapped' => false,
+                'first_options' => [
+                    'label' => 'Nueva Contraseña',
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Por favor ingrese una contraseña',
+                        ]),
+                        new Length([
+                            'min' => 8,
+                            'minMessage' => 'La contraseña debe tener al menos {{ limit }} caracteres',
+                            'max' => 4096,
+                        ]),
+                        new PasswordStrength([
+                            'minScore' => PasswordStrength::STRENGTH_MEDIUM,
+                            'message' => 'La contraseña es demasiado débil. Use mayúsculas, minúsculas, números y símbolos.',
+                        ]),
+                        new NotCompromisedPassword([
+                            'message' => 'Esta contraseña ha sido comprometida en filtraciones de datos. Por favor use otra.',
+                        ]),
+                    ],
+                ],
+                'second_options' => [
+                    'label' => 'Repetir Nueva Contraseña',
+                ],
+                'invalid_message' => 'Las contraseñas deben coincidir.',
+            ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Resetear Contraseña (Forgot Password)</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/ResetPasswordController.php
+
+use Symfony\\Component\\Mailer\\MailerInterface;
+use Symfony\\Component\\Mime\\Email;
+
+class ResetPasswordController extends AbstractController
+{
+    #[Route('/reset-password/request', name: 'app_forgot_password_request')]
+    public function request(
+        Request $request,
+        UserRepository $userRepository,
+        MailerInterface $mailer
+    ): Response {
+        $form = $this->createForm(ResetPasswordRequestFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $email = $form->get('email')->getData();
+            $user = $userRepository->findOneBy(['email' => $email]);
+
+            if ($user) {
+                // Generar token único
+                $resetToken = bin2hex(random_bytes(32));
+                $user->setResetToken($resetToken);
+                $user->setResetTokenExpiresAt(new \\DateTime('+1 hour'));
+                
+                $userRepository->save($user, true);
+
+                // Enviar email
+                $resetUrl = $this->generateUrl('app_reset_password', [
+                    'token' => $resetToken
+                ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+                $email = (new Email())
+                    ->from('noreply@example.com')
+                    ->to($user->getEmail())
+                    ->subject('Restablecer Contraseña')
+                    ->html("<p>Haz clic aquí para restablecer tu contraseña:</p>
+                           <a href='$resetUrl'>Restablecer Contraseña</a>
+                           <p>Este enlace expira en 1 hora.</p>");
+
+                $mailer->send($email);
+            }
+
+            // Siempre mostrar el mismo mensaje (seguridad)
+            $this->addFlash('success', 'Si el email existe, recibirás instrucciones para restablecer tu contraseña.');
+            
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('reset_password/request.html.twig', [
+            'requestForm' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/reset-password/{token}', name: 'app_reset_password')]
+    public function reset(
+        string $token,
+        Request $request,
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $user = $userRepository->findOneBy(['resetToken' => $token]);
+
+        if (!$user || $user->getResetTokenExpiresAt() < new \\DateTime()) {
+            $this->addFlash('error', 'Token inválido o expirado');
+            return $this->redirectToRoute('app_forgot_password_request');
+        }
+
+        $form = $this->createForm(ResetPasswordFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newPassword = $form->get('plainPassword')->getData();
+            
+            // Hashear nueva contraseña
+            $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedPassword);
+            
+            // Limpiar token
+            $user->setResetToken(null);
+            $user->setResetTokenExpiresAt(null);
+            
+            $userRepository->save($user, true);
+
+            $this->addFlash('success', 'Contraseña restablecida exitosamente');
+            
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('reset_password/reset.html.twig', [
+            'resetForm' => $form->createView(),
+        ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Comando para Hashear Contraseñas</h2>
+        <div class="code-block"><pre><code># Hashear contraseña desde consola
+php bin/console security:hash-password
+
+# Especificar contraseña directamente
+php bin/console security:hash-password MySecretPassword
+
+# Hashear para clase específica
+php bin/console security:hash-password MySecretPassword --user-class=App\\Entity\\Admin
+?></code></pre></div>
+
+        <h2>Actualizar Algoritmo de Hash Automáticamente</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Repository/UserRepository.php
+
+namespace App\\Repository;
+
+use Symfony\\Component\\Security\\Core\\User\\PasswordUpgraderInterface;
+
+class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
+{
+    /**
+     * Actualizar hash de contraseña si el algoritmo cambió
+     */
+    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    {
+        if (!$user instanceof User) {
+            throw new UnsupportedUserException(sprintf('Instancia de "%s" no soportada', get_class($user)));
+        }
+
+        $user->setPassword($newHashedPassword);
+        $this->getEntityManager()->flush();
+    }
+}
+
+// Symfony llamará automáticamente a upgradePassword() después de login exitoso
+// si detecta que el algoritmo de hash cambió
+?></code></pre></div>
+
+        <h2>Validadores de Contraseña</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Validator\\Constraints as Assert;
+
+class User
+{
+    #[Assert\\NotBlank]
+    #[Assert\\Length(min: 8, max: 4096)]
+    #[Assert\\PasswordStrength(
+        minScore: PasswordStrength::STRENGTH_STRONG,
+        message: 'La contraseña debe ser fuerte: mayúsculas, minúsculas, números y símbolos'
+    )]
+    #[Assert\\NotCompromisedPassword(
+        message: 'Esta contraseña ha sido filtrada. Use otra diferente.',
+        skipOnError: true
+    )]
+    private ?string $plainPassword = null;
+}
+
+// PasswordStrength niveles:
+// - STRENGTH_WEAK: Muy débil
+// - STRENGTH_MEDIUM: Media
+// - STRENGTH_STRONG: Fuerte
+// - STRENGTH_VERY_STRONG: Muy fuerte
+?></code></pre></div>
+
+        <h2>Generar Contraseña Aleatoria Segura</h2>
+        <div class="code-block"><pre><code>&lt;?php
+class PasswordGenerator
+{
+    public function generateSecurePassword(int $length = 16): string
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+        $password = '';
+        $charsLength = strlen($chars);
+        
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[random_int(0, $charsLength - 1)];
+        }
+        
+        return $password;
+    }
+
+    public function generateReadablePassword(): string
+    {
+        $words = ['correct', 'horse', 'battery', 'staple'];
+        shuffle($words);
+        return implode('-', array_slice($words, 0, 4)) . random_int(10, 99);
+    }
+}
+
+// Uso
+$generator = new PasswordGenerator();
+$password = $generator->generateSecurePassword(20);
+// Ejemplo: "aB3$xY9@mN2&pQ7!zR4%"
+
+$readablePassword = $generator->generateReadablePassword();
+// Ejemplo: "horse-battery-correct-staple-42"
+?></code></pre></div>
+
+        <h2>Política de Contraseñas</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Validator/Constraints/StrongPassword.php
+
+namespace App\\Validator\\Constraints;
+
+use Symfony\\Component\\Validator\\Constraint;
+use Symfony\\Component\\Validator\\ConstraintValidator;
+
+#[\\Attribute]
+class StrongPassword extends Constraint
+{
+    public string $message = 'La contraseña no cumple los requisitos de seguridad.';
+    public int $minLength = 12;
+    public bool $requireUppercase = true;
+    public bool $requireLowercase = true;
+    public bool $requireNumbers = true;
+    public bool $requireSpecialChars = true;
+    public array $commonPasswords = ['password', '123456', 'qwerty'];
+}
+
+class StrongPasswordValidator extends ConstraintValidator
+{
+    public function validate(mixed $value, Constraint $constraint): void
+    {
+        if (!$constraint instanceof StrongPassword) {
+            throw new UnexpectedTypeException($constraint, StrongPassword::class);
+        }
+
+        if (null === $value || '' === $value) {
+            return;
+        }
+
+        $errors = [];
+
+        // Longitud mínima
+        if (strlen($value) < $constraint->minLength) {
+            $errors[] = sprintf('al menos %d caracteres', $constraint->minLength);
+        }
+
+        // Mayúsculas
+        if ($constraint->requireUppercase && !preg_match('/[A-Z]/', $value)) {
+            $errors[] = 'al menos una letra mayúscula';
+        }
+
+        // Minúsculas
+        if ($constraint->requireLowercase && !preg_match('/[a-z]/', $value)) {
+            $errors[] = 'al menos una letra minúscula';
+        }
+
+        // Números
+        if ($constraint->requireNumbers && !preg_match('/[0-9]/', $value)) {
+            $errors[] = 'al menos un número';
+        }
+
+        // Caracteres especiales
+        if ($constraint->requireSpecialChars && !preg_match('/[^A-Za-z0-9]/', $value)) {
+            $errors[] = 'al menos un carácter especial';
+        }
+
+        // Contraseñas comunes
+        if (in_array(strtolower($value), $constraint->commonPasswords)) {
+            $errors[] = 'no puede ser una contraseña común';
+        }
+
+        if (!empty($errors)) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ requirements }}', implode(', ', $errors))
+                ->addViolation();
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Comparación de Algoritmos</h2>
+        <div class="code-block"><pre><code>┌──────────────┬──────────┬────────────┬─────────────┬──────────────┐
+│  Algoritmo   │ Seguridad│ Velocidad  │ Memoria     │ Recomendado  │
+├──────────────┼──────────┼────────────┼─────────────┼──────────────┤
+│ bcrypt       │   Alta   │   Media    │    Baja     │      Sí      │
+│ argon2i      │ Muy Alta │   Lenta    │    Alta     │      Sí      │
+│ argon2id     │ Muy Alta │   Lenta    │    Alta     │  Sí (mejor)  │
+│ md5          │   Baja   │   Rápida   │    Baja     │      NO      │
+│ sha256       │   Media  │   Rápida   │    Baja     │      NO      │
+└──────────────┴──────────┴────────────┴─────────────┴──────────────┘
+
+Recomendación: Usar 'auto' para que Symfony elija el mejor disponible
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Nunca</strong> almacenar contraseñas en texto plano<br>
+            • Usar algoritmo 'auto' para mejor seguridad<br>
+            • Implementar política de contraseñas fuertes<br>
+            • Validar con NotCompromisedPassword<br>
+            • Actualizar hashes automáticamente (PasswordUpgraderInterface)<br>
+            • Usar tokens con expiración para reset de contraseña<br>
+            • Limitar intentos de login (rate limiting)
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • Usar algoritmos débiles (md5, sha1)<br>
+            • No validar fortaleza de contraseña<br>
+            • Permitir contraseñas comunes<br>
+            • No implementar reset de contraseña seguro<br>
+            • Exponer información sobre usuarios en errores<br>
+            • No usar HTTPS para transmitir contraseñas
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Resumen:</strong><br>
+            • <strong>hashPassword()</strong>: Hashear contraseña<br>
+            • <strong>isPasswordValid()</strong>: Verificar contraseña<br>
+            • <strong>upgradePassword()</strong>: Actualizar hash automáticamente<br>
+            • <strong>PasswordStrength</strong>: Validar fortaleza<br>
+            • <strong>NotCompromisedPassword</strong>: Verificar filtraciones<br>
+            • <strong>bcrypt/argon2</strong>: Algoritmos recomendados
+        </div>
+    `,
+    'proteccion-csrf-headers': `
+        <h1>Protección CSRF y Headers de Seguridad</h1>
+        
+        <p>La <strong>protección CSRF</strong> (Cross-Site Request Forgery) y los <strong>headers de seguridad</strong> son esenciales para proteger aplicaciones web contra ataques comunes. Symfony proporciona herramientas integradas para implementar estas protecciones.</p>
+
+        <h2>1. Protección CSRF en Formularios</h2>
+        
+        <h3>Habilitar CSRF Globalmente</h3>
+        <div class="code-block"><pre><code># config/packages/framework.yaml
+
+framework:
+    csrf_protection: ~  # Habilitado por defecto
+
+# config/packages/security.yaml
+
+security:
+    firewalls:
+        main:
+            form_login:
+                enable_csrf: true  # Protección CSRF en login
+?></code></pre></div>
+
+        <h3>CSRF en Formularios Symfony</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Los formularios de Symfony incluyen CSRF automáticamente
+
+class ProductType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name', TextType::class)
+            ->add('price', MoneyType::class)
+            ->add('save', SubmitType::class);
+        
+        // CSRF se agrega automáticamente
+    }
+    
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Product::class,
+            'csrf_protection' => true,  // Por defecto
+            'csrf_field_name' => '_token',  // Nombre del campo
+            'csrf_token_id' => 'product_item',  // ID único del token
+        ]);
+    }
+}
+
+// En Twig, el token se renderiza automáticamente
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    {# Campo _token se incluye automáticamente #}
+{{ form_end(form) }}
+?></code></pre></div>
+
+        <h3>CSRF Manual en Formularios HTML</h3>
+        <div class="code-block"><pre><code>{# templates/product/edit.html.twig #}
+
+<form method="post" action="{{ path('product_edit', {id: product.id}) }}">
+    <input type="text" name="name" value="{{ product.name }}">
+    <input type="number" name="price" value="{{ product.price }}">
+    
+    {# Generar token CSRF manualmente #}
+    <input type="hidden" name="_token" value="{{ csrf_token('product_edit') }}">
+    
+    <button type="submit">Guardar</button>
+</form>
+
+&lt;?php
+// Verificar token en el controlador
+
+use Symfony\\Component\\Security\\Csrf\\CsrfTokenManagerInterface;
+use Symfony\\Component\\Security\\Csrf\\CsrfToken;
+
+#[Route('/product/{id}/edit', name: 'product_edit', methods: ['POST'])]
+public function edit(
+    Request $request,
+    Product $product,
+    CsrfTokenManagerInterface $csrfTokenManager
+): Response {
+    $token = new CsrfToken('product_edit', $request->request->get('_token'));
+    
+    if (!$csrfTokenManager->isTokenValid($token)) {
+        throw $this->createAccessDeniedException('Token CSRF inválido');
+    }
+    
+    // Procesar formulario...
+    return $this->redirectToRoute('product_list');
+}
+?></code></pre></div>
+
+        <h2>2. CSRF en Peticiones AJAX</h2>
+        <div class="code-block"><pre><code>{# Incluir token en meta tag #}
+<meta name="csrf-token" content="{{ csrf_token('ajax') }}">
+
+<script>
+// Obtener token del meta tag
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+// Enviar con fetch
+fetch('/api/delete-item', {
+    method: 'DELETE',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken
+    },
+    body: JSON.stringify({ id: 123 })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+
+// Con axios (configuración global)
+axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+
+axios.delete('/api/delete-item', { id: 123 })
+    .then(response => console.log(response.data));
+</script>
+
+&lt;?php
+// Verificar en el controlador
+
+#[Route('/api/delete-item', methods: ['DELETE'])]
+public function deleteItem(
+    Request $request,
+    CsrfTokenManagerInterface $csrfTokenManager
+): JsonResponse {
+    $token = new CsrfToken('ajax', $request->headers->get('X-CSRF-TOKEN'));
+    
+    if (!$csrfTokenManager->isTokenValid($token)) {
+        return $this->json(['error' => 'Token CSRF inválido'], 403);
+    }
+    
+    // Procesar eliminación...
+    return $this->json(['success' => true]);
+}
+?></code></pre></div>
+
+        <h2>3. Headers de Seguridad</h2>
+        
+        <h3>Configurar Headers con NelmioSecurityBundle</h3>
+        <div class="code-block"><pre><code>composer require nelmio/security-bundle
+
+# config/packages/nelmio_security.yaml
+
+nelmio_security:
+    # Content Security Policy
+    csp:
+        enabled: true
+        hosts: []
+        content_types: []
+        enforce:
+            level1_fallback: false
+            browser_adaptive:
+                enabled: false
+            default-src:
+                - 'self'
+            script-src:
+                - 'self'
+                - 'unsafe-inline'  # Evitar en producción
+                - 'https://cdn.example.com'
+            style-src:
+                - 'self'
+                - 'unsafe-inline'
+            img-src:
+                - 'self'
+                - 'data:'
+                - 'https:'
+            font-src:
+                - 'self'
+                - 'https://fonts.gstatic.com'
+            connect-src:
+                - 'self'
+                - 'https://api.example.com'
+            frame-ancestors:
+                - 'none'  # Prevenir clickjacking
+    
+    # X-Frame-Options
+    clickjacking:
+        paths:
+            '^/.*': DENY  # O SAMEORIGIN
+    
+    # X-Content-Type-Options
+    content_type:
+        nosniff: true
+    
+    # X-XSS-Protection
+    xss_protection:
+        enabled: true
+        mode_block: true
+    
+    # Referrer-Policy
+    referrer_policy:
+        enabled: true
+        policies:
+            - 'no-referrer-when-downgrade'
+            - 'strict-origin-when-cross-origin'
+    
+    # HTTP Strict Transport Security (HSTS)
+    forced_ssl:
+        enabled: true
+        hsts_max_age: 31536000  # 1 año
+        hsts_subdomains: true
+        hsts_preload: true
+?></code></pre></div>
+
+        <h3>Headers Manualmente en Controlador</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class SecurityController extends AbstractController
+{
+    #[Route('/secure-page')]
+    public function securePage(): Response
+    {
+        $response = $this->render('secure/page.html.twig');
+        
+        // X-Frame-Options: Prevenir clickjacking
+        $response->headers->set('X-Frame-Options', 'DENY');
+        
+        // X-Content-Type-Options: Prevenir MIME sniffing
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        
+        // X-XSS-Protection
+        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        
+        // Content-Security-Policy
+        $response->headers->set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'");
+        
+        // Referrer-Policy
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        
+        // Permissions-Policy (antes Feature-Policy)
+        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+        
+        return $response;
+    }
+}
+?></code></pre></div>
+
+        <h3>Event Subscriber para Headers Globales</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// src/EventSubscriber/SecurityHeadersSubscriber.php
+
+namespace App\\EventSubscriber;
+
+use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;
+use Symfony\\Component\\HttpKernel\\Event\\ResponseEvent;
+use Symfony\\Component\\HttpKernel\\KernelEvents;
+
+class SecurityHeadersSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::RESPONSE => 'onKernelResponse',
+        ];
+    }
+
+    public function onKernelResponse(ResponseEvent $event): void
+    {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        $response = $event->getResponse();
+        
+        // Agregar headers de seguridad a todas las respuestas
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        
+        // HSTS solo en HTTPS
+        if ($event->getRequest()->isSecure()) {
+            $response->headers->set(
+                'Strict-Transport-Security',
+                'max-age=31536000; includeSubDomains; preload'
+            );
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>4. Content Security Policy (CSP) Avanzado</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Generar nonce para scripts inline
+
+class CspService
+{
+    private string $nonce;
+
+    public function __construct()
+    {
+        $this->nonce = base64_encode(random_bytes(16));
+    }
+
+    public function getNonce(): string
+    {
+        return $this->nonce;
+    }
+
+    public function getCspHeader(): string
+    {
+        return sprintf(
+            "default-src 'self'; script-src 'self' 'nonce-%s'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;",
+            $this->nonce
+        );
+    }
+}
+
+// En el controlador
+#[Route('/page')]
+public function page(CspService $cspService): Response
+{
+    $response = $this->render('page.html.twig', [
+        'csp_nonce' => $cspService->getNonce()
+    ]);
+    
+    $response->headers->set('Content-Security-Policy', $cspService->getCspHeader());
+    
+    return $response;
+}
+
+{# En Twig #}
+<script nonce="{{ csp_nonce }}">
+    console.log('Este script es permitido por CSP');
+</script>
+?></code></pre></div>
+
+        <h2>5. CORS (Cross-Origin Resource Sharing)</h2>
+        <div class="code-block"><pre><code>composer require nelmio/cors-bundle
+
+# config/packages/nelmio_cors.yaml
+
+nelmio_cors:
+    defaults:
+        origin_regex: true
+        allow_origin: ['*']  # En producción, especificar dominios
+        allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-TOKEN']
+        expose_headers: ['Link']
+        max_age: 3600
+    paths:
+        '^/api/':
+            allow_origin: ['https://app.example.com', 'https://admin.example.com']
+            allow_headers: ['*']
+            allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
+            max_age: 3600
+        '^/public/':
+            allow_origin: ['*']
+            allow_methods: ['GET']
+
+# Manual en controlador
+public function apiEndpoint(): JsonResponse
+{
+    $response = $this->json(['data' => 'value']);
+    
+    $response->headers->set('Access-Control-Allow-Origin', 'https://app.example.com');
+    $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    return $response;
+}
+?></code></pre></div>
+
+        <h2>6. Rate Limiting</h2>
+        <div class="code-block"><pre><code>composer require symfony/rate-limiter
+
+# config/packages/rate_limiter.yaml
+
+framework:
+    rate_limiter:
+        # Limitar intentos de login
+        login:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+        
+        # Limitar API requests
+        api:
+            policy: 'token_bucket'
+            limit: 100
+            rate: { interval: '1 hour' }
+
+&lt;?php
+// Usar en controlador
+
+use Symfony\\Component\\RateLimiter\\RateLimiterFactory;
+
+#[Route('/login', name: 'app_login', methods: ['POST'])]
+public function login(
+    Request $request,
+    RateLimiterFactory $loginLimiter
+): Response {
+    // Crear limiter por IP
+    $limiter = $loginLimiter->create($request->getClientIp());
+    
+    // Intentar consumir un token
+    if (!$limiter->consume(1)->isAccepted()) {
+        throw new TooManyRequestsHttpException(
+            null,
+            'Demasiados intentos de login. Intente más tarde.'
+        );
+    }
+    
+    // Procesar login...
+}
+
+// API con rate limiting
+#[Route('/api/resource')]
+public function apiResource(
+    Request $request,
+    RateLimiterFactory $apiLimiter
+): JsonResponse {
+    $limiter = $apiLimiter->create($request->getClientIp());
+    
+    $limit = $limiter->consume(1);
+    
+    if (!$limit->isAccepted()) {
+        return $this->json([
+            'error' => 'Rate limit exceeded',
+            'retry_after' => $limit->getRetryAfter()->getTimestamp()
+        ], 429);
+    }
+    
+    // Agregar headers de rate limit
+    $response = $this->json(['data' => 'value']);
+    $response->headers->set('X-RateLimit-Limit', $limit->getLimit());
+    $response->headers->set('X-RateLimit-Remaining', $limit->getRemainingTokens());
+    
+    return $response;
+}
+?></code></pre></div>
+
+        <h2>7. Sanitización de Entrada</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\HtmlSanitizer\\HtmlSanitizerInterface;
+
+class ContentController extends AbstractController
+{
+    #[Route('/content/save', methods: ['POST'])]
+    public function save(
+        Request $request,
+        HtmlSanitizerInterface $htmlSanitizer
+    ): Response {
+        $content = $request->request->get('content');
+        
+        // Sanitizar HTML para prevenir XSS
+        $safeContent = $htmlSanitizer->sanitize($content);
+        
+        // Guardar contenido sanitizado...
+        
+        return $this->json(['success' => true]);
+    }
+}
+
+# config/packages/html_sanitizer.yaml
+
+framework:
+    html_sanitizer:
+        sanitizers:
+            app.sanitizer:
+                allowed_elements:
+                    - p
+                    - a
+                    - strong
+                    - em
+                    - ul
+                    - ol
+                    - li
+                allowed_attributes:
+                    a: ['href', 'title']
+                allow_safe_elements: true
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Headers de Seguridad Esenciales:</strong><br>
+            • <strong>X-Frame-Options</strong>: DENY o SAMEORIGIN (clickjacking)<br>
+            • <strong>X-Content-Type-Options</strong>: nosniff (MIME sniffing)<br>
+            • <strong>X-XSS-Protection</strong>: 1; mode=block<br>
+            • <strong>Content-Security-Policy</strong>: Controlar recursos permitidos<br>
+            • <strong>Strict-Transport-Security</strong>: Forzar HTTPS<br>
+            • <strong>Referrer-Policy</strong>: Controlar información de referer
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Ataques Comunes Prevenidos:</strong><br>
+            • <strong>CSRF</strong>: Tokens en formularios<br>
+            • <strong>XSS</strong>: CSP + sanitización + escape en Twig<br>
+            • <strong>Clickjacking</strong>: X-Frame-Options<br>
+            • <strong>MIME Sniffing</strong>: X-Content-Type-Options<br>
+            • <strong>Man-in-the-Middle</strong>: HSTS<br>
+            • <strong>Brute Force</strong>: Rate limiting
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Checklist de Seguridad:</strong><br>
+            ✓ CSRF habilitado en todos los formularios<br>
+            ✓ Headers de seguridad configurados<br>
+            ✓ HTTPS forzado en producción<br>
+            ✓ CSP configurado correctamente<br>
+            ✓ Rate limiting en endpoints sensibles<br>
+            ✓ Sanitización de entrada de usuario<br>
+            ✓ CORS configurado para APIs<br>
+            ✓ Logging de intentos de ataque
+        </div>
+    `,
+    'autorizacion-roles-usuario': `
+        <h1>Autorización y Roles de Usuario</h1>
+        
+        <p>El sistema de <strong>autorización y roles</strong> de Symfony permite controlar qué usuarios pueden acceder a qué recursos. Los roles son jerárquicos y se pueden combinar con voters para lógica de autorización compleja.</p>
+
+        <h2>1. Definir Roles en la Entidad User</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Entity/User.php
+
+class User implements UserInterface
+{
+    #[ORM\\Column(type: 'json')]
+    private array $roles = [];
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // Garantizar que todo usuario tenga ROLE_USER
+        $roles[] = 'ROLE_USER';
+        
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function addRole(string $role): self
+    {
+        if (!in_array($role, $this->roles)) {
+            $this->roles[] = $role;
+        }
+        return $this;
+    }
+
+    public function removeRole(string $role): self
+    {
+        $this->roles = array_diff($this->roles, [$role]);
+        return $this;
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->getRoles());
+    }
+}
+?></code></pre></div>
+
+        <h2>2. Jerarquía de Roles</h2>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    role_hierarchy:
+        ROLE_ADMIN:       [ROLE_USER, ROLE_MODERATOR]
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_MODERATOR:   [ROLE_USER]
+
+# Con esta configuración:
+# - ROLE_ADMIN tiene automáticamente ROLE_USER y ROLE_MODERATOR
+# - ROLE_SUPER_ADMIN tiene todos los roles
+# - ROLE_ALLOWED_TO_SWITCH permite impersonar usuarios
+?></code></pre></div>
+
+        <h2>3. Proteger Rutas con Roles</h2>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    access_control:
+        # Rutas públicas
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        
+        # Requiere autenticación
+        - { path: ^/profile, roles: ROLE_USER }
+        
+        # Solo moderadores
+        - { path: ^/moderate, roles: ROLE_MODERATOR }
+        
+        # Solo administradores
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        
+        # Solo super admin
+        - { path: ^/super-admin, roles: ROLE_SUPER_ADMIN }
+        
+        # Múltiples roles (OR)
+        - { path: ^/dashboard, roles: [ROLE_ADMIN, ROLE_MODERATOR] }
+?></code></pre></div>
+
+        <h2>4. Proteger Controladores</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Security\\Http\\Attribute\\IsGranted;
+
+// Proteger toda la clase
+#[IsGranted('ROLE_ADMIN')]
+class AdminController extends AbstractController
+{
+    // Todos los métodos requieren ROLE_ADMIN
+    
+    #[Route('/admin/dashboard')]
+    public function dashboard(): Response
+    {
+        return $this->render('admin/dashboard.html.twig');
+    }
+    
+    // Requiere rol adicional
+    #[IsGranted('ROLE_SUPER_ADMIN')]
+    #[Route('/admin/settings')]
+    public function settings(): Response
+    {
+        return $this->render('admin/settings.html.twig');
+    }
+}
+
+// Proteger métodos individuales
+class PostController extends AbstractController
+{
+    #[Route('/posts')]
+    public function list(): Response
+    {
+        // Público
+        return $this->render('post/list.html.twig');
+    }
+    
+    #[IsGranted('ROLE_USER')]
+    #[Route('/posts/new')]
+    public function new(): Response
+    {
+        // Solo usuarios autenticados
+        return $this->render('post/new.html.twig');
+    }
+    
+    #[IsGranted('ROLE_MODERATOR')]
+    #[Route('/posts/{id}/approve')]
+    public function approve(Post $post): Response
+    {
+        // Solo moderadores
+        $post->setApproved(true);
+        return $this->redirectToRoute('post_list');
+    }
+}
+?></code></pre></div>
+
+        <h2>5. Verificar Roles Manualmente</h2>
+        <div class="code-block"><pre><code>&lt;?php
+class UserController extends AbstractController
+{
+    #[Route('/dashboard')]
+    public function dashboard(Security $security): Response
+    {
+        // Verificar rol sin lanzar excepción
+        $isAdmin = $security->isGranted('ROLE_ADMIN');
+        $isModerator = $security->isGranted('ROLE_MODERATOR');
+        
+        // Lanzar excepción si no tiene permiso
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        
+        // Verificar múltiples roles
+        if (!$security->isGranted('ROLE_ADMIN') && !$security->isGranted('ROLE_MODERATOR')) {
+            throw $this->createAccessDeniedException('Acceso denegado');
+        }
+        
+        return $this->render('dashboard.html.twig', [
+            'is_admin' => $isAdmin,
+            'is_moderator' => $isModerator,
+        ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>6. Roles en Twig</h2>
+        <div class="code-block"><pre><code>{# Verificar si el usuario está autenticado #}
+{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    <p>Bienvenido, {{ app.user.email }}</p>
+{% endif %}
+
+{# Verificar rol específico #}
+{% if is_granted('ROLE_ADMIN') %}
+    <a href="{{ path('admin_dashboard') }}">Panel de Administración</a>
+{% endif %}
+
+{# Verificar múltiples roles #}
+{% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MODERATOR') %}
+    <button class="btn-moderate">Moderar Contenido</button>
+{% endif %}
+
+{# Mostrar diferentes contenidos según rol #}
+{% if is_granted('ROLE_SUPER_ADMIN') %}
+    <div class="super-admin-panel">...</div>
+{% elseif is_granted('ROLE_ADMIN') %}
+    <div class="admin-panel">...</div>
+{% elseif is_granted('ROLE_MODERATOR') %}
+    <div class="moderator-panel">...</div>
+{% else %}
+    <div class="user-panel">...</div>
+{% endif %}
+
+{# Obtener roles del usuario #}
+{% if app.user %}
+    <ul>
+        {% for role in app.user.roles %}
+            <li>{{ role }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+?></code></pre></div>
+
+        <h2>7. Asignar Roles Dinámicamente</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/AdminController.php
+
+#[Route('/admin/user/{id}/roles', name: 'admin_user_roles')]
+#[IsGranted('ROLE_ADMIN')]
+public function manageRoles(
+    User $user,
+    Request $request,
+    EntityManagerInterface $em
+): Response {
+    $availableRoles = [
+        'ROLE_USER' => 'Usuario',
+        'ROLE_MODERATOR' => 'Moderador',
+        'ROLE_ADMIN' => 'Administrador',
+        'ROLE_SUPER_ADMIN' => 'Super Administrador',
+    ];
+    
+    if ($request->isMethod('POST')) {
+        $selectedRoles = $request->request->all('roles');
+        $user->setRoles($selectedRoles);
+        $em->flush();
+        
+        $this->addFlash('success', 'Roles actualizados');
+        return $this->redirectToRoute('admin_users');
+    }
+    
+    return $this->render('admin/user_roles.html.twig', [
+        'user' => $user,
+        'available_roles' => $availableRoles,
+    ]);
+}
+
+{# templates/admin/user_roles.html.twig #}
+<form method="post">
+    <h3>Roles de {{ user.email }}</h3>
+    
+    {% for role, label in available_roles %}
+        <div class="form-check">
+            <input type="checkbox" 
+                   name="roles[]" 
+                   value="{{ role }}" 
+                   id="role_{{ role }}"
+                   {% if role in user.roles %}checked{% endif %}>
+            <label for="role_{{ role }}">{{ label }}</label>
+        </div>
+    {% endfor %}
+    
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+?></code></pre></div>
+
+        <h2>8. Roles Personalizados</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Definir roles personalizados como constantes
+
+class UserRole
+{
+    public const USER = 'ROLE_USER';
+    public const MODERATOR = 'ROLE_MODERATOR';
+    public const ADMIN = 'ROLE_ADMIN';
+    public const SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
+    
+    // Roles específicos de negocio
+    public const EDITOR = 'ROLE_EDITOR';
+    public const AUTHOR = 'ROLE_AUTHOR';
+    public const SUBSCRIBER = 'ROLE_SUBSCRIBER';
+    public const PREMIUM = 'ROLE_PREMIUM';
+    
+    public static function getAll(): array
+    {
+        return [
+            self::USER => 'Usuario',
+            self::MODERATOR => 'Moderador',
+            self::ADMIN => 'Administrador',
+            self::SUPER_ADMIN => 'Super Administrador',
+            self::EDITOR => 'Editor',
+            self::AUTHOR => 'Autor',
+            self::SUBSCRIBER => 'Suscriptor',
+            self::PREMIUM => 'Premium',
+        ];
+    }
+    
+    public static function getLabel(string $role): string
+    {
+        return self::getAll()[$role] ?? $role;
+    }
+}
+
+// Uso
+$user->addRole(UserRole::EDITOR);
+$user->addRole(UserRole::PREMIUM);
+?></code></pre></div>
+
+        <h2>9. Impersonar Usuarios (Switch User)</h2>
+        <div class="code-block"><pre><code># config/packages/security.yaml
+
+security:
+    firewalls:
+        main:
+            switch_user: true  # Habilitar impersonación
+
+    role_hierarchy:
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+&lt;?php
+// Solo usuarios con ROLE_ALLOWED_TO_SWITCH pueden impersonar
+
+// Impersonar usuario
+// URL: /dashboard?_switch_user=user@example.com
+
+// Volver a usuario original
+// URL: /dashboard?_switch_user=_exit
+
+{# En Twig - Mostrar si estás impersonando #}
+{% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+    <div class="alert alert-warning">
+        Estás impersonando a {{ app.user.email }}
+        <a href="{{ path('app_dashboard', {'_switch_user': '_exit'}) }}">
+            Salir de impersonación
+        </a>
+    </div>
+{% endif %}
+
+// En controlador
+public function dashboard(Security $security): Response
+{
+    if ($security->isGranted('ROLE_PREVIOUS_ADMIN')) {
+        // El usuario actual está siendo impersonado
+        $this->addFlash('warning', 'Modo impersonación activo');
+    }
+    
+    return $this->render('dashboard.html.twig');
+}
+?></code></pre></div>
+
+        <h2>10. Roles Basados en Atributos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Roles dinámicos basados en propiedades del usuario
+
+class User implements UserInterface
+{
+    private bool $isVerified = false;
+    private ?\\DateTime $subscriptionExpiresAt = null;
+    private int $postCount = 0;
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        
+        // Agregar rol si está verificado
+        if ($this->isVerified) {
+            $roles[] = 'ROLE_VERIFIED';
+        }
+        
+        // Agregar rol si tiene suscripción activa
+        if ($this->hasActiveSubscription()) {
+            $roles[] = 'ROLE_PREMIUM';
+        }
+        
+        // Agregar rol según actividad
+        if ($this->postCount > 100) {
+            $roles[] = 'ROLE_CONTRIBUTOR';
+        }
+        
+        if ($this->postCount > 1000) {
+            $roles[] = 'ROLE_POWER_USER';
+        }
+        
+        return array_unique($roles);
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->subscriptionExpiresAt && 
+               $this->subscriptionExpiresAt > new \\DateTime();
+    }
+}
+?></code></pre></div>
+
+        <h2>11. Comando para Gestionar Roles</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Command/UserRoleCommand.php
+
+namespace App\\Command;
+
+use App\\Repository\\UserRepository;
+use Doctrine\\ORM\\EntityManagerInterface;
+use Symfony\\Component\\Console\\Attribute\\AsCommand;
+use Symfony\\Component\\Console\\Command\\Command;
+use Symfony\\Component\\Console\\Input\\InputArgument;
+use Symfony\\Component\\Console\\Input\\InputInterface;
+use Symfony\\Component\\Console\\Output\\OutputInterface;
+
+#[AsCommand(
+    name: 'app:user:role',
+    description: 'Agregar o quitar roles de usuario'
+)]
+class UserRoleCommand extends Command
+{
+    public function __construct(
+        private UserRepository $userRepository,
+        private EntityManagerInterface $em
+    ) {
+        parent::__construct();
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->addArgument('email', InputArgument::REQUIRED, 'Email del usuario')
+            ->addArgument('action', InputArgument::REQUIRED, 'add o remove')
+            ->addArgument('role', InputArgument::REQUIRED, 'Rol a agregar/quitar');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $email = $input->getArgument('email');
+        $action = $input->getArgument('action');
+        $role = $input->getArgument('role');
+
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            $output->writeln('<error>Usuario no encontrado</error>');
+            return Command::FAILURE;
+        }
+
+        if ($action === 'add') {
+            $user->addRole($role);
+            $output->writeln("<info>Rol $role agregado a $email</info>");
+        } elseif ($action === 'remove') {
+            $user->removeRole($role);
+            $output->writeln("<info>Rol $role removido de $email</info>");
+        } else {
+            $output->writeln('<error>Acción inválida. Use add o remove</error>');
+            return Command::FAILURE;
+        }
+
+        $this->em->flush();
+
+        return Command::SUCCESS;
+    }
+}
+
+# Uso:
+php bin/console app:user:role user@example.com add ROLE_ADMIN
+php bin/console app:user:role user@example.com remove ROLE_MODERATOR
+?></code></pre></div>
+
+        <h2>12. Testing de Autorización</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// tests/Controller/AdminControllerTest.php
+
+namespace App\\Tests\\Controller;
+
+use App\\Entity\\User;
+use Symfony\\Bundle\\FrameworkBundle\\Test\\WebTestCase;
+
+class AdminControllerTest extends WebTestCase
+{
+    public function testAdminDashboardRequiresAuthentication(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/admin/dashboard');
+
+        // Debe redirigir al login
+        $this->assertResponseRedirects('/login');
+    }
+
+    public function testAdminDashboardWithAdminRole(): void
+    {
+        $client = static::createClient();
+        
+        // Crear usuario admin
+        $user = new User();
+        $user->setEmail('admin@example.com');
+        $user->setRoles(['ROLE_ADMIN']);
+        
+        // Simular login
+        $client->loginUser($user);
+        
+        $client->request('GET', '/admin/dashboard');
+        
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('h1', 'Panel de Administración');
+    }
+
+    public function testAdminDashboardWithUserRole(): void
+    {
+        $client = static::createClient();
+        
+        $user = new User();
+        $user->setEmail('user@example.com');
+        $user->setRoles(['ROLE_USER']);
+        
+        $client->loginUser($user);
+        
+        $client->request('GET', '/admin/dashboard');
+        
+        // Debe denegar acceso
+        $this->assertResponseStatusCodeSame(403);
+    }
+}
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas de Roles:</strong><br>
+            • <strong>Nomenclatura</strong>: Usar prefijo ROLE_ (ej: ROLE_ADMIN)<br>
+            • <strong>Jerarquía</strong>: Definir herencia de roles<br>
+            • <strong>Granularidad</strong>: Roles específicos para funcionalidades<br>
+            • <strong>Constantes</strong>: Definir roles como constantes<br>
+            • <strong>Documentación</strong>: Documentar qué hace cada rol<br>
+            • <strong>Testing</strong>: Probar autorización en tests
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Roles Especiales de Symfony:</strong><br>
+            • <strong>PUBLIC_ACCESS</strong>: Acceso público (sin autenticación)<br>
+            • <strong>IS_AUTHENTICATED_FULLY</strong>: Usuario autenticado<br>
+            • <strong>IS_AUTHENTICATED_REMEMBERED</strong>: Autenticado con remember_me<br>
+            • <strong>IS_AUTHENTICATED_ANONYMOUSLY</strong>: Cualquier usuario<br>
+            • <strong>ROLE_ALLOWED_TO_SWITCH</strong>: Puede impersonar usuarios<br>
+            • <strong>ROLE_PREVIOUS_ADMIN</strong>: Está impersonando a otro usuario
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Consideraciones:</strong><br>
+            • No confundir roles con permisos (usar voters para lógica compleja)<br>
+            • Roles son para categorías de usuarios, no para recursos específicos<br>
+            • Usar jerarquía para evitar redundancia<br>
+            • Proteger tanto en backend como frontend<br>
+            • No exponer roles sensibles en URLs o JavaScript<br>
+            • Auditar cambios de roles
+        </div>
+    `,
+    
     'patron-flyweight': `
         <h1>Patrón Flyweight (Peso Ligero)</h1>
         
