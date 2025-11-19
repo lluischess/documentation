@@ -29241,13 +29241,2315 @@ MemoryTest::withFlyweight();
     // ============================================
 
     // Symfony Messenger y Colas de Mensajes
-    'conceptos-message-bus-handlers': `<h1>Conceptos de Message Bus, Messages y Handlers</h1><p>Contenido en desarrollo...</p>`,
-    'sincronizacion-asincronia-mensajes': `<h1>Sincronización y Asincronía de Mensajes</h1><p>Contenido en desarrollo...</p>`,
-    'integracion-colas-redis-rabbitmq': `<h1>Integración con Colas de Mensajes (Redis, RabbitMQ, SQS)</h1><p>Contenido en desarrollo...</p>`,
-    'workers-supervision': `<h1>Workers y Supervisión</h1><p>Contenido en desarrollo...</p>`,
-    'serializacion-mensajes': `<h1>Serialización de Mensajes</h1><p>Contenido en desarrollo...</p>`,
-    'middleware-messenger': `<h1>Middleware de Messenger</h1><p>Contenido en desarrollo...</p>`,
-    'fallos-reintentos-mensajes': `<h1>Fallos y Reintentos de Mensajes</h1><p>Contenido en desarrollo...</p>`,
+    'conceptos-message-bus-handlers': `
+        <h1>Conceptos de Message Bus, Messages y Handlers</h1>
+        
+        <p><strong>Symfony Messenger</strong> es un componente que permite enviar mensajes (comandos, eventos, queries) a través de un <strong>Message Bus</strong>, desacoplando quién envía la petición de quién la ejecuta. Esto es ideal para tareas pesadas en background, integración con colas (Redis, RabbitMQ, SQS) y arquitecturas orientadas a eventos.</p>
+
+        <h2>¿Qué problema resuelve Messenger?</h2>
+        <div class="warning-box">
+            <strong>⚠️ Problemas comunes sin Messenger:</strong>
+            <ul>
+                <li><strong>Acoplamiento</strong>: Controladores llamando directamente a servicios pesados</li>
+                <li><strong>Bloqueo</strong>: Tareas largas (enviar emails, generar PDFs) bloqueando la respuesta HTTP</li>
+                <li><strong>Dificultad para escalar</strong>: Todo ocurre en el mismo proceso PHP</li>
+                <li><strong>Testing complejo</strong>: Lógica de negocio mezclada con infraestructura</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Idea clave:</strong><br>
+            En lugar de <em>"llamar"</em> un servicio directamente, <em>"despachas un mensaje"</em> al bus, y uno o varios <strong>handlers</strong> se encargan de procesarlo. Esto permite ejecutar la lógica de forma síncrona o asíncrona sin cambiar el código del controlador.
+        </div>
+
+        <h2>Instalación y Configuración Básica</h2>
+        <div class="code-block"><pre><code># Instalación
+composer require symfony/messenger
+
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports: []  # Más adelante configuraremos colas
+        routing: {}
+?></code></pre></div>
+
+        <h2>1. Definir un Mensaje (Message)</h2>
+        <p>Un <strong>Message</strong> es una clase simple que representa una intención de negocio. Por ejemplo: "Enviar email de confirmación de pedido".</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// src/Message/SendOrderConfirmation.php
+
+namespace App\\Message;
+
+final class SendOrderConfirmation
+{
+    public function __construct(
+        private int $orderId,
+        private string $customerEmail
+    ) {}
+
+    public function getOrderId(): int
+    {
+        return $this->orderId;
+    }
+
+    public function getCustomerEmail(): string
+    {
+        return $this->customerEmail;
+    }
+}
+?></code></pre></div>
+
+        <h2>2. Definir un Handler</h2>
+        <p>El <strong>Handler</strong> es la clase que ejecuta la lógica cuando se recibe el mensaje. Usa el atributo <code>#[AsMessageHandler]</code>.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// src/MessageHandler/SendOrderConfirmationHandler.php
+
+namespace App\\MessageHandler;
+
+use App\\Message\\SendOrderConfirmation;
+use App\\Repository\\OrderRepository;
+use Symfony\\Component\\Mailer\\MailerInterface;
+use Symfony\\Bridge\\Twig\\Mime\\TemplatedEmail;
+use Symfony\\Component\\Messenger\\Attribute\\AsMessageHandler;
+use Psr\\Log\\LoggerInterface;
+
+#[AsMessageHandler]
+class SendOrderConfirmationHandler
+{
+    public function __construct(
+        private OrderRepository $orderRepository,
+        private MailerInterface $mailer,
+        private LoggerInterface $logger,
+    ) {}
+
+    public function __invoke(SendOrderConfirmation $message): void
+    {
+        $order = $this->orderRepository->find($message->getOrderId());
+
+        if (!$order) {
+            $this->logger->warning('Pedido no encontrado', [
+                'orderId' => $message->getOrderId(),
+            ]);
+            return;
+        }
+
+        $email = (new TemplatedEmail())
+            ->to($message->getCustomerEmail())
+            ->subject('Confirmación de tu pedido #' . $order->getId())
+            ->htmlTemplate('emails/order_confirmation.html.twig')
+            ->context(['order' => $order]);
+
+        $this->mailer->send($email);
+
+        $this->logger->info('Email de confirmación enviado', [
+            'orderId' => $order->getId(),
+        ]);
+    }
+}
+?></code></pre></div>
+
+        <h2>3. Enviar Mensajes desde Controladores</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/OrderController.php
+
+namespace App\\Controller;
+
+use App\\Message\\SendOrderConfirmation;
+use Symfony\\Component\\HttpFoundation\\Response;
+use Symfony\\Component\\Messenger\\MessageBusInterface;
+use Symfony\\Component\\Routing\\Attribute\\Route;
+use Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;
+
+class OrderController extends AbstractController
+{
+    #[Route('/order/{id}/confirm', name: 'order_confirm')]
+    public function confirm(int $id, MessageBusInterface $bus): Response
+    {
+        // Lógica para marcar el pedido como confirmado
+        // ...
+
+        // Despachar mensaje al bus
+        $bus->dispatch(new SendOrderConfirmation($id, 'customer@example.com'));
+
+        $this->addFlash('success', 'Pedido confirmado. El email se enviará.');
+
+        return $this->redirectToRoute('order_show', ['id' => $id]);
+    }
+}
+?></code></pre></div>
+
+        <h2>Tipos de Mensajes</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// 1. COMMAND: Acción única con un solo handler
+class CreateInvoice
+{
+    public function __construct(public int $orderId) {}
+}
+
+// 2. EVENT: Algo que ocurrió, puede tener múltiples handlers
+class OrderPaid
+{
+    public function __construct(
+        public int $orderId,
+        public float $amount
+    ) {}
+}
+
+// 3. QUERY: Solicitud de lectura (menos común en Messenger)
+class GetOrderDetails
+{
+    public function __construct(public int $orderId) {}
+}
+?></code></pre></div>
+
+        <h2>Múltiples Handlers para un Evento</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Evento
+class OrderPaid
+{
+    public function __construct(public int $orderId) {}
+}
+
+// Handler 1: Enviar email
+#[AsMessageHandler]
+class SendPaymentConfirmationHandler
+{
+    public function __invoke(OrderPaid $event): void
+    {
+        // Enviar email de confirmación
+    }
+}
+
+// Handler 2: Actualizar stock
+#[AsMessageHandler]
+class UpdateStockHandler
+{
+    public function __invoke(OrderPaid $event): void
+    {
+        // Reducir stock de productos
+    }
+}
+
+// Handler 3: Notificar al ERP
+#[AsMessageHandler]
+class NotifyErpHandler
+{
+    public function __invoke(OrderPaid $event): void
+    {
+        // Sincronizar con sistema externo
+    }
+}
+
+// Todos se ejecutan cuando se despacha OrderPaid
+$bus->dispatch(new OrderPaid($orderId));
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de usar Messenger:</strong>
+            <ul>
+                <li><strong>Desacoplamiento</strong>: Controladores no conocen la implementación</li>
+                <li><strong>Testeable</strong>: Fácil de testear handlers de forma aislada</li>
+                <li><strong>Escalable</strong>: Preparado para procesamiento asíncrono</li>
+                <li><strong>Estructura clara</strong>: Message + Handler = lógica de negocio</li>
+                <li><strong>Reutilizable</strong>: Mismo mensaje desde CLI, API, eventos</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <strong>🎯 Cuándo usar Messenger:</strong>
+            <ul>
+                <li>Envío de emails y notificaciones</li>
+                <li>Generación de PDFs, reportes, exportaciones</li>
+                <li>Sincronización con APIs externas</li>
+                <li>Procesamiento de imágenes o archivos</li>
+                <li>Arquitecturas orientadas a eventos (Event Sourcing, CQRS)</li>
+            </ul>
+        </div>
+    `,
+    'sincronizacion-asincronia-mensajes': `
+        <h1>Sincronización y Asincronía de Mensajes</h1>
+        
+        <p>Por defecto, Messenger procesa los mensajes de forma <strong>sincrónica</strong> en el mismo proceso PHP. Sin embargo, su verdadera potencia aparece cuando configuramos el procesamiento <strong>asincrónico</strong> usando colas y workers.</p>
+
+        <h2>Procesamiento Sincrónico (por defecto)</h2>
+        <p>Si no configuras ningún <em>transport</em>, los mensajes se manejan inmediatamente cuando se llama a <code>$bus->dispatch()</code>.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// Procesamiento sincrónico (por defecto)
+$bus->dispatch(new SendOrderConfirmation($orderId));
+// ✅ El handler se ejecuta INMEDIATAMENTE en el mismo request
+// ❌ El usuario espera hasta que termine el envío del email
+?></code></pre></div>
+
+        <div class="warning-box">
+            <strong>⚠️ Problema del procesamiento sincrónico:</strong><br>
+            Si el envío del email tarda 3 segundos, el usuario espera 3 segundos para ver la respuesta HTTP. Esto empeora la experiencia de usuario y puede causar timeouts.
+        </div>
+
+        <h2>Configurar Procesamiento Asíncrono</h2>
+        <p>Para procesar mensajes en background, definimos un <strong>transport</strong> (ej: <code>async</code>) apuntando a una cola y enrutamos ciertos mensajes a ese transport.</p>
+
+        <div class="code-block"><pre><code># .env
+MESSENGER_TRANSPORT_DSN=doctrine://default
+
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports:
+            # Cola asíncrona basada en Doctrine (tabla messenger_messages)
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    auto_setup: true
+
+        routing:
+            # Estos mensajes van a la cola async
+            'App\\Message\\SendOrderConfirmation': async
+            'App\\Message\\GenerateInvoicePdf': async
+            'App\\Message\\SyncWithErp': async
+
+        default_bus: messenger.bus.default
+
+        buses:
+            messenger.bus.default: ~
+?></code></pre></div>
+
+        <p>Con esta configuración, cuando ejecutes:</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+$bus->dispatch(new SendOrderConfirmation($orderId));
+// ✅ El mensaje se guarda en la cola (BD, Redis, RabbitMQ...)
+// ✅ El usuario recibe respuesta HTTP INMEDIATAMENTE
+// ❌ El handler NO se ejecuta todavía (se ejecutará cuando un worker lo procese)
+?></code></pre></div>
+
+        <h2>Workers: Consumir la Cola</h2>
+        <p>Un <strong>worker</strong> es un proceso que lee mensajes de la cola y ejecuta sus handlers.</p>
+
+        <div class="code-block"><pre><code># Ejecutar un worker en desarrollo
+php bin/console messenger:consume async -vv
+
+# Escuchar varios transports
+php bin/console messenger:consume async high_priority -vv
+
+# Limitar número de mensajes procesados (útil en testing)
+php bin/console messenger:consume async --limit=10
+
+# Detener automáticamente tras cierto tiempo
+php bin/console messenger:consume async --time-limit=3600
+
+# Limitar uso de memoria
+php bin/console messenger:consume async --memory-limit=128M
+?></code></pre></div>
+
+        <div class="info-box">
+            <strong>💡 Producción:</strong><br>
+            Los workers suelen ejecutarse bajo <strong>supervisores</strong> (systemd, Supervisor, Docker, Kubernetes) para que se reinicien automáticamente si fallan.
+        </div>
+
+        <h2>Crear Tabla de Mensajes (Doctrine Transport)</h2>
+        <div class="code-block"><pre><code># Crear migración para la tabla messenger_messages
+php bin/console messenger:setup-transports
+
+# O ejecutar directamente
+php bin/console doctrine:schema:update --force
+?></code></pre></div>
+
+        <h2>Cuándo Usar Procesamiento Asíncrono</h2>
+        <div class="success-box">
+            <strong>✅ Casos de uso ideales para asincronía:</strong>
+            <ul>
+                <li><strong>Envío de emails</strong> masivos o notificaciones</li>
+                <li><strong>Generación de PDFs</strong>, informes o exportaciones CSV</li>
+                <li><strong>Sincronización con APIs externas</strong> (ERP, marketing, logística)</li>
+                <li><strong>Procesamiento de imágenes</strong> (thumbnails, watermarks)</li>
+                <li><strong>Indexación de búsqueda</strong> (Elasticsearch, Algolia)</li>
+                <li>Cualquier tarea que tarde más de 1-2 segundos</li>
+            </ul>
+        </div>
+
+        <h2>Ejemplo Completo: Confirmación de Pedido Asíncrona</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Controlador
+class OrderController extends AbstractController
+{
+    #[Route('/order/{id}/confirm', methods: ['POST'])]
+    public function confirm(int $id, MessageBusInterface $bus): Response
+    {
+        // Marcar pedido como confirmado
+        // ...
+
+        // Despachar mensaje a la cola
+        $bus->dispatch(new SendOrderConfirmation($id));
+
+        // ✅ Usuario recibe respuesta AL INSTANTE
+        return $this->json(['status' => 'confirmed']);
+    }
+}
+
+// Mientras tanto, el worker procesa el email en background
+// El usuario no tiene que esperar
+?></code></pre></div>
+
+        <h2>Configurar Múltiples Transports por Prioridad</h2>
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        transports:
+            async_high:
+                dsn: 'doctrine://default?queue_name=high'
+            async_normal:
+                dsn: 'doctrine://default?queue_name=normal'
+            async_low:
+                dsn: 'doctrine://default?queue_name=low'
+
+        routing:
+            # Emails críticos (confirmaciones de pago)
+            'App\\Message\\SendOrderConfirmation': async_high
+
+            # Tareas normales
+            'App\\Message\\GenerateInvoicePdf': async_normal
+
+            # Tareas de baja prioridad
+            'App\\Message\\RebuildSearchIndex': async_low
+            'App\\Message\\CleanupOldLogs': async_low
+
+# Ejecutar workers con diferentes prioridades
+php bin/console messenger:consume async_high -vv
+php bin/console messenger:consume async_normal -vv
+php bin/console messenger:consume async_low -vv
+?></code></pre></div>
+
+        <h2>Forzar Procesamiento Síncrono en Testing</h2>
+        <div class="code-block"><pre><code># config/packages/test/messenger.yaml
+
+framework:
+    messenger:
+        transports:
+            # En testing, procesar todo de forma síncrona
+            async: 'sync://'
+            high_priority: 'sync://'
+
+# Ahora en tests, los mensajes se procesan inmediatamente
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Beneficios de la Asincronía:</strong>
+            <ul>
+                <li><strong>Respuestas HTTP rápidas</strong>: Usuario no espera tareas pesadas</li>
+                <li><strong>Mejor experiencia de usuario</strong>: Interfaz más fluida</li>
+                <li><strong>Reintentos automáticos</strong>: Si falla, se reintenta</li>
+                <li><strong>Escalado horizontal</strong>: Varios workers procesando en paralelo</li>
+                <li><strong>Resiliencia</strong>: Si un worker cae, otro puede continuar</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Consideraciones importantes:</strong>
+            <ul>
+                <li>El handler ya NO se ejecuta en el contexto del request (no hay sesión)</li>
+                <li>Todo lo necesario debe estar en el mensaje (IDs, no entidades completas)</li>
+                <li>Asegúrate de que la cola esté disponible (BD, Redis, RabbitMQ)</li>
+                <li>Los workers deben estar ejecutándose en producción</li>
+                <li>Monitoriza la cola para detectar acumulación de mensajes</li>
+            </ul>
+        </div>
+    `,
+    'integracion-colas-redis-rabbitmq': `
+        <h1>Integración con Colas de Mensajes (Redis, RabbitMQ, SQS)</h1>
+        
+        <p>Symfony Messenger soporta múltiples tecnologías de cola mediante <strong>transports</strong>. Las más usadas en proyectos modernos son <strong>Doctrine</strong> (BD), <strong>Redis</strong>, <strong>RabbitMQ</strong> y <strong>AWS SQS</strong>.</p>
+
+        <h2>¿Qué es un Transport?</h2>
+        <p>Un <em>transport</em> define <em>dónde</em> se almacenan los mensajes pendientes de procesar. Cada transport se configura con un <strong>DSN</strong> (URL de conexión).</p>
+
+        <div class="info-box">
+            <strong>💡 Transports disponibles:</strong>
+            <ul>
+                <li><strong>Doctrine</strong>: Almacena mensajes en BD (MySQL, PostgreSQL)</li>
+                <li><strong>Redis</strong>: Cola en memoria, muy rápida</li>
+                <li><strong>RabbitMQ (AMQP)</strong>: Broker robusto con features avanzadas</li>
+                <li><strong>AWS SQS</strong>: Cola gestionada en la nube</li>
+                <li><strong>Sync</strong>: Procesamiento inmediato (testing)</li>
+            </ul>
+        </div>
+
+        <h2>1. Transport Doctrine (Base de Datos)</h2>
+        <p>Ideal para proyectos pequeños/medianos que ya usan BD. No requiere infraestructura adicional.</p>
+
+        <div class="code-block"><pre><code># .env
+MESSENGER_TRANSPORT_DSN=doctrine://default
+
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    auto_setup: true
+                    queue_name: default
+
+        routing:
+            'App\\Message\\SendOrderConfirmation': async
+
+# Crear tabla messenger_messages
+php bin/console messenger:setup-transports
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de Doctrine Transport:</strong>
+            <ul>
+                <li>No requiere servicios adicionales (Redis, RabbitMQ)</li>
+                <li>Transaccional: mensajes se guardan en la misma transacción que tus entidades</li>
+                <li>Fácil de configurar y mantener</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong>
+            <ul>
+                <li>Menos rendimiento que Redis o RabbitMQ</li>
+                <li>Puede saturar la BD con alto volumen de mensajes</li>
+            </ul>
+        </div>
+
+        <h2>2. Transport Redis</h2>
+        <p><strong>Redis</strong> es una base de datos en memoria muy rápida. Ideal para colas pequeñas/medianas con baja latencia.</p>
+
+        <div class="code-block"><pre><code># Instalación
+composer require symfony/redis-messenger
+
+# .env
+MESSENGER_TRANSPORT_DSN=redis://localhost:6379/messages
+
+# Con autenticación
+MESSENGER_TRANSPORT_DSN=redis://password@localhost:6379/messages
+
+# Redis Cluster
+MESSENGER_TRANSPORT_DSN=redis://localhost:6379,localhost:6380,localhost:6381
+
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    stream: messages_stream
+                    group: app_group
+                    consumer: consumer_1
+
+        routing:
+            'App\\Message\\SendOrderConfirmation': async
+            'App\\Message\\SyncStockWithErp': async
+?></code></pre></div>
+
+        <div class="code-block"><pre><code># Docker Compose para Redis
+version: '3.8'
+services:
+    redis:
+        image: redis:7-alpine
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis_data:/data
+        command: redis-server --appendonly yes
+
+volumes:
+    redis_data:
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de Redis:</strong>
+            <ul>
+                <li>Muy rápido (operaciones en memoria)</li>
+                <li>Soporta Redis Streams (ideal para Messenger)</li>
+                <li>Fácil de escalar horizontalmente</li>
+                <li>Bajo uso de recursos</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Consideraciones:</strong>
+            <ul>
+                <li>Configura persistencia (AOF/RDB) para no perder mensajes</li>
+                <li>Monitoriza uso de memoria</li>
+                <li>No tan rico en features como RabbitMQ</li>
+            </ul>
+        </div>
+
+        <h2>3. Transport RabbitMQ (AMQP)</h2>
+        <p><strong>RabbitMQ</strong> es un broker de mensajes muy robusto, ideal para sistemas con alto volumen y arquitecturas complejas.</p>
+
+        <div class="code-block"><pre><code># Instalación
+composer require symfony/amqp-messenger
+
+# .env
+MESSENGER_TRANSPORT_DSN=amqp://guest:guest@localhost:5672/%2f/messages
+
+# Con vhost personalizado
+MESSENGER_TRANSPORT_DSN=amqp://user:password@localhost:5672/my_vhost/messages
+
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: messages_exchange
+                        type: direct
+                    queue:
+                        name: messages_queue
+
+            async_high:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: high_priority_exchange
+                    queue:
+                        name: high_priority_queue
+                        arguments:
+                            x-max-priority: 10
+
+        routing:
+            'App\\Message\\SendOrderConfirmation': async_high
+            'App\\Message\\GenerateInvoicePdf': async
+?></code></pre></div>
+
+        <div class="code-block"><pre><code># Docker Compose para RabbitMQ
+version: '3.8'
+services:
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        ports:
+            - "5672:5672"    # AMQP
+            - "15672:15672"  # Management UI
+        environment:
+            RABBITMQ_DEFAULT_USER: admin
+            RABBITMQ_DEFAULT_PASS: secret
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+    rabbitmq_data:
+
+# Acceder a UI: http://localhost:15672 (admin/secret)
+?></code></pre></div>
+
+        <h3>Features Avanzadas de RabbitMQ</h3>
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: app_exchange
+                        type: topic  # direct, fanout, topic, headers
+                    queue:
+                        name: app_queue
+                        arguments:
+                            # Dead Letter Exchange (mensajes fallidos)
+                            x-dead-letter-exchange: failed_exchange
+                            x-dead-letter-routing-key: failed
+
+                            # TTL de mensajes (30 minutos)
+                            x-message-ttl: 1800000
+
+                            # Máximo de mensajes en cola
+                            x-max-length: 10000
+
+                            # Prioridad de mensajes
+                            x-max-priority: 10
+
+            failed:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: failed_exchange
+                    queue:
+                        name: failed_queue
+
+        failure_transport: failed
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de RabbitMQ:</strong>
+            <ul>
+                <li>Muy robusto y confiable</li>
+                <li>Soporta exchanges, bindings, colas con prioridad, dead letters</li>
+                <li>Excelente para microservicios</li>
+                <li>Management UI para monitoreo</li>
+                <li>Clustering y alta disponibilidad</li>
+            </ul>
+        </div>
+
+        <h2>4. Transport AWS SQS</h2>
+        <p><strong>AWS SQS</strong> es una cola gestionada en la nube, ideal cuando tu proyecto ya está en AWS.</p>
+
+        <div class="code-block"><pre><code># Instalación
+composer require symfony/amazon-sqs-messenger
+
+# .env
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+MESSENGER_TRANSPORT_DSN=sqs://default?region=eu-west-1&queue_name=my-queue
+
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    buffer_size: 10
+                    wait_time: 20
+                    poll_timeout: 0.1
+
+        routing:
+            'App\\Message\\SendOrderConfirmation': async
+            'App\\Message\\SendMarketingEmail': async
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de SQS:</strong>
+            <ul>
+                <li>Totalmente gestionado (no mantienes servidores)</li>
+                <li>Escalado automático</li>
+                <li>Integración nativa con AWS</li>
+                <li>Pago por uso</li>
+            </ul>
+        </div>
+
+        <h2>Comparación de Transports</h2>
+        <div class="code-block"><pre><code>┌──────────────┬────────────┬─────────────┬──────────────┬─────────────┐
+│  Transport   │ Rendimiento│ Complejidad │ Infraestructura│ Recomendado │
+├──────────────┼────────────┼─────────────┼──────────────┼─────────────┤
+│ Doctrine     │   Media    │    Baja     │   Ya existe  │  Proyectos  │
+│              │            │             │   (BD)       │  pequeños   │
+├──────────────┼────────────┼─────────────┼──────────────┼─────────────┤
+│ Redis        │   Alta     │    Media    │   Requiere   │  Proyectos  │
+│              │            │             │   Redis      │  medianos   │
+├──────────────┼────────────┼─────────────┼──────────────┼─────────────┤
+│ RabbitMQ     │  Muy Alta  │    Alta     │   Requiere   │  Proyectos  │
+│              │            │             │   RabbitMQ   │  grandes    │
+├──────────────┼────────────┼─────────────┼──────────────┼─────────────┤
+│ AWS SQS      │   Alta     │    Baja     │   AWS        │  Cloud AWS  │
+└──────────────┴────────────┴─────────────┴──────────────┴─────────────┘
+?></code></pre></div>
+
+        <h2>Combinar Múltiples Transports</h2>
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        transports:
+            # Emails críticos en RabbitMQ
+            async_high: 'amqp://guest:guest@localhost:5672/%2f/high'
+
+            # Tareas normales en Redis
+            async_default: 'redis://localhost:6379/default'
+
+            # Tareas pesadas en SQS
+            async_heavy: 'sqs://default?region=eu-west-1&queue_name=heavy'
+
+        routing:
+            # Confirmaciones de pago
+            'App\\Message\\SendOrderConfirmation': async_high
+
+            # Generación de PDFs
+            'App\\Message\\GenerateInvoicePdf': async_default
+
+            # Procesamiento de imágenes
+            'App\\Message\\ProcessProductImages': async_heavy
+
+# Ejecutar workers específicos
+php bin/console messenger:consume async_high -vv
+php bin/console messenger:consume async_default -vv
+php bin/console messenger:consume async_heavy -vv
+?></code></pre></div>
+
+        <div class="info-box">
+            <strong>🎯 Recomendaciones de elección:</strong>
+            <ul>
+                <li><strong>Doctrine</strong>: Proyectos pequeños, no quieres infraestructura adicional</li>
+                <li><strong>Redis</strong>: Despliegues sencillos, colas de tamaño medio, baja latencia</li>
+                <li><strong>RabbitMQ</strong>: Alto volumen, necesidad de topologías avanzadas, microservicios</li>
+                <li><strong>SQS</strong>: Infraestructura en AWS, quieres una cola gestionada</li>
+            </ul>
+        </div>
+    `,
+    'workers-supervision': `
+        <h1>Workers y Supervisión</h1>
+        
+        <p>Los <strong>workers</strong> son procesos que consumen mensajes de las colas de forma continua. En producción, es crítico que estos workers estén siempre ejecutándose y se reinicien automáticamente si fallan. Para esto usamos <strong>supervisores</strong>.</p>
+
+        <h2>Comandos Básicos de Workers</h2>
+        <div class="code-block"><pre><code># Consumir mensajes de una cola
+php bin/console messenger:consume async -vv
+
+# Consumir de múltiples transports
+php bin/console messenger:consume async high_priority -vv
+
+# Limitar número de mensajes (útil para testing)
+php bin/console messenger:consume async --limit=10
+
+# Limitar tiempo de ejecución (1 hora)
+php bin/console messenger:consume async --time-limit=3600
+
+# Limitar uso de memoria (128MB)
+php bin/console messenger:consume async --memory-limit=128M
+
+# Detener después de procesar todos los mensajes disponibles
+php bin/console messenger:consume async --limit=100 --time-limit=60
+?></code></pre></div>
+
+        <h2>Opciones Avanzadas de Workers</h2>
+        <div class="code-block"><pre><code># Modo silencioso (sin output)
+php bin/console messenger:consume async -q
+
+# Modo muy verboso (debugging)
+php bin/console messenger:consume async -vvv
+
+# Esperar antes de procesar el siguiente mensaje (throttling)
+php bin/console messenger:consume async --sleep=1
+
+# No capturar señales del sistema (útil en algunos contenedores)
+php bin/console messenger:consume async --no-reset
+
+# Procesar solo mensajes de cierta clase
+php bin/console messenger:consume async --bus=command.bus
+?></code></pre></div>
+
+        <h2>Supervisión con Systemd (Linux)</h2>
+        <p><strong>Systemd</strong> es el sistema de init más común en distribuciones Linux modernas. Permite gestionar workers como servicios del sistema.</p>
+
+        <div class="code-block"><pre><code># /etc/systemd/system/messenger-worker@.service
+
+[Unit]
+Description=Symfony Messenger Worker %i
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/html
+ExecStart=/usr/bin/php /var/www/html/bin/console messenger:consume async --time-limit=3600 --memory-limit=128M -vv
+Restart=always
+RestartSec=10
+
+# Variables de entorno
+Environment=APP_ENV=prod
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=messenger-worker-%i
+
+[Install]
+WantedBy=multi-user.target
+?></code></pre></div>
+
+        <div class="code-block"><pre><code># Gestionar el servicio
+
+# Habilitar el servicio para que inicie con el sistema
+sudo systemctl enable messenger-worker@1.service
+
+# Iniciar el worker
+sudo systemctl start messenger-worker@1.service
+
+# Ver estado
+sudo systemctl status messenger-worker@1.service
+
+# Reiniciar
+sudo systemctl restart messenger-worker@1.service
+
+# Detener
+sudo systemctl stop messenger-worker@1.service
+
+# Ver logs
+sudo journalctl -u messenger-worker@1.service -f
+
+# Ejecutar múltiples workers (escalar horizontalmente)
+sudo systemctl start messenger-worker@{1..4}.service
+?></code></pre></div>
+
+        <h2>Supervisión con Supervisor</h2>
+        <p><strong>Supervisor</strong> es una herramienta muy popular para gestionar procesos en segundo plano.</p>
+
+        <div class="code-block"><pre><code># Instalación
+sudo apt-get install supervisor
+
+# /etc/supervisor/conf.d/messenger-worker.conf
+
+[program:messenger-worker]
+command=/usr/bin/php /var/www/html/bin/console messenger:consume async --time-limit=3600 --memory-limit=128M
+user=www-data
+numprocs=4
+startsecs=0
+autostart=true
+autorestart=true
+startretries=10
+process_name=%(program_name)s_%(process_num)02d
+stdout_logfile=/var/log/supervisor/messenger-worker.out.log
+stderr_logfile=/var/log/supervisor/messenger-worker.err.log
+?></code></pre></div>
+
+        <div class="code-block"><pre><code># Gestionar con Supervisor
+
+# Recargar configuración
+sudo supervisorctl reread
+sudo supervisorctl update
+
+# Iniciar workers
+sudo supervisorctl start messenger-worker:*
+
+# Ver estado
+sudo supervisorctl status
+
+# Detener todos los workers
+sudo supervisorctl stop messenger-worker:*
+
+# Reiniciar un worker específico
+sudo supervisorctl restart messenger-worker:messenger-worker_00
+
+# Ver logs en tiempo real
+sudo tail -f /var/log/supervisor/messenger-worker.out.log
+?></code></pre></div>
+
+        <h2>Supervisión con Docker Compose</h2>
+        <div class="code-block"><pre><code># docker-compose.yml
+
+version: '3.8'
+
+services:
+    php:
+        build: .
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - rabbitmq
+
+    # Worker para cola de alta prioridad
+    messenger-worker-high:
+        build: .
+        command: php bin/console messenger:consume async_high --time-limit=3600 --memory-limit=128M -vv
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - rabbitmq
+        restart: unless-stopped
+        deploy:
+            replicas: 2
+
+    # Worker para cola normal
+    messenger-worker-default:
+        build: .
+        command: php bin/console messenger:consume async --time-limit=3600 --memory-limit=128M -vv
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - rabbitmq
+        restart: unless-stopped
+        deploy:
+            replicas: 4
+
+    redis:
+        image: redis:7-alpine
+        ports:
+            - "6379:6379"
+
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+?></code></pre></div>
+
+        <h2>Supervisión con Kubernetes</h2>
+        <div class="code-block"><pre><code># messenger-worker-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: messenger-worker
+    labels:
+        app: messenger-worker
+spec:
+    replicas: 4
+    selector:
+        matchLabels:
+            app: messenger-worker
+    template:
+        metadata:
+            labels:
+                app: messenger-worker
+        spec:
+            containers:
+            - name: worker
+              image: myapp:latest
+              command:
+                - php
+                - bin/console
+                - messenger:consume
+                - async
+                - --time-limit=3600
+                - --memory-limit=128M
+                - -vv
+              env:
+                - name: APP_ENV
+                  value: "prod"
+                - name: MESSENGER_TRANSPORT_DSN
+                  valueFrom:
+                    secretKeyRef:
+                        name: app-secrets
+                        key: messenger-dsn
+              resources:
+                requests:
+                    memory: "128Mi"
+                    cpu: "100m"
+                limits:
+                    memory: "256Mi"
+                    cpu: "500m"
+            restartPolicy: Always
+?></code></pre></div>
+
+        <h2>Monitoreo de Workers</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Command/MonitorMessengerCommand.php
+
+namespace App\\Command;
+
+use Symfony\\Component\\Console\\Attribute\\AsCommand;
+use Symfony\\Component\\Console\\Command\\Command;
+use Symfony\\Component\\Console\\Input\\InputInterface;
+use Symfony\\Component\\Console\\Output\\OutputInterface;
+use Symfony\\Component\\Messenger\\Transport\\Receiver\\MessageCountAwareInterface;
+use Symfony\\Component\\DependencyInjection\\Attribute\\TaggedIterator;
+
+#[AsCommand(name: 'app:monitor-messenger')]
+class MonitorMessengerCommand extends Command
+{
+    public function __construct(
+        #[TaggedIterator('messenger.receiver')] 
+        private iterable $receivers
+    ) {
+        parent::__construct();
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        foreach ($this->receivers as $name => $receiver) {
+            if ($receiver instanceof MessageCountAwareInterface) {
+                $count = $receiver->getMessageCount();
+                $output->writeln("📊 Transport '{$name}': {$count} mensajes pendientes");
+                
+                if ($count > 1000) {
+                    $output->writeln("⚠️  ALERTA: Cola '{$name}' tiene muchos mensajes!");
+                }
+            }
+        }
+
+        return Command::SUCCESS;
+    }
+}
+
+// Ejecutar cada minuto con cron
+// * * * * * php /var/www/html/bin/console app:monitor-messenger
+?></code></pre></div>
+
+        <h2>Graceful Shutdown</h2>
+        <p>Los workers deben poder detenerse de forma elegante, terminando el mensaje actual antes de cerrarse.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// Los workers de Symfony Messenger ya manejan señales SIGTERM y SIGINT
+
+// Detener un worker de forma elegante
+kill -TERM [PID]
+
+// O con systemd
+sudo systemctl stop messenger-worker@1.service
+
+// El worker:
+// 1. Recibe la señal
+// 2. Termina de procesar el mensaje actual
+// 3. No toma nuevos mensajes
+// 4. Se cierra limpiamente
+?></code></pre></div>
+
+        <h2>Health Checks</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/HealthController.php
+
+namespace App\\Controller;
+
+use Symfony\\Component\\HttpFoundation\\JsonResponse;
+use Symfony\\Component\\Routing\\Attribute\\Route;
+use Symfony\\Component\\Messenger\\Transport\\Receiver\\MessageCountAwareInterface;
+use Symfony\\Component\\DependencyInjection\\Attribute\\TaggedIterator;
+
+class HealthController
+{
+    public function __construct(
+        #[TaggedIterator('messenger.receiver')] 
+        private iterable $receivers
+    ) {}
+
+    #[Route('/health/messenger', name: 'health_messenger')]
+    public function messenger(): JsonResponse
+    {
+        $status = [];
+        $healthy = true;
+
+        foreach ($this->receivers as $name => $receiver) {
+            if ($receiver instanceof MessageCountAwareInterface) {
+                $count = $receiver->getMessageCount();
+                $status[$name] = [
+                    'pending' => $count,
+                    'healthy' => $count < 5000
+                ];
+
+                if ($count >= 5000) {
+                    $healthy = false;
+                }
+            }
+        }
+
+        return new JsonResponse([
+            'status' => $healthy ? 'healthy' : 'unhealthy',
+            'transports' => $status
+        ], $healthy ? 200 : 503);
+    }
+}
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores prácticas para Workers:</strong>
+            <ul>
+                <li><strong>Time limit</strong>: Reinicia workers cada hora para liberar memoria</li>
+                <li><strong>Memory limit</strong>: Evita memory leaks con límite de 128-256MB</li>
+                <li><strong>Múltiples workers</strong>: Escala horizontalmente según carga</li>
+                <li><strong>Monitoreo</strong>: Alerta si la cola crece demasiado</li>
+                <li><strong>Logs centralizados</strong>: Usa ELK, Graylog o CloudWatch</li>
+                <li><strong>Health checks</strong>: Verifica que workers estén procesando</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores comunes:</strong>
+            <ul>
+                <li>Workers no configurados para reiniciarse automáticamente</li>
+                <li>No limitar memoria/tiempo (memory leaks)</li>
+                <li>No monitorear el tamaño de las colas</li>
+                <li>No tener suficientes workers para la carga</li>
+                <li>No configurar logs adecuadamente</li>
+            </ul>
+        </div>
+    `,
+    'serializacion-mensajes': `
+        <h1>Serialización de Mensajes</h1>
+        
+        <p>La <strong>serialización</strong> es el proceso de convertir un objeto PHP en un formato que pueda almacenarse en una cola (JSON, array) y luego reconstruirlo. Symfony Messenger usa el componente <strong>Serializer</strong> para esto.</p>
+
+        <h2>¿Por qué es importante la Serialización?</h2>
+        <div class="info-box">
+            <strong>💡 Razones:</strong>
+            <ul>
+                <li>Los mensajes deben guardarse en colas (BD, Redis, RabbitMQ)</li>
+                <li>Las colas no pueden almacenar objetos PHP directamente</li>
+                <li>Los workers pueden estar en servidores diferentes</li>
+                <li>Necesitas compatibilidad entre versiones de código</li>
+            </ul>
+        </div>
+
+        <h2>Serializer por Defecto (PhpSerializer)</h2>
+        <p>Por defecto, Messenger usa <code>PhpSerializer</code> que utiliza <code>serialize()</code> y <code>unserialize()</code> de PHP.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// Mensaje simple
+class SendOrderConfirmation
+{
+    public function __construct(
+        private int $orderId,
+        private string $email
+    ) {}
+
+    public function getOrderId(): int { return $this->orderId; }
+    public function getEmail(): string { return $this->email; }
+}
+
+// Con PhpSerializer (por defecto):
+// serialize(new SendOrderConfirmation(123, 'user@example.com'))
+// Resultado: "O:27:\"App\\Message\\SendOrderConfirmation\":2:{...}"
+?></code></pre></div>
+
+        <div class="warning-box">
+            <strong>⚠️ Problemas de PhpSerializer:</strong>
+            <ul>
+                <li>No es legible por humanos</li>
+                <li>No es compatible entre lenguajes (solo PHP)</li>
+                <li>Problemas de seguridad si deserializas datos no confiables</li>
+                <li>Difícil de debuggear</li>
+            </ul>
+        </div>
+
+        <h2>Usar JsonSerializer (Recomendado)</h2>
+        <p><code>JsonSerializer</code> convierte mensajes a JSON, haciéndolos legibles y compatibles con otros sistemas.</p>
+
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        serializer:
+            default_serializer: messenger.transport.symfony_serializer
+            symfony_serializer:
+                format: json
+                context: {}
+
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                serializer: messenger.transport.symfony_serializer
+?></code></pre></div>
+
+        <div class="code-block"><pre><code>&lt;?php
+// Mensaje con JsonSerializer
+class SendOrderConfirmation
+{
+    public function __construct(
+        private int $orderId,
+        private string $email
+    ) {}
+
+    public function getOrderId(): int { return $this->orderId; }
+    public function getEmail(): string { return $this->email; }
+}
+
+// Resultado JSON:
+// {
+//   "orderId": 123,
+//   "email": "user@example.com"
+// }
+?></code></pre></div>
+
+        <h2>Normalización Personalizada</h2>
+        <p>Puedes controlar cómo se serializan tus mensajes con normalizadores personalizados.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// src/Serializer/MessageNormalizer.php
+
+namespace App\\Serializer;
+
+use App\\Message\\SendOrderConfirmation;
+use Symfony\\Component\\Serializer\\Normalizer\\NormalizerInterface;
+
+class MessageNormalizer implements NormalizerInterface
+{
+    public function normalize($object, ?string $format = null, array $context = []): array
+    {
+        if ($object instanceof SendOrderConfirmation) {
+            return [
+                'order_id' => $object->getOrderId(),
+                'email' => $object->getEmail(),
+                'timestamp' => time(),
+            ];
+        }
+
+        throw new \\InvalidArgumentException('Unsupported object type');
+    }
+
+    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
+    {
+        return $data instanceof SendOrderConfirmation;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            SendOrderConfirmation::class => true,
+        ];
+    }
+}
+
+// El servicio se registra automáticamente con autoconfigure
+?></code></pre></div>
+
+        <h2>Mensajes con Entidades Doctrine</h2>
+        <p>⚠️ <strong>No serialices entidades completas</strong>. Solo guarda IDs y recarga las entidades en el handler.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ MAL: Serializar entidad completa
+class ProcessOrder
+{
+    public function __construct(
+        private Order $order  // ❌ No hacer esto
+    ) {}
+}
+
+// ✅ BIEN: Solo el ID
+class ProcessOrder
+{
+    public function __construct(
+        private int $orderId  // ✅ Solo el ID
+    ) {}
+
+    public function getOrderId(): int
+    {
+        return $this->orderId;
+    }
+}
+
+// Handler
+#[AsMessageHandler]
+class ProcessOrderHandler
+{
+    public function __construct(
+        private OrderRepository $orderRepository
+    ) {}
+
+    public function __invoke(ProcessOrder $message): void
+    {
+        // Recargar la entidad desde la BD
+        $order = $this->orderRepository->find($message->getOrderId());
+        
+        if (!$order) {
+            throw new \\RuntimeException('Order not found');
+        }
+
+        // Procesar el pedido
+        // ...
+    }
+}
+?></code></pre></div>
+
+        <h2>Serialización con Datos Complejos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Mensaje con datos complejos
+class GenerateReport
+{
+    public function __construct(
+        private int $userId,
+        private array $filters,
+        private \\DateTimeImmutable $startDate,
+        private \\DateTimeImmutable $endDate
+    ) {}
+
+    public function getUserId(): int { return $this->userId; }
+    public function getFilters(): array { return $this->filters; }
+    public function getStartDate(): \\DateTimeImmutable { return $this->startDate; }
+    public function getEndDate(): \\DateTimeImmutable { return $this->endDate; }
+}
+
+// Con JsonSerializer, las fechas se serializan automáticamente
+// {
+//   "userId": 42,
+//   "filters": {"status": "active", "country": "ES"},
+//   "startDate": "2024-01-01T00:00:00+00:00",
+//   "endDate": "2024-12-31T23:59:59+00:00"
+// }
+?></code></pre></div>
+
+        <h2>Configurar Serialización por Transport</h2>
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        transports:
+            # Transport interno: usar PhpSerializer (más rápido)
+            async_internal:
+                dsn: 'doctrine://default?queue_name=internal'
+                serializer: messenger.transport.native_php_serializer
+
+            # Transport externo: usar JsonSerializer (compatible)
+            async_external:
+                dsn: 'amqp://guest:guest@localhost:5672/%2f/external'
+                serializer: messenger.transport.symfony_serializer
+
+        routing:
+            'App\\Message\\InternalTask': async_internal
+            'App\\Message\\ExternalEvent': async_external
+?></code></pre></div>
+
+        <h2>Serializer Personalizado</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Messenger/CustomSerializer.php
+
+namespace App\\Messenger;
+
+use Symfony\\Component\\Messenger\\Envelope;
+use Symfony\\Component\\Messenger\\Transport\\Serialization\\SerializerInterface;
+use Symfony\\Component\\Messenger\\Stamp\\BusNameStamp;
+
+class CustomSerializer implements SerializerInterface
+{
+    public function decode(array $encodedEnvelope): Envelope
+    {
+        $body = json_decode($encodedEnvelope['body'], true);
+        $class = $body['type'];
+        
+        // Reconstruir el mensaje
+        $message = new $class(...$body['data']);
+        
+        return new Envelope($message);
+    }
+
+    public function encode(Envelope $envelope): array
+    {
+        $message = $envelope->getMessage();
+        
+        return [
+            'body' => json_encode([
+                'type' => get_class($message),
+                'data' => [
+                    // Extraer datos del mensaje
+                ]
+            ]),
+            'headers' => []
+        ];
+    }
+}
+
+// Registrar el serializer
+// config/services.yaml
+services:
+    App\\Messenger\\CustomSerializer:
+        tags: ['messenger.serializer']
+?></code></pre></div>
+
+        <h2>Versionado de Mensajes</h2>
+        <p>Cuando cambias la estructura de un mensaje, necesitas mantener compatibilidad con mensajes antiguos en la cola.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// Versión 1 del mensaje
+class SendOrderConfirmation
+{
+    public function __construct(
+        private int $orderId
+    ) {}
+}
+
+// Versión 2: agregamos email
+class SendOrderConfirmation
+{
+    public function __construct(
+        private int $orderId,
+        private ?string $email = null  // ✅ Valor por defecto para compatibilidad
+    ) {}
+
+    public function getOrderId(): int { return $this->orderId; }
+    public function getEmail(): ?string { return $this->email; }
+}
+
+// Handler compatible con ambas versiones
+#[AsMessageHandler]
+class SendOrderConfirmationHandler
+{
+    public function __invoke(SendOrderConfirmation $message): void
+    {
+        $orderId = $message->getOrderId();
+        $email = $message->getEmail();
+
+        if (!$email) {
+            // Buscar email en la BD si no viene en el mensaje
+            $email = $this->orderRepository->find($orderId)?->getCustomerEmail();
+        }
+
+        // Enviar email...
+    }
+}
+?></code></pre></div>
+
+        <h2>Debugging de Serialización</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Ver cómo se serializa un mensaje
+use Symfony\\Component\\Messenger\\Transport\\Serialization\\PhpSerializer;
+use Symfony\\Component\\Messenger\\Envelope;
+
+$message = new SendOrderConfirmation(123, 'user@example.com');
+$envelope = new Envelope($message);
+
+$serializer = new PhpSerializer();
+$encoded = $serializer->encode($envelope);
+
+echo "Body: " . $encoded['body'] . "\\n";
+echo "Headers: " . json_encode($encoded['headers']) . "\\n";
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores prácticas de Serialización:</strong>
+            <ul>
+                <li><strong>Usa JsonSerializer</strong> para legibilidad y compatibilidad</li>
+                <li><strong>Solo IDs</strong>: No serialices entidades Doctrine completas</li>
+                <li><strong>Valores por defecto</strong>: Mantén compatibilidad al agregar campos</li>
+                <li><strong>Inmutabilidad</strong>: Los mensajes deben ser inmutables</li>
+                <li><strong>Tipos simples</strong>: Evita objetos complejos en mensajes</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores comunes:</strong>
+            <ul>
+                <li>Serializar entidades Doctrine completas (problemas de lazy loading)</li>
+                <li>Cambiar estructura de mensajes sin mantener compatibilidad</li>
+                <li>No usar valores por defecto en propiedades nuevas</li>
+                <li>Usar PhpSerializer en producción (no es legible)</li>
+                <li>No testear la serialización/deserialización</li>
+            </ul>
+        </div>
+    `,
+    'middleware-messenger': `
+        <h1>Middleware de Messenger</h1>
+        
+        <p>El <strong>middleware</strong> en Messenger permite interceptar mensajes antes y después de ser procesados. Es útil para logging, validación, transacciones, métricas y más.</p>
+
+        <h2>¿Qué es un Middleware?</h2>
+        <div class="info-box">
+            <strong>💡 Concepto:</strong><br>
+            Un middleware es una capa que envuelve el procesamiento de mensajes, similar al patrón Decorator. Cada mensaje pasa por una cadena de middlewares antes de llegar al handler.
+        </div>
+
+        <h2>Middleware por Defecto</h2>
+        <p>Symfony Messenger incluye varios middlewares por defecto:</p>
+
+        <div class="code-block"><pre><code># Middlewares por defecto (en orden):
+
+1. SendMessageMiddleware
+   - Envía el mensaje al transport si está configurado
+
+2. HandleMessageMiddleware
+   - Ejecuta el handler del mensaje
+
+3. ValidationMiddleware (si está habilitado)
+   - Valida el mensaje con el componente Validator
+
+4. FailedMessageProcessingMiddleware
+   - Maneja mensajes fallidos
+?></code></pre></div>
+
+        <h2>Crear un Middleware Personalizado</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Messenger/Middleware/LoggingMiddleware.php
+
+namespace App\\Messenger\\Middleware;
+
+use Symfony\\Component\\Messenger\\Envelope;
+use Symfony\\Component\\Messenger\\Middleware\\MiddlewareInterface;
+use Symfony\\Component\\Messenger\\Middleware\\StackInterface;
+use Psr\\Log\\LoggerInterface;
+
+class LoggingMiddleware implements MiddlewareInterface
+{
+    public function __construct(
+        private LoggerInterface $logger
+    ) {}
+
+    public function handle(Envelope $envelope, StackInterface $stack): Envelope
+    {
+        $message = $envelope->getMessage();
+        $class = get_class($message);
+
+        $this->logger->info('📨 Procesando mensaje', [
+            'message_class' => $class,
+            'message_id' => spl_object_id($message),
+        ]);
+
+        $start = microtime(true);
+
+        try {
+            // Continuar con el siguiente middleware
+            $envelope = $stack->next()->handle($envelope, $stack);
+
+            $duration = microtime(true) - $start;
+            $this->logger->info('✅ Mensaje procesado exitosamente', [
+                'message_class' => $class,
+                'duration' => round($duration * 1000, 2) . 'ms',
+            ]);
+
+            return $envelope;
+        } catch (\\Throwable $e) {
+            $duration = microtime(true) - $start;
+            $this->logger->error('❌ Error procesando mensaje', [
+                'message_class' => $class,
+                'duration' => round($duration * 1000, 2) . 'ms',
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Registrar el Middleware</h2>
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        buses:
+            messenger.bus.default:
+                middleware:
+                    # Middleware personalizado
+                    - App\\Messenger\\Middleware\\LoggingMiddleware
+
+                    # Middlewares por defecto (mantenerlos)
+                    - send_message
+                    - handle_message
+?></code></pre></div>
+
+        <h2>Middleware para Transacciones Doctrine</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Messenger/Middleware/DoctrineTransactionMiddleware.php
+
+namespace App\\Messenger\\Middleware;
+
+use Doctrine\\ORM\\EntityManagerInterface;
+use Symfony\\Component\\Messenger\\Envelope;
+use Symfony\\Component\\Messenger\\Middleware\\MiddlewareInterface;
+use Symfony\\Component\\Messenger\\Middleware\\StackInterface;
+
+class DoctrineTransactionMiddleware implements MiddlewareInterface
+{
+    public function __construct(
+        private EntityManagerInterface $entityManager
+    ) {}
+
+    public function handle(Envelope $envelope, StackInterface $stack): Envelope
+    {
+        $this->entityManager->beginTransaction();
+
+        try {
+            $envelope = $stack->next()->handle($envelope, $stack);
+
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+
+            return $envelope;
+        } catch (\\Throwable $e) {
+            $this->entityManager->rollback();
+            throw $e;
+        }
+    }
+}
+
+# Registrar
+framework:
+    messenger:
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - App\\Messenger\\Middleware\\DoctrineTransactionMiddleware
+                    - send_message
+                    - handle_message
+?></code></pre></div>
+
+        <h2>Middleware para Validación</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Messenger/Middleware/ValidationMiddleware.php
+
+namespace App\\Messenger\\Middleware;
+
+use Symfony\\Component\\Messenger\\Envelope;
+use Symfony\\Component\\Messenger\\Middleware\\MiddlewareInterface;
+use Symfony\\Component\\Messenger\\Middleware\\StackInterface;
+use Symfony\\Component\\Validator\\Validator\\ValidatorInterface;
+use Symfony\\Component\\Messenger\\Exception\\ValidationFailedException;
+
+class ValidationMiddleware implements MiddlewareInterface
+{
+    public function __construct(
+        private ValidatorInterface $validator
+    ) {}
+
+    public function handle(Envelope $envelope, StackInterface $stack): Envelope
+    {
+        $message = $envelope->getMessage();
+
+        // Validar el mensaje
+        $violations = $this->validator->validate($message);
+
+        if (count($violations) > 0) {
+            throw new ValidationFailedException($message, $violations);
+        }
+
+        return $stack->next()->handle($envelope, $stack);
+    }
+}
+
+// Mensaje con validación
+use Symfony\\Component\\Validator\\Constraints as Assert;
+
+class CreateUser
+{
+    public function __construct(
+        #[Assert\\NotBlank]
+        #[Assert\\Email]
+        private string $email,
+
+        #[Assert\\NotBlank]
+        #[Assert\\Length(min: 8)]
+        private string $password
+    ) {}
+
+    public function getEmail(): string { return $this->email; }
+    public function getPassword(): string { return $this->password; }
+}
+?></code></pre></div>
+
+        <h2>Middleware para Métricas</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Messenger/Middleware/MetricsMiddleware.php
+
+namespace App\\Messenger\\Middleware;
+
+use Symfony\\Component\\Messenger\\Envelope;
+use Symfony\\Component\\Messenger\\Middleware\\MiddlewareInterface;
+use Symfony\\Component\\Messenger\\Middleware\\StackInterface;
+
+class MetricsMiddleware implements MiddlewareInterface
+{
+    private array $metrics = [];
+
+    public function handle(Envelope $envelope, StackInterface $stack): Envelope
+    {
+        $class = get_class($envelope->getMessage());
+        $start = microtime(true);
+
+        try {
+            $envelope = $stack->next()->handle($envelope, $stack);
+
+            $duration = microtime(true) - $start;
+            $this->recordMetric($class, 'success', $duration);
+
+            return $envelope;
+        } catch (\\Throwable $e) {
+            $duration = microtime(true) - $start;
+            $this->recordMetric($class, 'error', $duration);
+            throw $e;
+        }
+    }
+
+    private function recordMetric(string $class, string $status, float $duration): void
+    {
+        if (!isset($this->metrics[$class])) {
+            $this->metrics[$class] = [
+                'success' => 0,
+                'error' => 0,
+                'total_duration' => 0,
+            ];
+        }
+
+        $this->metrics[$class][$status]++;
+        $this->metrics[$class]['total_duration'] += $duration;
+
+        // Enviar a sistema de métricas (Prometheus, StatsD, etc.)
+        // statsd_increment("messenger.{$class}.{$status}");
+        // statsd_timing("messenger.{$class}.duration", $duration * 1000);
+    }
+
+    public function getMetrics(): array
+    {
+        return $this->metrics;
+    }
+}
+?></code></pre></div>
+
+        <h2>Middleware con Stamps</h2>
+        <p>Los <strong>Stamps</strong> son metadatos que se adjuntan al envelope para pasar información entre middlewares.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+// Crear un Stamp personalizado
+namespace App\\Messenger\\Stamp;
+
+use Symfony\\Component\\Messenger\\Stamp\\StampInterface;
+
+class UserContextStamp implements StampInterface
+{
+    public function __construct(
+        private int $userId,
+        private string $username
+    ) {}
+
+    public function getUserId(): int { return $this->userId; }
+    public function getUsername(): string { return $this->username; }
+}
+
+// Middleware que agrega el stamp
+class UserContextMiddleware implements MiddlewareInterface
+{
+    public function __construct(
+        private Security $security
+    ) {}
+
+    public function handle(Envelope $envelope, StackInterface $stack): Envelope
+    {
+        $user = $this->security->getUser();
+
+        if ($user) {
+            $envelope = $envelope->with(new UserContextStamp(
+                $user->getId(),
+                $user->getUsername()
+            ));
+        }
+
+        return $stack->next()->handle($envelope, $stack);
+    }
+}
+
+// Leer el stamp en un handler
+#[AsMessageHandler]
+class MyHandler
+{
+    public function __invoke(MyMessage $message, Envelope $envelope): void
+    {
+        $userStamp = $envelope->last(UserContextStamp::class);
+
+        if ($userStamp) {
+            $userId = $userStamp->getUserId();
+            // Usar el contexto del usuario...
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Middleware Condicional</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Middleware que solo se ejecuta para ciertos mensajes
+class ConditionalMiddleware implements MiddlewareInterface
+{
+    public function handle(Envelope $envelope, StackInterface $stack): Envelope
+    {
+        $message = $envelope->getMessage();
+
+        // Solo aplicar lógica a ciertos mensajes
+        if ($message instanceof CriticalMessage) {
+            // Lógica especial para mensajes críticos
+            $this->notifyAdmins($message);
+        }
+
+        return $stack->next()->handle($envelope, $stack);
+    }
+}
+?></code></pre></div>
+
+        <h2>Orden de Middlewares</h2>
+        <p>El orden de los middlewares es importante. Se ejecutan de arriba hacia abajo.</p>
+
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        buses:
+            messenger.bus.default:
+                middleware:
+                    # 1. Logging (primero para capturar todo)
+                    - App\\Messenger\\Middleware\\LoggingMiddleware
+
+                    # 2. Validación (antes de procesar)
+                    - App\\Messenger\\Middleware\\ValidationMiddleware
+
+                    # 3. Contexto de usuario
+                    - App\\Messenger\\Middleware\\UserContextMiddleware
+
+                    # 4. Transacción (envuelve el handler)
+                    - App\\Messenger\\Middleware\\DoctrineTransactionMiddleware
+
+                    # 5. Métricas
+                    - App\\Messenger\\Middleware\\MetricsMiddleware
+
+                    # 6. Enviar mensaje al transport
+                    - send_message
+
+                    # 7. Ejecutar handler
+                    - handle_message
+?></code></pre></div>
+
+        <h2>Middleware para Retry Personalizado</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Middleware con lógica de retry personalizada
+class CustomRetryMiddleware implements MiddlewareInterface
+{
+    public function handle(Envelope $envelope, StackInterface $stack): Envelope
+    {
+        $message = $envelope->getMessage();
+        $maxRetries = 3;
+        $retryCount = 0;
+
+        while ($retryCount < $maxRetries) {
+            try {
+                return $stack->next()->handle($envelope, $stack);
+            } catch (\\Throwable $e) {
+                $retryCount++;
+
+                if ($retryCount >= $maxRetries) {
+                    throw $e;
+                }
+
+                // Esperar antes de reintentar (exponential backoff)
+                sleep(pow(2, $retryCount));
+            }
+        }
+
+        throw new \\RuntimeException('Max retries reached');
+    }
+}
+?></code></pre></div>
+
+        <h2>Debugging de Middlewares</h2>
+        <div class="code-block"><pre><code># Ver todos los middlewares configurados
+php bin/console debug:messenger
+
+# Output:
+# messenger.bus.default
+# ---------------------
+#  * App\\Messenger\\Middleware\\LoggingMiddleware
+#  * App\\Messenger\\Middleware\\ValidationMiddleware
+#  * send_message
+#  * handle_message
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Casos de uso para Middleware:</strong>
+            <ul>
+                <li><strong>Logging</strong>: Registrar todos los mensajes procesados</li>
+                <li><strong>Validación</strong>: Validar mensajes antes de procesarlos</li>
+                <li><strong>Transacciones</strong>: Envolver handlers en transacciones DB</li>
+                <li><strong>Métricas</strong>: Medir tiempos de procesamiento</li>
+                <li><strong>Autenticación</strong>: Verificar permisos</li>
+                <li><strong>Rate limiting</strong>: Limitar procesamiento</li>
+                <li><strong>Contexto</strong>: Agregar información adicional (usuario, tenant)</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Consideraciones:</strong>
+            <ul>
+                <li>El orden de los middlewares importa</li>
+                <li>Siempre llama a <code>$stack->next()->handle()</code></li>
+                <li>Los middlewares se ejecutan en cada mensaje</li>
+                <li>Evita lógica pesada en middlewares (afecta rendimiento)</li>
+            </ul>
+        </div>
+    `,
+    'fallos-reintentos-mensajes': `
+        <h1>Fallos y Reintentos de Mensajes</h1>
+        
+        <p>Cuando un mensaje falla al procesarse, Symfony Messenger puede <strong>reintentarlo automáticamente</strong> o enviarlo a una <strong>cola de mensajes fallidos</strong> para revisión manual.</p>
+
+        <h2>Configuración de Reintentos</h2>
+        <p>Por defecto, los mensajes fallidos se reintentan automáticamente con estrategia de <em>exponential backoff</em>.</p>
+
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000           # 1 segundo
+                    multiplier: 2         # Duplicar el delay en cada reintento
+                    max_delay: 0          # Sin límite de delay
+
+        failure_transport: failed
+
+# Reintentos:
+# 1er intento: inmediato
+# 2do intento: después de 1 segundo
+# 3er intento: después de 2 segundos
+# 4to intento: después de 4 segundos
+# Si falla 4 veces → va a la cola "failed"
+?></code></pre></div>
+
+        <h2>Estrategias de Reintento</h2>
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        transports:
+            # Estrategia exponencial (recomendada)
+            async:
+                dsn: 'doctrine://default'
+                retry_strategy:
+                    max_retries: 5
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 30000  # Máximo 30 segundos
+
+            # Estrategia lineal (delay constante)
+            async_linear:
+                dsn: 'redis://localhost'
+                retry_strategy:
+                    max_retries: 3
+                    delay: 5000       # Siempre 5 segundos
+                    multiplier: 1     # Sin multiplicador
+
+            # Sin reintentos (falla inmediatamente)
+            async_no_retry:
+                dsn: 'amqp://localhost'
+                retry_strategy:
+                    max_retries: 0
+?></code></pre></div>
+
+        <h2>Cola de Mensajes Fallidos</h2>
+        <p>Los mensajes que agotan todos los reintentos se envían a la <strong>failure_transport</strong>.</p>
+
+        <div class="code-block"><pre><code># config/packages/messenger.yaml
+
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: 'doctrine://default?queue_name=async'
+                retry_strategy:
+                    max_retries: 3
+
+            # Cola para mensajes fallidos
+            failed:
+                dsn: 'doctrine://default?queue_name=failed'
+
+        failure_transport: failed
+?></code></pre></div>
+
+        <h2>Comandos para Gestionar Mensajes Fallidos</h2>
+        <div class="code-block"><pre><code># Ver mensajes fallidos
+php bin/console messenger:failed:show
+
+# Ver detalles de un mensaje específico
+php bin/console messenger:failed:show 1 -vv
+
+# Reintentar un mensaje fallido
+php bin/console messenger:failed:retry 1
+
+# Reintentar todos los mensajes fallidos
+php bin/console messenger:failed:retry -vv
+
+# Reintentar solo mensajes de una clase específica
+php bin/console messenger:failed:retry --force App\\Message\\SendOrderConfirmation
+
+# Eliminar un mensaje fallido
+php bin/console messenger:failed:remove 1
+
+# Eliminar todos los mensajes fallidos
+php bin/console messenger:failed:remove --force
+?></code></pre></div>
+
+        <h2>Manejo de Excepciones Específicas</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// Handler con manejo de excepciones
+#[AsMessageHandler]
+class SendOrderConfirmationHandler
+{
+    public function __invoke(SendOrderConfirmation $message): void
+    {
+        try {
+            $this->mailer->send($email);
+        } catch (TransportException $e) {
+            // Error de red: reintentar
+            throw $e;
+        } catch (InvalidEmailException $e) {
+            // Email inválido: NO reintentar
+            $this->logger->error('Email inválido', [
+                'orderId' => $message->getOrderId(),
+                'error' => $e->getMessage(),
+            ]);
+            
+            // No lanzar excepción = mensaje procesado exitosamente
+            return;
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Excepciones No Recuperables</h2>
+        <p>Usa <code>UnrecoverableMessageHandlingException</code> para indicar que un mensaje NO debe reintentarse.</p>
+
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Messenger\\Exception\\UnrecoverableMessageHandlingException;
+
+#[AsMessageHandler]
+class ProcessPaymentHandler
+{
+    public function __invoke(ProcessPayment $message): void
+    {
+        $order = $this->orderRepository->find($message->getOrderId());
+
+        if (!$order) {
+            // Pedido no existe: no tiene sentido reintentar
+            throw new UnrecoverableMessageHandlingException(
+                'Order not found: ' . $message->getOrderId()
+            );
+        }
+
+        if ($order->isPaid()) {
+            // Ya está pagado: no reintentar
+            throw new UnrecoverableMessageHandlingException(
+                'Order already paid'
+            );
+        }
+
+        try {
+            $this->paymentGateway->charge($order);
+        } catch (NetworkException $e) {
+            // Error de red: SÍ reintentar
+            throw $e;
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Estrategia de Reintento Personalizada</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Messenger/CustomRetryStrategy.php
+
+namespace App\\Messenger;
+
+use Symfony\\Component\\Messenger\\Envelope;
+use Symfony\\Component\\Messenger\\Retry\\RetryStrategyInterface;
+
+class CustomRetryStrategy implements RetryStrategyInterface
+{
+    public function isRetryable(Envelope $message, ?\\Throwable $throwable = null): bool
+    {
+        // No reintentar si es UnrecoverableMessageHandlingException
+        if ($throwable instanceof UnrecoverableMessageHandlingException) {
+            return false;
+        }
+
+        // Reintentar solo errores de red
+        if ($throwable instanceof NetworkException) {
+            return true;
+        }
+
+        // No reintentar otros errores
+        return false;
+    }
+
+    public function getWaitingTime(Envelope $message, ?\\Throwable $throwable = null): int
+    {
+        $retries = $this->getRetryCount($message);
+
+        // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+        return 1000 * pow(2, $retries);
+    }
+
+    private function getRetryCount(Envelope $message): int
+    {
+        $stamp = $message->last(RedeliveryStamp::class);
+        return $stamp ? $stamp->getRetryCount() : 0;
+    }
+}
+
+# Registrar en services.yaml
+services:
+    App\\Messenger\\CustomRetryStrategy:
+        tags:
+            - { name: messenger.retry_strategy }
+?></code></pre></div>
+
+        <h2>Monitoreo de Mensajes Fallidos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Command/MonitorFailedMessagesCommand.php
+
+namespace App\\Command;
+
+use Symfony\\Component\\Console\\Attribute\\AsCommand;
+use Symfony\\Component\\Console\\Command\\Command;
+use Symfony\\Component\\Console\\Input\\InputInterface;
+use Symfony\\Component\\Console\\Output\\OutputInterface;
+use Symfony\\Component\\Messenger\\Transport\\Receiver\\ListableReceiverInterface;
+
+#[AsCommand(name: 'app:monitor-failed-messages')]
+class MonitorFailedMessagesCommand extends Command
+{
+    public function __construct(
+        private ListableReceiverInterface $failedReceiver
+    ) {
+        parent::__construct();
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $messages = $this->failedReceiver->all();
+        $count = count($messages);
+
+        if ($count > 0) {
+            $output->writeln("⚠️  {$count} mensajes fallidos en la cola");
+
+            if ($count > 100) {
+                $output->writeln("🚨 ALERTA: Demasiados mensajes fallidos!");
+                // Enviar notificación a Slack, email, etc.
+            }
+        } else {
+            $output->writeln("✅ No hay mensajes fallidos");
+        }
+
+        return Command::SUCCESS;
+    }
+}
+
+// Ejecutar cada 5 minutos con cron
+// */5 * * * * php /var/www/html/bin/console app:monitor-failed-messages
+?></code></pre></div>
+
+        <h2>Logs de Mensajes Fallidos</h2>
+        <div class="code-block"><pre><code># config/packages/monolog.yaml
+
+monolog:
+    channels: ['messenger']
+    
+    handlers:
+        # Log específico para mensajes fallidos
+        messenger_failed:
+            type: stream
+            path: '%kernel.logs_dir%/messenger_failed.log'
+            level: error
+            channels: ['messenger']
+            formatter: monolog.formatter.json
+
+        # Notificar por email mensajes críticos fallidos
+        messenger_critical:
+            type: fingers_crossed
+            action_level: critical
+            handler: grouped
+            channels: ['messenger']
+        
+        grouped:
+            type: group
+            members: [streamed, swift]
+        
+        swift:
+            type: swift_mailer
+            from_email: alerts@example.com
+            to_email: admin@example.com
+            subject: 'Mensaje crítico fallido'
+?></code></pre></div>
+
+        <h2>Reintentos con Delay Personalizado por Mensaje</h2>
+        <div class="code-block"><pre><code>&lt;?php
+use Symfony\\Component\\Messenger\\Stamp\\DelayStamp;
+
+// Despachar mensaje con delay personalizado
+$bus->dispatch(
+    (new SendOrderConfirmation($orderId))
+        ->with(new DelayStamp(5000))  // Esperar 5 segundos
+);
+
+// Reintentar con delay creciente
+#[AsMessageHandler]
+class MyHandler
+{
+    public function __invoke(MyMessage $message, Envelope $envelope): void
+    {
+        try {
+            // Procesar mensaje
+        } catch (TemporaryException $e) {
+            $retries = $this->getRetryCount($envelope);
+            
+            if ($retries < 5) {
+                // Reintentar con delay exponencial
+                throw new \\Exception('Retry with backoff');
+            }
+            
+            // Máximo de reintentos alcanzado
+            throw new UnrecoverableMessageHandlingException('Max retries');
+        }
+    }
+}
+?></code></pre></div>
+
+        <h2>Dashboard de Mensajes Fallidos</h2>
+        <div class="code-block"><pre><code>&lt;?php
+// src/Controller/Admin/MessengerController.php
+
+namespace App\\Controller\\Admin;
+
+use Symfony\\Component\\HttpFoundation\\Response;
+use Symfony\\Component\\Routing\\Attribute\\Route;
+use Symfony\\Component\\Messenger\\Transport\\Receiver\\ListableReceiverInterface;
+
+#[Route('/admin/messenger')]
+class MessengerController extends AbstractController
+{
+    #[Route('/failed', name: 'admin_messenger_failed')]
+    public function failed(ListableReceiverInterface $failedReceiver): Response
+    {
+        $messages = [];
+        
+        foreach ($failedReceiver->all() as $envelope) {
+            $message = $envelope->getMessage();
+            $stamp = $envelope->last(RedeliveryStamp::class);
+            
+            $messages[] = [
+                'id' => $this->getMessageId($envelope),
+                'class' => get_class($message),
+                'retries' => $stamp ? $stamp->getRetryCount() : 0,
+                'error' => $stamp ? $stamp->getExceptionMessage() : null,
+                'failed_at' => $stamp ? $stamp->getRedeliveredAt() : null,
+            ];
+        }
+
+        return $this->render('admin/messenger/failed.html.twig', [
+            'messages' => $messages,
+        ]);
+    }
+
+    #[Route('/failed/{id}/retry', name: 'admin_messenger_retry', methods: ['POST'])]
+    public function retry(string $id, MessageBusInterface $bus): Response
+    {
+        // Lógica para reintentar mensaje específico
+        // ...
+        
+        return $this->redirectToRoute('admin_messenger_failed');
+    }
+}
+?></code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores prácticas para Fallos y Reintentos:</strong>
+            <ul>
+                <li><strong>Exponential backoff</strong>: Evita saturar servicios externos</li>
+                <li><strong>Max retries limitado</strong>: No reintentar infinitamente (3-5 reintentos)</li>
+                <li><strong>UnrecoverableException</strong>: Para errores que no tienen solución</li>
+                <li><strong>Monitoreo</strong>: Alerta cuando hay muchos mensajes fallidos</li>
+                <li><strong>Logs detallados</strong>: Facilita debugging de errores</li>
+                <li><strong>Dashboard</strong>: Interfaz para gestionar mensajes fallidos</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores comunes:</strong>
+            <ul>
+                <li>Reintentar errores que nunca se resolverán (email inválido, entidad no existe)</li>
+                <li>No configurar failure_transport (mensajes se pierden)</li>
+                <li>No monitorear la cola de fallidos</li>
+                <li>Reintentos demasiado agresivos (saturan servicios)</li>
+                <li>No loggear información suficiente para debugging</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Estrategia recomendada:</strong>
+            <ul>
+                <li><strong>Errores de red/temporales</strong>: Reintentar con exponential backoff</li>
+                <li><strong>Errores de validación</strong>: No reintentar (UnrecoverableException)</li>
+                <li><strong>Errores desconocidos</strong>: Reintentar 3 veces, luego enviar a failed</li>
+                <li><strong>Mensajes críticos</strong>: Notificar por email/Slack si fallan</li>
+                <li><strong>Revisión manual</strong>: Dashboard para gestionar mensajes fallidos</li>
+            </ul>
+        </div>
+    `,
 
     // Arquitectura y Conceptos de PrestaShop
     'ciclo-vida-peticiones-prestashop': `<h1>Ciclo de Vida de Peticiones en PrestaShop</h1><p>Contenido en desarrollo...</p>`,
