@@ -1378,97 +1378,2483 @@ echo $usuario->saludar();  // "Hola, soy Ana"
     ...gestionErrores,
     
     'excepciones-personalizadas': `
-        <h1>Excepciones Personalizadas</h1>
+        <h1>Excepciones Personalizadas en PHP 8+</h1>
+        
+        <p>Las excepciones personalizadas te permiten crear <strong>tipos de error específicos</strong> para tu aplicación, con información adicional y mejor manejo de errores.</p>
+
+        <h3>¿Por qué Crear Excepciones Personalizadas?</h3>
+        <div class="info-box">
+            <strong>💡 Ventajas:</strong><br>
+            • <strong>Semántica clara</strong>: <code>UsuarioNoEncontradoException</code> es más claro que <code>RuntimeException</code><br>
+            • <strong>Información adicional</strong>: Puedes agregar propiedades específicas (userId, email, etc.)<br>
+            • <strong>Captura específica</strong>: Puedes capturar solo tus excepciones personalizadas<br>
+            • <strong>Mejor debugging</strong>: Stack traces más claros y específicos<br>
+            • <strong>Código más mantenible</strong>: Errores bien organizados por dominio
+        </div>
+
+        <h3>Excepción Personalizada Básica</h3>
         <div class="code-block"><pre><code>&lt;?php
+// Excepción simple que extiende Exception
 class UsuarioNoEncontradoException extends Exception {
-    protected $userId;
-    
-    public function __construct($userId) {
-        $this->userId = $userId;
-        parent::__construct("Usuario $userId no encontrado");
+    public function __construct(
+        private readonly int $userId,
+        string $message = "",
+        int $code = 404
+    ) {
+        // Si no hay mensaje, crear uno por defecto
+        if (empty($message)) {
+            $message = "Usuario con ID {$userId} no encontrado";
+        }
+        
+        // Llamar al constructor padre
+        parent::__construct($message, $code);
     }
     
-    public function getUserId() {
+    // Método adicional para obtener el userId
+    public function getUserId(): int {
         return $this->userId;
     }
 }
 
+// Uso:
 try {
     throw new UsuarioNoEncontradoException(123);
 } catch (UsuarioNoEncontradoException $e) {
-    echo $e->getMessage();
+    echo $e->getMessage();  // "Usuario con ID 123 no encontrado"
+    echo $e->getUserId();   // 123
+    echo $e->getCode();     // 404
 }
 ?&gt;</code></pre></div>
-    `,
-    'bloques-try-catch': `
-        <h1>Bloques try-catch-finally</h1>
+
+        <h3>Jerarquía de Excepciones Personalizadas</h3>
+        <p>Organiza tus excepciones en una jerarquía lógica para tu aplicación:</p>
+        
         <div class="code-block"><pre><code>&lt;?php
-try {
-    $archivo = fopen("datos.txt", "r");
-    if (!$archivo) throw new RuntimeException("Error");
-} catch (RuntimeException $e) {
-    echo "Error: " . $e->getMessage();
-} finally {
-    if ($archivo) fclose($archivo);
+// Excepción base de tu aplicación
+abstract class AppException extends Exception {
+    public function __construct(
+        string $message = "",
+        int $code = 0,
+        ?Throwable $previous = null
+    ) {
+        parent::__construct($message, $code, $previous);
+        
+        // Loguear automáticamente todas las excepciones
+        $this->logException();
+    }
+    
+    protected function logException(): void {
+        error_log(sprintf(
+            "[%s] %s en %s:%d",
+            static::class,
+            $this->getMessage(),
+            $this->getFile(),
+            $this->getLine()
+        ));
+    }
+    
+    // Método para obtener respuesta HTTP
+    abstract public function getHttpStatusCode(): int;
 }
 
-// Múltiples catch (PHP 7.1+)
-try {
-    // código
-} catch (InvalidArgumentException | RuntimeException $e) {
-    echo $e->getMessage();
+// Excepciones de validación (400 Bad Request)
+class ValidationException extends AppException {
+    public function __construct(
+        private readonly array $errors,
+        string $message = "Errores de validación"
+    ) {
+        parent::__construct($message, 400);
+    }
+    
+    public function getErrors(): array {
+        return $this->errors;
+    }
+    
+    public function getHttpStatusCode(): int {
+        return 400;
+    }
+}
+
+// Excepciones de autenticación (401 Unauthorized)
+class AuthenticationException extends AppException {
+    public function getHttpStatusCode(): int {
+        return 401;
+    }
+}
+
+// Excepciones de autorización (403 Forbidden)
+class AuthorizationException extends AppException {
+    public function __construct(
+        private readonly string $requiredPermission,
+        string $message = "Acceso denegado"
+    ) {
+        parent::__construct($message, 403);
+    }
+    
+    public function getRequiredPermission(): string {
+        return $this->requiredPermission;
+    }
+    
+    public function getHttpStatusCode(): int {
+        return 403;
+    }
+}
+
+// Excepciones de recursos no encontrados (404 Not Found)
+class NotFoundException extends AppException {
+    public function __construct(
+        private readonly string $resourceType,
+        private readonly int|string $resourceId
+    ) {
+        $message = "{$resourceType} con ID {$resourceId} no encontrado";
+        parent::__construct($message, 404);
+    }
+    
+    public function getResourceType(): string {
+        return $this->resourceType;
+    }
+    
+    public function getResourceId(): int|string {
+        return $this->resourceId;
+    }
+    
+    public function getHttpStatusCode(): int {
+        return 404;
+    }
+}
+
+// Excepciones de conflicto (409 Conflict)
+class ConflictException extends AppException {
+    public function getHttpStatusCode(): int {
+        return 409;
+    }
 }
 ?&gt;</code></pre></div>
+
+        <h3>Excepciones Específicas de Dominio</h3>
+        <p>Crea excepciones específicas para cada parte de tu aplicación:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Excepciones de Usuario
+class UsuarioNoEncontradoException extends NotFoundException {
+    public function __construct(int $userId) {
+        parent::__construct('Usuario', $userId);
+    }
+}
+
+class EmailYaRegistradoException extends ConflictException {
+    public function __construct(
+        private readonly string $email
+    ) {
+        parent::__construct("El email {$email} ya está registrado");
+    }
+    
+    public function getEmail(): string {
+        return $this->email;
+    }
+}
+
+class PasswordInvalidoException extends ValidationException {
+    public function __construct() {
+        parent::__construct(
+            ['password' => ['La contraseña debe tener al menos 8 caracteres']],
+            'Contraseña inválida'
+        );
+    }
+}
+
+// Excepciones de Pago
+class PagoRechazadoException extends AppException {
+    public function __construct(
+        private readonly string $razon,
+        private readonly string $transaccionId
+    ) {
+        parent::__construct("Pago rechazado: {$razon}", 402);
+    }
+    
+    public function getRazon(): string {
+        return $this->razon;
+    }
+    
+    public function getTransaccionId(): string {
+        return $this->transaccionId;
+    }
+    
+    public function getHttpStatusCode(): int {
+        return 402;
+    }
+}
+
+class SaldoInsuficienteException extends AppException {
+    public function __construct(
+        private readonly float $saldoActual,
+        private readonly float $montoRequerido
+    ) {
+        $message = sprintf(
+            "Saldo insuficiente. Actual: %.2f, Requerido: %.2f",
+            $saldoActual,
+            $montoRequerido
+        );
+        parent::__construct($message, 400);
+    }
+    
+    public function getSaldoActual(): float {
+        return $this->saldoActual;
+    }
+    
+    public function getMontoRequerido(): float {
+        return $this->montoRequerido;
+    }
+    
+    public function getHttpStatusCode(): int {
+        return 400;
+    }
+}
+
+// Excepciones de Base de Datos
+class DatabaseException extends AppException {
+    public function __construct(
+        string $message,
+        private readonly ?string $query = null
+    ) {
+        parent::__construct($message, 500);
+    }
+    
+    public function getQuery(): ?string {
+        return $this->query;
+    }
+    
+    public function getHttpStatusCode(): int {
+        return 500;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>Uso Práctico en una Aplicación</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class UsuarioService {
+    public function __construct(
+        private UsuarioRepository $repository,
+        private EmailService $emailService
+    ) {}
+    
+    public function registrar(string $nombre, string $email, string $password): Usuario {
+        // Validar email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new ValidationException(
+                ['email' => ['Email inválido']],
+                'Datos de registro inválidos'
+            );
+        }
+        
+        // Validar contraseña
+        if (strlen($password) < 8) {
+            throw new PasswordInvalidoException();
+        }
+        
+        // Verificar si el email ya existe
+        if ($this->repository->existeEmail($email)) {
+            throw new EmailYaRegistradoException($email);
+        }
+        
+        // Crear usuario
+        try {
+            $usuario = $this->repository->crear($nombre, $email, $password);
+        } catch (Exception $e) {
+            throw new DatabaseException(
+                "Error al crear usuario: " . $e->getMessage(),
+                $e->getCode()
+            );
+        }
+        
+        // Enviar email de bienvenida
+        try {
+            $this->emailService->enviarBienvenida($usuario);
+        } catch (Exception $e) {
+            // No fallar si el email falla, solo loguear
+            error_log("Error al enviar email: " . $e->getMessage());
+        }
+        
+        return $usuario;
+    }
+    
+    public function obtenerPorId(int $id): Usuario {
+        $usuario = $this->repository->buscarPorId($id);
+        
+        if (!$usuario) {
+            throw new UsuarioNoEncontradoException($id);
+        }
+        
+        return $usuario;
+    }
+}
+
+// Controlador HTTP
+class UsuarioController {
+    public function __construct(
+        private UsuarioService $service
+    ) {}
+    
+    public function registrar(array $datos): array {
+        try {
+            $usuario = $this->service->registrar(
+                $datos['nombre'],
+                $datos['email'],
+                $datos['password']
+            );
+            
+            return [
+                'success' => true,
+                'data' => $usuario,
+                'status' => 201
+            ];
+            
+        } catch (ValidationException $e) {
+            return [
+                'success' => false,
+                'errors' => $e->getErrors(),
+                'message' => $e->getMessage(),
+                'status' => $e->getHttpStatusCode()
+            ];
+            
+        } catch (EmailYaRegistradoException $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'email' => $e->getEmail(),
+                'status' => $e->getHttpStatusCode()
+            ];
+            
+        } catch (DatabaseException $e) {
+            // No exponer detalles de BD al usuario
+            error_log($e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Error del servidor',
+                'status' => 500
+            ];
+            
+        } catch (AppException $e) {
+            // Capturar cualquier otra excepción de la app
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'status' => $e->getHttpStatusCode()
+            ];
+        }
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>PHP 8+: Named Arguments en Excepciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class ProductoException extends AppException {
+    public function __construct(
+        private readonly int $productoId,
+        private readonly string $sku,
+        private readonly ?int $stock = null,
+        string $message = "",
+        int $code = 0
+    ) {
+        if (empty($message)) {
+            $message = "Error con producto SKU: {$sku}";
+        }
+        parent::__construct($message, $code);
+    }
+    
+    public function getProductoId(): int {
+        return $this->productoId;
+    }
+    
+    public function getSku(): string {
+        return $this->sku;
+    }
+    
+    public function getStock(): ?int {
+        return $this->stock;
+    }
+    
+    public function getHttpStatusCode(): int {
+        return 400;
+    }
+}
+
+// Uso con named arguments (PHP 8+)
+throw new ProductoException(
+    productoId: 42,
+    sku: 'PROD-123',
+    stock: 0,
+    message: 'Producto sin stock',
+    code: 400
+);
+
+// Orden flexible con named arguments
+throw new ProductoException(
+    sku: 'PROD-456',
+    productoId: 99,
+    message: 'Producto descontinuado'
+);
+?&gt;</code></pre></div>
+
+        <h3>Excepciones con Contexto Adicional</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class ApiException extends AppException {
+    public function __construct(
+        string $message,
+        private readonly int $httpCode,
+        private readonly array $context = [],
+        private readonly ?string $endpoint = null,
+        ?Throwable $previous = null
+    ) {
+        parent::__construct($message, $httpCode, $previous);
+    }
+    
+    public function getContext(): array {
+        return $this->context;
+    }
+    
+    public function getEndpoint(): ?string {
+        return $this->endpoint;
+    }
+    
+    public function getHttpStatusCode(): int {
+        return $this->httpCode;
+    }
+    
+    // Convertir a array para respuesta JSON
+    public function toArray(): array {
+        return [
+            'error' => true,
+            'message' => $this->getMessage(),
+            'code' => $this->getCode(),
+            'endpoint' => $this->endpoint,
+            'context' => $this->context,
+            'timestamp' => date('c')
+        ];
+    }
+}
+
+// Uso:
+try {
+    // Llamada a API externa
+    $response = $apiClient->get('/usuarios/123');
+} catch (Exception $e) {
+    throw new ApiException(
+        message: 'Error al obtener usuario de API externa',
+        httpCode: 503,
+        context: [
+            'user_id' => 123,
+            'api_response_code' => $e->getCode(),
+            'api_response_body' => $e->getMessage()
+        ],
+        endpoint: '/usuarios/123',
+        previous: $e
+    );
+}
+
+// En el controlador:
+try {
+    $usuario = $service->obtenerUsuarioExterno(123);
+} catch (ApiException $e) {
+    return response()->json($e->toArray(), $e->getHttpStatusCode());
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas para Excepciones Personalizadas:</strong><br>
+            • <strong>Hereda de la excepción correcta</strong>: LogicException o RuntimeException<br>
+            • <strong>Nombres descriptivos</strong>: <code>UsuarioNoEncontradoException</code> mejor que <code>UserException</code><br>
+            • <strong>Propiedades readonly</strong> (PHP 8.1+): Datos inmutables<br>
+            • <strong>Constructor con valores por defecto</strong>: Facilita el uso<br>
+            • <strong>Métodos getter</strong>: Para acceder a propiedades adicionales<br>
+            • <strong>Jerarquía clara</strong>: Organiza por dominio o funcionalidad<br>
+            • <strong>Códigos HTTP</strong>: Si es una API, incluye el código de estado<br>
+            • <strong>Contexto útil</strong>: Agrega información que ayude al debugging
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • NO crear demasiadas excepciones (solo las necesarias)<br>
+            • NO poner lógica de negocio en excepciones<br>
+            • NO capturar excepciones genéricas si puedes ser específico<br>
+            • NO exponer información sensible en mensajes de excepción<br>
+            • SIEMPRE llamar a <code>parent::__construct()</code><br>
+            • NO usar excepciones para control de flujo normal
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Estructura Recomendada:</strong><br>
+            <code>src/Exceptions/</code><br>
+            ├── <code>AppException.php</code> (base abstracta)<br>
+            ├── <code>ValidationException.php</code><br>
+            ├── <code>NotFoundException.php</code><br>
+            ├── <code>AuthenticationException.php</code><br>
+            ├── <code>Usuario/</code><br>
+            │   ├── <code>UsuarioNoEncontradoException.php</code><br>
+            │   └── <code>EmailYaRegistradoException.php</code><br>
+            └── <code>Pago/</code><br>
+                ├── <code>PagoRechazadoException.php</code><br>
+                └── <code>SaldoInsuficienteException.php</code>
+        </div>
+    `,
+    'bloques-try-catch': `
+        <h1>Bloques try-catch-finally en PHP 8+</h1>
+        
+        <p>Los bloques <code>try-catch-finally</code> te permiten <strong>capturar y manejar excepciones</strong> de forma controlada, evitando que tu aplicación se detenga abruptamente.</p>
+
+        <h3>Estructura Básica: try-catch</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Estructura básica
+try {
+    // Código que puede lanzar excepciones
+    $resultado = dividir(10, 0);
+    echo "Resultado: $resultado";
+    
+} catch (Exception $e) {
+    // Código que se ejecuta si hay una excepción
+    echo "Error: " . $e->getMessage();
+}
+
+// Ejemplo práctico: Lectura de archivo
+try {
+    $contenido = file_get_contents('config.json');
+    $config = json_decode($contenido, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        throw new RuntimeException('JSON inválido: ' . json_last_error_msg());
+    }
+    
+    echo "Configuración cargada correctamente";
+    
+} catch (RuntimeException $e) {
+    echo "Error al cargar configuración: " . $e->getMessage();
+    // Usar configuración por defecto
+    $config = ['debug' => false, 'timeout' => 30];
+}
+?&gt;</code></pre></div>
+
+        <h3>Múltiples Bloques catch (Específico a Genérico)</h3>
+        <p>Captura excepciones específicas primero, luego las más genéricas:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+class UsuarioService {
+    public function crear(array $datos): Usuario {
+        try {
+            // Validar datos
+            $this->validar($datos);
+            
+            // Guardar en BD
+            $usuario = $this->repository->guardar($datos);
+            
+            // Enviar email
+            $this->emailService->enviarBienvenida($usuario);
+            
+            return $usuario;
+            
+        } catch (InvalidArgumentException $e) {
+            // Error de validación - específico
+            echo "Datos inválidos: " . $e->getMessage();
+            throw $e;
+            
+        } catch (PDOException $e) {
+            // Error de base de datos - específico
+            error_log("Error BD: " . $e->getMessage());
+            throw new RuntimeException("Error al guardar usuario");
+            
+        } catch (RuntimeException $e) {
+            // Error genérico de runtime
+            error_log("Error runtime: " . $e->getMessage());
+            throw $e;
+            
+        } catch (Exception $e) {
+            // Captura cualquier otra excepción - genérico
+            error_log("Error inesperado: " . $e->getMessage());
+            throw new RuntimeException("Error inesperado del sistema");
+        }
+    }
+}
+?&gt;</code></pre></div>
+
+        <div class="info-box">
+            <strong>💡 Orden Importante:</strong><br>
+            Siempre captura excepciones <strong>de más específica a más genérica</strong>.<br>
+            Si pones <code>catch (Exception $e)</code> primero, capturará TODAS las excepciones y los bloques siguientes nunca se ejecutarán.
+        </div>
+
+        <h3>PHP 7.1+: Múltiples Excepciones en un catch</h3>
+        <p>Captura varias excepciones con el mismo manejo usando el operador <code>|</code>:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Antes de PHP 7.1 (repetitivo)
+try {
+    $resultado = operacionCompleja();
+} catch (InvalidArgumentException $e) {
+    echo "Error: " . $e->getMessage();
+} catch (OutOfRangeException $e) {
+    echo "Error: " . $e->getMessage();
+} catch (LengthException $e) {
+    echo "Error: " . $e->getMessage();
+}
+
+// PHP 7.1+ (conciso)
+try {
+    $resultado = operacionCompleja();
+} catch (InvalidArgumentException | OutOfRangeException | LengthException $e) {
+    echo "Error de validación: " . $e->getMessage();
+}
+
+// Ejemplo práctico: API externa
+try {
+    $response = $apiClient->get('/usuarios/123');
+    $data = json_decode($response->getBody(), true);
+    
+} catch (ConnectException | RequestException | TimeoutException $e) {
+    // Todos son errores de red/conexión
+    error_log("Error de conexión API: " . $e->getMessage());
+    throw new RuntimeException("Servicio no disponible temporalmente");
+    
+} catch (ClientException $e) {
+    // Error 4xx (cliente)
+    throw new RuntimeException("Solicitud inválida: " . $e->getMessage());
+    
+} catch (ServerException $e) {
+    // Error 5xx (servidor)
+    throw new RuntimeException("Error del servidor externo");
+}
+?&gt;</code></pre></div>
+
+        <h3>Bloque finally: Siempre se Ejecuta</h3>
+        <p>El bloque <code>finally</code> se ejecuta <strong>SIEMPRE</strong>, haya o no excepción:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Ejemplo 1: Cerrar recursos
+function procesarArchivo(string $ruta): array {
+    $archivo = null;
+    
+    try {
+        $archivo = fopen($ruta, 'r');
+        
+        if (!$archivo) {
+            throw new RuntimeException("No se pudo abrir el archivo");
+        }
+        
+        $datos = [];
+        while (($linea = fgets($archivo)) !== false) {
+            $datos[] = trim($linea);
+        }
+        
+        return $datos;
+        
+    } catch (RuntimeException $e) {
+        error_log("Error: " . $e->getMessage());
+        return [];
+        
+    } finally {
+        // SIEMPRE se ejecuta, haya o no error
+        if ($archivo) {
+            fclose($archivo);
+            echo "Archivo cerrado\\n";
+        }
+    }
+}
+
+// Ejemplo 2: Conexión a BD
+function consultarBD(string $query): array {
+    $conexion = null;
+    
+    try {
+        $conexion = new PDO('mysql:host=localhost;dbname=test', 'user', 'pass');
+        $stmt = $conexion->query($query);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (PDOException $e) {
+        error_log("Error BD: " . $e->getMessage());
+        throw new RuntimeException("Error en consulta");
+        
+    } finally {
+        // Cerrar conexión SIEMPRE
+        $conexion = null;
+        echo "Conexión cerrada\\n";
+    }
+}
+
+// Ejemplo 3: Medir tiempo de ejecución
+function operacionLenta(): mixed {
+    $inicio = microtime(true);
+    
+    try {
+        // Operación que puede fallar
+        sleep(2);
+        
+        if (rand(0, 1)) {
+            throw new RuntimeException("Operación fallida");
+        }
+        
+        return "Éxito";
+        
+    } catch (RuntimeException $e) {
+        return "Error: " . $e->getMessage();
+        
+    } finally {
+        // Medir tiempo SIEMPRE
+        $tiempo = microtime(true) - $inicio;
+        error_log("Tiempo de ejecución: {$tiempo}s");
+    }
+}
+?&gt;</code></pre></div>
+
+        <div class="warning-box">
+            <strong>⚠️ Importante sobre finally:</strong><br>
+            • Se ejecuta <strong>SIEMPRE</strong>, incluso si hay <code>return</code> en try o catch<br>
+            • Si <code>finally</code> tiene un <code>return</code>, sobrescribe el return de try/catch<br>
+            • Si <code>finally</code> lanza una excepción, reemplaza la excepción original<br>
+            • Úsalo para <strong>limpieza de recursos</strong> (cerrar archivos, conexiones, etc.)
+        </div>
+
+        <h3>try-catch-finally Completo</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class TransaccionService {
+    private PDO $db;
+    
+    public function transferir(int $origen, int $destino, float $monto): bool {
+        $this->db->beginTransaction();
+        $exito = false;
+        
+        try {
+            // Validar saldo
+            $saldo = $this->obtenerSaldo($origen);
+            if ($saldo < $monto) {
+                throw new RuntimeException("Saldo insuficiente");
+            }
+            
+            // Retirar de origen
+            $this->actualizarSaldo($origen, -$monto);
+            
+            // Simular error aleatorio
+            if (rand(0, 10) === 0) {
+                throw new RuntimeException("Error de red");
+            }
+            
+            // Depositar en destino
+            $this->actualizarSaldo($destino, $monto);
+            
+            // Confirmar transacción
+            $this->db->commit();
+            $exito = true;
+            
+            return true;
+            
+        } catch (RuntimeException $e) {
+            // Revertir transacción en caso de error
+            $this->db->rollBack();
+            error_log("Error en transferencia: " . $e->getMessage());
+            throw $e;
+            
+        } finally {
+            // Registrar en log SIEMPRE
+            $estado = $exito ? 'EXITOSA' : 'FALLIDA';
+            error_log("Transferencia {$estado}: {$origen} -> {$destino} ({$monto})");
+            
+            // Notificar al usuario
+            $this->notificar($origen, $estado, $monto);
+        }
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>PHP 8+: Non-capturing catches</h3>
+        <p>Si no necesitas la variable de excepción, puedes omitirla (PHP 8+):</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Antes de PHP 8
+try {
+    $resultado = operacionArriesgada();
+} catch (Exception $e) {
+    // No usamos $e
+    echo "Algo salió mal";
+}
+
+// PHP 8+: Sin variable si no la necesitas
+try {
+    $resultado = operacionArriesgada();
+} catch (Exception) {
+    // Más limpio si no necesitas los detalles
+    echo "Algo salió mal";
+}
+
+// Ejemplo práctico
+function intentarConexion(): bool {
+    try {
+        $conexion = new PDO('mysql:host=localhost;dbname=test', 'user', 'pass');
+        return true;
+    } catch (PDOException) {
+        // No necesitamos los detalles, solo saber que falló
+        return false;
+    }
+}
+
+// Con múltiples excepciones
+try {
+    validarDatos($datos);
+} catch (InvalidArgumentException | OutOfRangeException | LengthException) {
+    // No necesitamos los detalles específicos
+    return ['error' => 'Datos inválidos'];
+}
+?&gt;</code></pre></div>
+
+        <h3>Nested try-catch (Anidados)</h3>
+        <p>Puedes anidar bloques try-catch para manejar errores en diferentes niveles:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+class PedidoService {
+    public function procesarPedido(array $items): array {
+        try {
+            // Nivel externo: errores generales
+            $total = 0;
+            $procesados = [];
+            
+            foreach ($items as $item) {
+                try {
+                    // Nivel interno: errores por item
+                    $precio = $this->obtenerPrecio($item['id']);
+                    $subtotal = $precio * $item['cantidad'];
+                    $total += $subtotal;
+                    
+                    $procesados[] = [
+                        'id' => $item['id'],
+                        'subtotal' => $subtotal,
+                        'estado' => 'OK'
+                    ];
+                    
+                } catch (RuntimeException $e) {
+                    // Error en un item específico - continuar con los demás
+                    error_log("Error en item {$item['id']}: " . $e->getMessage());
+                    $procesados[] = [
+                        'id' => $item['id'],
+                        'subtotal' => 0,
+                        'estado' => 'ERROR',
+                        'mensaje' => $e->getMessage()
+                    ];
+                }
+            }
+            
+            // Validar que al menos un item se procesó
+            if ($total === 0) {
+                throw new RuntimeException("No se pudo procesar ningún item");
+            }
+            
+            return [
+                'total' => $total,
+                'items' => $procesados
+            ];
+            
+        } catch (RuntimeException $e) {
+            // Error general del pedido
+            throw new RuntimeException("Error al procesar pedido: " . $e->getMessage());
+        }
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>Re-lanzar Excepciones (Re-throw)</h3>
+        <p>Captura una excepción, haz algo, y vuelve a lanzarla:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+function guardarUsuario(array $datos): void {
+    try {
+        $this->repository->guardar($datos);
+        
+    } catch (PDOException $e) {
+        // Loguear el error técnico
+        error_log("Error BD: " . $e->getMessage());
+        
+        // Re-lanzar con mensaje más amigable
+        throw new RuntimeException(
+            "No se pudo guardar el usuario",
+            0,
+            $e  // Mantener excepción original
+        );
+    }
+}
+
+// Uso:
+try {
+    guardarUsuario(['nombre' => 'Ana']);
+} catch (RuntimeException $e) {
+    echo $e->getMessage();  // "No se pudo guardar el usuario"
+    
+    // Acceder a la excepción original
+    if ($e->getPrevious()) {
+        error_log($e->getPrevious()->getMessage());  // Error técnico de BD
+    }
+}
+
+// Re-throw simple
+try {
+    operacionCritica();
+} catch (Exception $e) {
+    error_log("Error crítico: " . $e->getMessage());
+    
+    // Re-lanzar la misma excepción
+    throw $e;
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Captura específico primero</strong>: De más específico a más genérico<br>
+            • <strong>Usa finally para limpieza</strong>: Cerrar archivos, conexiones, etc.<br>
+            • <strong>No captures todo con Exception</strong>: Sé específico cuando puedas<br>
+            • <strong>Loguea errores técnicos</strong>: Usa error_log() para debugging<br>
+            • <strong>Mensajes amigables al usuario</strong>: No expongas detalles técnicos<br>
+            • <strong>Re-lanza con contexto</strong>: Usa el tercer parámetro para mantener la excepción original<br>
+            • <strong>PHP 8+</strong>: Omite la variable si no la usas
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>try</strong>: Código que puede lanzar excepciones<br>
+            • <strong>catch</strong>: Maneja excepciones específicas (de específico a genérico)<br>
+            • <strong>finally</strong>: Se ejecuta SIEMPRE (limpieza de recursos)<br>
+            • <strong>|</strong>: Captura múltiples excepciones (PHP 7.1+)<br>
+            • <strong>Sin variable</strong>: Omite $e si no la necesitas (PHP 8+)<br>
+            • <strong>Re-throw</strong>: Captura, loguea, y vuelve a lanzar
+        </div>
     `,
     'errores-fatales': `
-        <h1>Errores Fatales y Shutdown Functions</h1>
+        <h1>Errores Fatales y Shutdown Functions en PHP 8+</h1>
+        
+        <p>Los <strong>errores fatales</strong> son errores críticos que detienen la ejecución de PHP. Con <code>register_shutdown_function()</code> puedes capturarlos y manejarlos antes de que el script termine.</p>
+
+        <h3>¿Qué son los Errores Fatales?</h3>
+        <div class="info-box">
+            <strong>💡 Tipos de Errores Fatales:</strong><br>
+            • <strong>E_ERROR</strong>: Error fatal en tiempo de ejecución<br>
+            • <strong>E_PARSE</strong>: Error de sintaxis (parse error)<br>
+            • <strong>E_CORE_ERROR</strong>: Error fatal durante el inicio de PHP<br>
+            • <strong>E_COMPILE_ERROR</strong>: Error fatal de compilación<br>
+            • <strong>E_USER_ERROR</strong>: Error fatal generado por trigger_error()<br><br>
+            ⚠️ Estos errores <strong>NO se pueden capturar con try-catch</strong>, pero sí con shutdown functions.
+        </div>
+
+        <h3>Shutdown Function Básica</h3>
+        <p><code>register_shutdown_function()</code> registra una función que se ejecuta cuando el script termina (normal o por error fatal):</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Registrar función que se ejecuta al finalizar el script
+register_shutdown_function(function() {
+    echo "Script finalizado\\n";
+});
+
+echo "Ejecutando script...\\n";
+
+// Salida:
+// Ejecutando script...
+// Script finalizado
+?&gt;</code></pre></div>
+
+        <h3>Capturar Errores Fatales</h3>
+        <p>Usa <code>error_get_last()</code> dentro de la shutdown function para detectar errores fatales:</p>
+        
         <div class="code-block"><pre><code>&lt;?php
 register_shutdown_function(function() {
     $error = error_get_last();
-    if ($error && in_array($error['type'], [E_ERROR, E_PARSE])) {
-        error_log("Error Fatal: {$error['message']}");
+    
+    // Verificar si hubo un error fatal
+    if ($error !== null) {
+        $errorTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR];
+        
+        if (in_array($error['type'], $errorTypes)) {
+            // Es un error fatal
+            $mensaje = sprintf(
+                "ERROR FATAL: %s en %s línea %d",
+                $error['message'],
+                $error['file'],
+                $error['line']
+            );
+            
+            error_log($mensaje);
+            
+            // Mostrar página de error amigable
+            http_response_code(500);
+            echo "Lo sentimos, ha ocurrido un error. Por favor, intenta más tarde.";
+        }
     }
 });
 
+// Esto causará un error fatal
+llamarFuncionQueNoExiste();  // Fatal error: Uncaught Error: Call to undefined function
+?&gt;</code></pre></div>
+
+        <h3>Shutdown Function Avanzada con Logging</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class ErrorHandler {
+    private string $logFile;
+    private bool $isProduction;
+    
+    public function __construct(string $logFile, bool $isProduction = false) {
+        $this->logFile = $logFile;
+        $this->isProduction = $isProduction;
+        
+        // Registrar shutdown function
+        register_shutdown_function([$this, 'handleShutdown']);
+    }
+    
+    public function handleShutdown(): void {
+        $error = error_get_last();
+        
+        if ($error === null) {
+            return;  // No hubo error
+        }
+        
+        $fatalErrors = [
+            E_ERROR,
+            E_PARSE,
+            E_CORE_ERROR,
+            E_COMPILE_ERROR,
+            E_USER_ERROR
+        ];
+        
+        if (in_array($error['type'], $fatalErrors)) {
+            $this->logFatalError($error);
+            $this->displayErrorPage($error);
+        }
+    }
+    
+    private function logFatalError(array $error): void {
+        $logData = [
+            'timestamp' => date('c'),
+            'type' => $this->getErrorTypeName($error['type']),
+            'message' => $error['message'],
+            'file' => $error['file'],
+            'line' => $error['line'],
+            'url' => $_SERVER['REQUEST_URI'] ?? 'CLI',
+            'method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+        ];
+        
+        // Guardar en formato JSON
+        $logEntry = json_encode($logData, JSON_PRETTY_PRINT) . ",\\n";
+        file_put_contents($this->logFile, $logEntry, FILE_APPEND);
+        
+        // Enviar notificación si es producción
+        if ($this->isProduction) {
+            $this->sendNotification($logData);
+        }
+    }
+    
+    private function displayErrorPage(array $error): void {
+        // Limpiar cualquier output previo
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        
+        http_response_code(500);
+        
+        if ($this->isProduction) {
+            // Mensaje genérico en producción
+            echo '<!DOCTYPE html>
+            <html>
+            <head>
+                <title>Error del Servidor</title>
+                <style>
+                    body { font-family: Arial; text-align: center; padding: 50px; }
+                    h1 { color: #e74c3c; }
+                </style>
+            </head>
+            <body>
+                <h1>Error del Servidor</h1>
+                <p>Lo sentimos, ha ocurrido un error inesperado.</p>
+                <p>Por favor, intenta nuevamente más tarde.</p>
+            </body>
+            </html>';
+        } else {
+            // Mostrar detalles en desarrollo
+            echo '<!DOCTYPE html>
+            <html>
+            <head>
+                <title>Fatal Error</title>
+                <style>
+                    body { font-family: monospace; padding: 20px; background: #f8f9fa; }
+                    .error { background: #fff; border-left: 4px solid #e74c3c; padding: 20px; }
+                    .type { color: #e74c3c; font-weight: bold; }
+                    .file { color: #3498db; }
+                </style>
+            </head>
+            <body>
+                <div class="error">
+                    <h2 class="type">' . $this->getErrorTypeName($error['type']) . '</h2>
+                    <p><strong>Mensaje:</strong> ' . htmlspecialchars($error['message']) . '</p>
+                    <p class="file"><strong>Archivo:</strong> ' . $error['file'] . '</p>
+                    <p><strong>Línea:</strong> ' . $error['line'] . '</p>
+                </div>
+            </body>
+            </html>';
+        }
+    }
+    
+    private function getErrorTypeName(int $type): string {
+        return match($type) {
+            E_ERROR => 'E_ERROR',
+            E_PARSE => 'E_PARSE',
+            E_CORE_ERROR => 'E_CORE_ERROR',
+            E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+            E_USER_ERROR => 'E_USER_ERROR',
+            default => 'UNKNOWN_ERROR'
+        };
+    }
+    
+    private function sendNotification(array $logData): void {
+        // Enviar email, Slack, etc.
+        // mail('admin@example.com', 'Error Fatal', json_encode($logData));
+    }
+}
+
+// Uso:
+$errorHandler = new ErrorHandler(
+    __DIR__ . '/logs/fatal-errors.log',
+    isProduction: getenv('APP_ENV') === 'production'
+);
+
+// El resto de tu aplicación...
+?&gt;</code></pre></div>
+
+        <h3>PHP 7+: Error vs Exception</h3>
+        <p>Desde PHP 7, muchos errores fatales se convirtieron en excepciones <code>Error</code> que SÍ se pueden capturar:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// PHP 7+: DivisionByZeroError (se puede capturar)
 try {
     $result = intdiv(10, 0);
 } catch (DivisionByZeroError $e) {
-    echo $e->getMessage();
+    echo "Error: " . $e->getMessage();  // "Division by zero"
 }
-?&gt;</code></pre></div>
-    `,
-    'logging-errores': `
-        <h1>Logging de Errores y Stack Traces</h1>
-        <div class="code-block"><pre><code>&lt;?php
-error_log("Mensaje de error");
-error_log("Error DB", 3, "logs/db.log");
 
-$log = [
-    'time' => date('Y-m-d H:i:s'),
-    'level' => 'ERROR',
-    'message' => 'Fallo'
-];
-error_log(json_encode($log), 3, "logs/app.log");
+// PHP 7+: TypeError (se puede capturar)
+declare(strict_types=1);
+
+function sumar(int $a, int $b): int {
+    return $a + $b;
+}
 
 try {
-    throw new Exception("Error");
-} catch (Exception $e) {
-    error_log($e->getTraceAsString());
+    sumar("5", "10");
+} catch (TypeError $e) {
+    echo "Error de tipo: " . $e->getMessage();
+}
+
+// PHP 7+: ParseError (se puede capturar con eval)
+try {
+    eval('$x = ;');  // Sintaxis inválida
+} catch (ParseError $e) {
+    echo "Error de sintaxis: " . $e->getMessage();
+}
+
+// PHP 7+: ArithmeticError
+try {
+    $x = PHP_INT_MAX;
+    $y = $x << 1000;  // Shift muy grande
+} catch (ArithmeticError $e) {
+    echo "Error aritmético: " . $e->getMessage();
+}
+
+// Capturar todos los errores de PHP 7+
+try {
+    // Código que puede lanzar Error o Exception
+    operacionPeligrosa();
+} catch (Throwable $e) {
+    // Captura TANTO Error como Exception
+    echo "Error: " . $e->getMessage();
 }
 ?&gt;</code></pre></div>
+
+        <div class="warning-box">
+            <strong>⚠️ Error vs Exception:</strong><br>
+            • <strong>Exception</strong>: Errores de tu aplicación (SÍ capturar con try-catch)<br>
+            • <strong>Error</strong>: Errores internos de PHP (normalmente NO capturar)<br>
+            • <strong>Throwable</strong>: Interfaz padre de ambos (captura TODO)<br>
+            • Desde PHP 7, muchos errores fatales son ahora <code>Error</code> y se pueden capturar<br>
+            • Los errores de sintaxis (E_PARSE) NO se pueden capturar en el mismo archivo
+        </div>
+
+        <h3>Múltiples Shutdown Functions</h3>
+        <p>Puedes registrar varias shutdown functions. Se ejecutan en el orden en que fueron registradas:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Primera función: Cerrar conexiones
+register_shutdown_function(function() {
+    global $db;
+    if ($db) {
+        $db->close();
+        error_log("Conexión BD cerrada");
+    }
+});
+
+// Segunda función: Limpiar archivos temporales
+register_shutdown_function(function() {
+    $tempFiles = glob('/tmp/app_*');
+    foreach ($tempFiles as $file) {
+        unlink($file);
+    }
+    error_log("Archivos temporales eliminados");
+});
+
+// Tercera función: Registrar tiempo de ejecución
+register_shutdown_function(function() {
+    $tiempo = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+    error_log("Tiempo de ejecución: {$tiempo}s");
+});
+
+// Cuarta función: Detectar errores fatales
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error && $error['type'] === E_ERROR) {
+        error_log("ERROR FATAL: " . $error['message']);
+    }
+});
+
+// Todas se ejecutarán en orden al finalizar el script
+?&gt;</code></pre></div>
+
+        <h3>Shutdown Function con Output Buffering</h3>
+        <p>Combina shutdown functions con output buffering para modificar la salida antes de enviarla:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Iniciar output buffering
+ob_start();
+
+register_shutdown_function(function() {
+    $error = error_get_last();
+    
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR])) {
+        // Limpiar el buffer (descartar output previo)
+        ob_clean();
+        
+        // Enviar página de error personalizada
+        http_response_code(500);
+        echo json_encode([
+            'error' => true,
+            'message' => 'Error interno del servidor',
+            'timestamp' => date('c')
+        ]);
+        
+        // Loguear el error real
+        error_log(sprintf(
+            "Fatal Error: %s en %s:%d",
+            $error['message'],
+            $error['file'],
+            $error['line']
+        ));
+    }
+    
+    // Enviar el buffer al navegador
+    ob_end_flush();
+});
+
+// Tu aplicación
+echo "Procesando...\\n";
+// Si hay un error fatal aquí, se mostrará la respuesta JSON
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Manejo de Errores</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class GlobalErrorHandler {
+    private static ?self $instance = null;
+    private array $config;
+    
+    private function __construct(array $config) {
+        $this->config = $config;
+        
+        // Configurar error reporting
+        error_reporting(E_ALL);
+        ini_set('display_errors', $config['display_errors'] ? '1' : '0');
+        ini_set('log_errors', '1');
+        ini_set('error_log', $config['log_file']);
+        
+        // Registrar handlers
+        set_error_handler([$this, 'handleError']);
+        set_exception_handler([$this, 'handleException']);
+        register_shutdown_function([$this, 'handleShutdown']);
+    }
+    
+    public static function init(array $config): void {
+        if (self::$instance === null) {
+            self::$instance = new self($config);
+        }
+    }
+    
+    public function handleError(
+        int $errno,
+        string $errstr,
+        string $errfile,
+        int $errline
+    ): bool {
+        // No procesar si está suprimido con @
+        if (!(error_reporting() & $errno)) {
+            return false;
+        }
+        
+        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+    }
+    
+    public function handleException(Throwable $e): void {
+        $this->logException($e);
+        $this->displayException($e);
+    }
+    
+    public function handleShutdown(): void {
+        $error = error_get_last();
+        
+        if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR])) {
+            $this->logFatalError($error);
+            $this->displayFatalError($error);
+        }
+    }
+    
+    private function logException(Throwable $e): void {
+        $logData = [
+            'timestamp' => date('c'),
+            'type' => get_class($e),
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ];
+        
+        error_log(json_encode($logData));
+    }
+    
+    private function logFatalError(array $error): void {
+        error_log(sprintf(
+            "FATAL ERROR: %s en %s:%d",
+            $error['message'],
+            $error['file'],
+            $error['line']
+        ));
+    }
+    
+    private function displayException(Throwable $e): void {
+        http_response_code(500);
+        
+        if ($this->config['display_errors']) {
+            echo "<h1>Exception: " . get_class($e) . "</h1>";
+            echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+        } else {
+            echo "Error del servidor. Por favor, contacta al administrador.";
+        }
+    }
+    
+    private function displayFatalError(array $error): void {
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        
+        http_response_code(500);
+        echo "Error fatal del servidor.";
+    }
+}
+
+// Inicializar
+GlobalErrorHandler::init([
+    'display_errors' => getenv('APP_ENV') !== 'production',
+    'log_file' => __DIR__ . '/logs/errors.log'
+]);
+
+// Ahora todos los errores y excepciones serán manejados automáticamente
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Siempre registra shutdown functions</strong> para capturar errores fatales<br>
+            • <strong>Loguea errores fatales</strong> con contexto completo (archivo, línea, URL)<br>
+            • <strong>Muestra mensajes genéricos en producción</strong>, detalles solo en desarrollo<br>
+            • <strong>Combina con output buffering</strong> para controlar la salida<br>
+            • <strong>Usa Throwable</strong> para capturar tanto Error como Exception<br>
+            • <strong>Limpia recursos</strong> en shutdown functions (conexiones, archivos)<br>
+            • <strong>Notifica errores críticos</strong> (email, Slack, etc.)
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>register_shutdown_function()</strong>: Se ejecuta al finalizar el script<br>
+            • <strong>error_get_last()</strong>: Obtiene el último error (incluidos fatales)<br>
+            • <strong>E_ERROR, E_PARSE</strong>: Errores fatales que detienen PHP<br>
+            • <strong>PHP 7+</strong>: Muchos errores fatales son ahora <code>Error</code> (capturables)<br>
+            • <strong>Throwable</strong>: Captura tanto Error como Exception<br>
+            • <strong>Output buffering</strong>: Controla la salida en caso de error fatal
+        </div>
+    `,
+    'logging-errores': `
+        <h1>Logging de Errores y Stack Traces en PHP 8+</h1>
+        
+        <p>El <strong>logging</strong> es fundamental para detectar, diagnosticar y resolver problemas en producción. Un buen sistema de logs te permite entender qué pasó, cuándo y por qué.</p>
+
+        <h3>error_log() - Función Básica</h3>
+        <p>La función <code>error_log()</code> es la forma más simple de registrar errores en PHP:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// 1. Log al archivo de error por defecto (php.ini: error_log)
+error_log("Mensaje de error simple");
+
+// 2. Log a un archivo específico (tipo 3)
+error_log("Error en base de datos", 3, "/var/log/php/app.log");
+
+// 3. Log con contexto
+error_log(sprintf(
+    "[%s] Usuario %d intentó acceder a recurso %s",
+    date('Y-m-d H:i:s'),
+    $userId,
+    $recurso
+));
+
+// 4. Log de arrays/objetos
+$datos = ['user_id' => 123, 'action' => 'login', 'ip' => '192.168.1.1'];
+error_log(print_r($datos, true));  // Legible pero no estructurado
+
+// Mejor: JSON
+error_log(json_encode($datos));  // Estructurado y parseable
+?&gt;</code></pre></div>
+
+        <h3>Niveles de Log (PSR-3 Standard)</h3>
+        <p>Los logs deben tener niveles de severidad para filtrar y priorizar:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+class Logger {
+    private string $logFile;
+    
+    public function __construct(string $logFile) {
+        $this->logFile = $logFile;
+    }
+    
+    // Nivel 1: DEBUG - Información detallada para debugging
+    public function debug(string $message, array $context = []): void {
+        $this->log('DEBUG', $message, $context);
+    }
+    
+    // Nivel 2: INFO - Eventos informativos
+    public function info(string $message, array $context = []): void {
+        $this->log('INFO', $message, $context);
+    }
+    
+    // Nivel 3: NOTICE - Eventos normales pero significativos
+    public function notice(string $message, array $context = []): void {
+        $this->log('NOTICE', $message, $context);
+    }
+    
+    // Nivel 4: WARNING - Advertencias, no errores
+    public function warning(string $message, array $context = []): void {
+        $this->log('WARNING', $message, $context);
+    }
+    
+    // Nivel 5: ERROR - Errores en runtime que no detienen la app
+    public function error(string $message, array $context = []): void {
+        $this->log('ERROR', $message, $context);
+    }
+    
+    // Nivel 6: CRITICAL - Condiciones críticas
+    public function critical(string $message, array $context = []): void {
+        $this->log('CRITICAL', $message, $context);
+    }
+    
+    // Nivel 7: ALERT - Acción debe tomarse inmediatamente
+    public function alert(string $message, array $context = []): void {
+        $this->log('ALERT', $message, $context);
+    }
+    
+    // Nivel 8: EMERGENCY - Sistema inutilizable
+    public function emergency(string $message, array $context = []): void {
+        $this->log('EMERGENCY', $message, $context);
+    }
+    
+    private function log(string $level, string $message, array $context): void {
+        $logEntry = [
+            'timestamp' => date('c'),
+            'level' => $level,
+            'message' => $message,
+            'context' => $context,
+            'memory' => memory_get_usage(true),
+            'peak_memory' => memory_get_peak_usage(true)
+        ];
+        
+        $logLine = json_encode($logEntry) . "\\n";
+        file_put_contents($this->logFile, $logLine, FILE_APPEND | LOCK_EX);
+    }
+}
+
+// Uso:
+$logger = new Logger(__DIR__ . '/logs/app.log');
+
+$logger->debug('Iniciando proceso de login', ['user_id' => 123]);
+$logger->info('Usuario autenticado correctamente', ['user_id' => 123]);
+$logger->warning('Intento de acceso a recurso restringido', ['user_id' => 123, 'resource' => '/admin']);
+$logger->error('Error al conectar con BD', ['host' => 'localhost', 'error' => 'Connection refused']);
+$logger->critical('Disco casi lleno', ['usage' => '95%']);
+?&gt;</code></pre></div>
+
+        <h3>Stack Traces - Rastreo de Llamadas</h3>
+        <p>Los stack traces muestran la secuencia de llamadas que llevaron a un error:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// 1. Stack trace de una excepción
+try {
+    funcionA();
+} catch (Exception $e) {
+    // Obtener stack trace como string
+    echo $e->getTraceAsString();
+    
+    // Obtener stack trace como array
+    $trace = $e->getTrace();
+    foreach ($trace as $frame) {
+        echo "Archivo: {$frame['file']}\\n";
+        echo "Línea: {$frame['line']}\\n";
+        echo "Función: {$frame['function']}\\n";
+        echo "Clase: " . ($frame['class'] ?? 'N/A') . "\\n";
+    }
+}
+
+// 2. Stack trace sin excepción (debug_backtrace)
+function funcionA() {
+    funcionB();
+}
+
+function funcionB() {
+    funcionC();
+}
+
+function funcionC() {
+    // Obtener stack trace actual
+    $trace = debug_backtrace();
+    
+    echo "Stack trace actual:\\n";
+    foreach ($trace as $i => $frame) {
+        echo "#{$i} {$frame['file']}({$frame['line']}): ";
+        echo "{$frame['function']}()\\n";
+    }
+}
+
+funcionA();
+
+// Salida:
+// #0 /path/file.php(15): funcionC()
+// #1 /path/file.php(11): funcionB()
+// #2 /path/file.php(7): funcionA()
+
+// 3. Stack trace simplificado (sin argumentos)
+$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+
+// 4. Stack trace limitado (solo N niveles)
+$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+?&gt;</code></pre></div>
+
+        <h3>Logger Avanzado con Stack Traces</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class AdvancedLogger {
+    private string $logFile;
+    private string $minLevel;
+    
+    private const LEVELS = [
+        'DEBUG' => 0,
+        'INFO' => 1,
+        'WARNING' => 2,
+        'ERROR' => 3,
+        'CRITICAL' => 4
+    ];
+    
+    public function __construct(string $logFile, string $minLevel = 'DEBUG') {
+        $this->logFile = $logFile;
+        $this->minLevel = $minLevel;
+    }
+    
+    public function error(string $message, ?Throwable $exception = null): void {
+        $context = [];
+        
+        if ($exception) {
+            $context = [
+                'exception_class' => get_class($exception),
+                'exception_message' => $exception->getMessage(),
+                'exception_code' => $exception->getCode(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'stack_trace' => $this->formatStackTrace($exception->getTrace())
+            ];
+            
+            // Incluir excepción anterior si existe
+            if ($exception->getPrevious()) {
+                $context['previous_exception'] = [
+                    'class' => get_class($exception->getPrevious()),
+                    'message' => $exception->getPrevious()->getMessage()
+                ];
+            }
+        }
+        
+        $this->log('ERROR', $message, $context);
+    }
+    
+    private function formatStackTrace(array $trace): array {
+        $formatted = [];
+        
+        foreach ($trace as $i => $frame) {
+            $formatted[] = sprintf(
+                "#%d %s(%d): %s%s%s()",
+                $i,
+                $frame['file'] ?? '[internal]',
+                $frame['line'] ?? 0,
+                $frame['class'] ?? '',
+                $frame['type'] ?? '',
+                $frame['function']
+            );
+        }
+        
+        return $formatted;
+    }
+    
+    private function log(string $level, string $message, array $context): void {
+        // Verificar nivel mínimo
+        if (self::LEVELS[$level] < self::LEVELS[$this->minLevel]) {
+            return;
+        }
+        
+        $logEntry = [
+            'timestamp' => date('c'),
+            'level' => $level,
+            'message' => $message,
+            'context' => $context,
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? 'CLI',
+            'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown',
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
+            'memory_usage' => $this->formatBytes(memory_get_usage(true)),
+            'peak_memory' => $this->formatBytes(memory_get_peak_usage(true))
+        ];
+        
+        // Escribir en formato JSON con pretty print
+        $logLine = json_encode($logEntry, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . ",\\n";
+        file_put_contents($this->logFile, $logLine, FILE_APPEND | LOCK_EX);
+    }
+    
+    private function formatBytes(int $bytes): string {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $i = 0;
+        
+        while ($bytes >= 1024 && $i < count($units) - 1) {
+            $bytes /= 1024;
+            $i++;
+        }
+        
+        return round($bytes, 2) . ' ' . $units[$i];
+    }
+}
+
+// Uso:
+$logger = new AdvancedLogger(__DIR__ . '/logs/app.log', 'WARNING');
+
+try {
+    // Operación que puede fallar
+    $resultado = operacionPeligrosa();
+} catch (Exception $e) {
+    $logger->error('Error al ejecutar operación', $e);
+}
+?&gt;</code></pre></div>
+
+        <h3>Logging con Rotación de Archivos</h3>
+        <p>Para evitar que los logs crezcan indefinidamente:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+class RotatingLogger {
+    private string $logDir;
+    private string $logName;
+    private int $maxFileSize;
+    private int $maxFiles;
+    
+    public function __construct(
+        string $logDir,
+        string $logName = 'app',
+        int $maxFileSize = 10 * 1024 * 1024,  // 10 MB
+        int $maxFiles = 5
+    ) {
+        $this->logDir = rtrim($logDir, '/');
+        $this->logName = $logName;
+        $this->maxFileSize = $maxFileSize;
+        $this->maxFiles = $maxFiles;
+        
+        // Crear directorio si no existe
+        if (!is_dir($this->logDir)) {
+            mkdir($this->logDir, 0755, true);
+        }
+    }
+    
+    public function log(string $level, string $message, array $context = []): void {
+        $currentFile = "{$this->logDir}/{$this->logName}.log";
+        
+        // Rotar si el archivo es muy grande
+        if (file_exists($currentFile) && filesize($currentFile) >= $this->maxFileSize) {
+            $this->rotate();
+        }
+        
+        $logEntry = [
+            'timestamp' => date('c'),
+            'level' => $level,
+            'message' => $message,
+            'context' => $context
+        ];
+        
+        $logLine = json_encode($logEntry) . "\\n";
+        file_put_contents($currentFile, $logLine, FILE_APPEND | LOCK_EX);
+    }
+    
+    private function rotate(): void {
+        // Eliminar el archivo más antiguo si existe
+        $oldestFile = "{$this->logDir}/{$this->logName}.{$this->maxFiles}.log";
+        if (file_exists($oldestFile)) {
+            unlink($oldestFile);
+        }
+        
+        // Renombrar archivos existentes
+        for ($i = $this->maxFiles - 1; $i >= 1; $i--) {
+            $oldFile = "{$this->logDir}/{$this->logName}.{$i}.log";
+            $newFile = "{$this->logDir}/{$this->logName}." . ($i + 1) . ".log";
+            
+            if (file_exists($oldFile)) {
+                rename($oldFile, $newFile);
+            }
+        }
+        
+        // Renombrar archivo actual
+        $currentFile = "{$this->logDir}/{$this->logName}.log";
+        $newFile = "{$this->logDir}/{$this->logName}.1.log";
+        rename($currentFile, $newFile);
+    }
+}
+
+// Uso:
+$logger = new RotatingLogger(__DIR__ . '/logs', 'app', 10 * 1024 * 1024, 5);
+$logger->log('ERROR', 'Error de conexión', ['host' => 'localhost']);
+
+// Estructura de archivos:
+// logs/app.log        (actual)
+// logs/app.1.log      (anterior)
+// logs/app.2.log      (más antiguo)
+// logs/app.3.log
+// logs/app.4.log
+// logs/app.5.log      (se eliminará en la próxima rotación)
+?&gt;</code></pre></div>
+
+        <h3>Logging por Canal (Múltiples Logs)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class ChannelLogger {
+    private array $channels = [];
+    
+    public function channel(string $name): self {
+        if (!isset($this->channels[$name])) {
+            $this->channels[$name] = new Logger(__DIR__ . "/logs/{$name}.log");
+        }
+        return $this->channels[$name];
+    }
+}
+
+class Logger {
+    private string $logFile;
+    
+    public function __construct(string $logFile) {
+        $this->logFile = $logFile;
+    }
+    
+    public function info(string $message, array $context = []): void {
+        $this->log('INFO', $message, $context);
+    }
+    
+    public function error(string $message, array $context = []): void {
+        $this->log('ERROR', $message, $context);
+    }
+    
+    private function log(string $level, string $message, array $context): void {
+        $logEntry = [
+            'timestamp' => date('c'),
+            'level' => $level,
+            'message' => $message,
+            'context' => $context
+        ];
+        
+        $logLine = json_encode($logEntry) . "\\n";
+        file_put_contents($this->logFile, $logLine, FILE_APPEND | LOCK_EX);
+    }
+}
+
+// Uso: Logs separados por funcionalidad
+$logger = new ChannelLogger();
+
+// Log de base de datos
+$logger->channel('database')->error('Error en query', ['query' => 'SELECT * FROM users']);
+
+// Log de autenticación
+$logger->channel('auth')->info('Usuario autenticado', ['user_id' => 123]);
+
+// Log de API
+$logger->channel('api')->error('Error en API externa', ['endpoint' => '/users/123']);
+
+// Log de pagos
+$logger->channel('payments')->info('Pago procesado', ['amount' => 99.99, 'currency' => 'USD']);
+
+// Estructura de archivos:
+// logs/database.log
+// logs/auth.log
+// logs/api.log
+// logs/payments.log
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Logging Profesional</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class ProductionLogger {
+    private string $logFile;
+    private string $errorLogFile;
+    private bool $logToFile;
+    private bool $logToSyslog;
+    
+    public function __construct(array $config) {
+        $this->logFile = $config['log_file'];
+        $this->errorLogFile = $config['error_log_file'];
+        $this->logToFile = $config['log_to_file'] ?? true;
+        $this->logToSyslog = $config['log_to_syslog'] ?? false;
+    }
+    
+    public function logException(Throwable $e, array $additionalContext = []): void {
+        $logData = [
+            'timestamp' => date('c'),
+            'level' => 'ERROR',
+            'exception' => [
+                'class' => get_class($e),
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ],
+            'stack_trace' => array_map(function($frame) {
+                return [
+                    'file' => $frame['file'] ?? 'unknown',
+                    'line' => $frame['line'] ?? 0,
+                    'function' => $frame['function'],
+                    'class' => $frame['class'] ?? null
+                ];
+            }, $e->getTrace()),
+            'request' => [
+                'uri' => $_SERVER['REQUEST_URI'] ?? 'CLI',
+                'method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+            ],
+            'server' => [
+                'hostname' => gethostname(),
+                'php_version' => PHP_VERSION,
+                'memory_usage' => memory_get_usage(true),
+                'peak_memory' => memory_get_peak_usage(true)
+            ],
+            'context' => $additionalContext
+        ];
+        
+        // Log a archivo
+        if ($this->logToFile) {
+            $logLine = json_encode($logData, JSON_PRETTY_PRINT) . ",\\n";
+            file_put_contents($this->errorLogFile, $logLine, FILE_APPEND | LOCK_EX);
+        }
+        
+        // Log a syslog
+        if ($this->logToSyslog) {
+            syslog(LOG_ERR, json_encode($logData));
+        }
+        
+        // Enviar notificación para errores críticos
+        if ($e instanceof CriticalException) {
+            $this->sendNotification($logData);
+        }
+    }
+    
+    public function logRequest(): void {
+        $logData = [
+            'timestamp' => date('c'),
+            'level' => 'INFO',
+            'type' => 'REQUEST',
+            'method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+            'uri' => $_SERVER['REQUEST_URI'] ?? 'CLI',
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown',
+            'execution_time' => microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']
+        ];
+        
+        $logLine = json_encode($logData) . "\\n";
+        file_put_contents($this->logFile, $logLine, FILE_APPEND | LOCK_EX);
+    }
+    
+    private function sendNotification(array $logData): void {
+        // Enviar a Slack, email, etc.
+        // mail('admin@example.com', 'Error Crítico', json_encode($logData));
+    }
+}
+
+// Uso:
+$logger = new ProductionLogger([
+    'log_file' => __DIR__ . '/logs/app.log',
+    'error_log_file' => __DIR__ . '/logs/errors.log',
+    'log_to_file' => true,
+    'log_to_syslog' => false
+]);
+
+// Registrar en shutdown function
+register_shutdown_function(function() use ($logger) {
+    $logger->logRequest();
+});
+
+// Capturar excepciones
+try {
+    // Tu código
+} catch (Throwable $e) {
+    $logger->logException($e, ['user_id' => $userId ?? null]);
+    throw $e;
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas de Logging:</strong><br>
+            • <strong>Usa niveles apropiados</strong>: DEBUG, INFO, WARNING, ERROR, CRITICAL<br>
+            • <strong>Formato estructurado</strong>: JSON es ideal para parsear y analizar<br>
+            • <strong>Incluye contexto</strong>: timestamp, user_id, IP, URI, etc.<br>
+            • <strong>Stack traces completos</strong>: Facilitan el debugging<br>
+            • <strong>Rota logs</strong>: Evita archivos gigantes<br>
+            • <strong>Separa por canal</strong>: database.log, auth.log, api.log<br>
+            • <strong>No loguees datos sensibles</strong>: Contraseñas, tokens, tarjetas<br>
+            • <strong>Usa LOCK_EX</strong>: Evita corrupción en escrituras concurrentes
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • NO loguear contraseñas o datos sensibles<br>
+            • NO usar <code>print_r()</code> o <code>var_dump()</code> en producción<br>
+            • NO dejar logs de DEBUG activos en producción<br>
+            • NO ignorar permisos de archivos (755 para directorios, 644 para logs)<br>
+            • NO olvidar rotar logs (pueden llenar el disco)<br>
+            • SIEMPRE sanitizar datos antes de loguear
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>error_log()</strong>: Función básica de PHP para logging<br>
+            • <strong>PSR-3</strong>: Estándar de niveles de log (DEBUG → EMERGENCY)<br>
+            • <strong>Stack traces</strong>: <code>getTrace()</code>, <code>getTraceAsString()</code>, <code>debug_backtrace()</code><br>
+            • <strong>JSON</strong>: Formato ideal para logs estructurados<br>
+            • <strong>Rotación</strong>: Limita tamaño de archivos de log<br>
+            • <strong>Canales</strong>: Separa logs por funcionalidad
+        </div>
     `,
     'xdebug': `
-        <h1>Depuración con Xdebug</h1>
-        <p>Xdebug es una extensión para debugging y profiling de PHP.</p>
-        <div class="code-block"><pre><code># Instalación
+        <h1>Depuración con Xdebug en PHP 8+</h1>
+        
+        <p><strong>Xdebug</strong> es la extensión más potente para debugging y profiling de PHP. Te permite depurar código paso a paso, inspeccionar variables, y analizar el rendimiento de tu aplicación.</p>
+
+        <h3>¿Qué es Xdebug?</h3>
+        <div class="info-box">
+            <strong>💡 Características de Xdebug:</strong><br>
+            • <strong>Step Debugging</strong>: Depurar código línea por línea<br>
+            • <strong>Breakpoints</strong>: Pausar ejecución en puntos específicos<br>
+            • <strong>Variable Inspection</strong>: Ver valores de variables en tiempo real<br>
+            • <strong>Stack Traces</strong>: Rastreo detallado de llamadas<br>
+            • <strong>Profiling</strong>: Análisis de rendimiento y cuellos de botella<br>
+            • <strong>Code Coverage</strong>: Cobertura de código para tests<br>
+            • <strong>Improved var_dump()</strong>: Salida más legible y colorida
+        </div>
+
+        <h3>Instalación de Xdebug</h3>
+        <div class="code-block"><pre><code># Linux/Mac con PECL
 pecl install xdebug
 
-# php.ini
-zend_extension=xdebug.so
-xdebug.mode=debug
-xdebug.start_with_request=yes
-xdebug.client_port=9003
+# Ubuntu/Debian
+sudo apt-get install php-xdebug
+
+# Mac con Homebrew
+brew install php@8.2
+pecl install xdebug
+
+# Windows
+# 1. Descargar DLL desde https://xdebug.org/download
+# 2. Copiar a C:\\php\\ext\\
+# 3. Agregar a php.ini
+
+# Verificar instalación
+php -v
+# Deberías ver: "with Xdebug v3.x.x"
+
+# Ver configuración de Xdebug
+php -i | grep xdebug
 </code></pre></div>
+
+        <h3>Configuración de Xdebug 3 (php.ini)</h3>
+        <p>Xdebug 3 simplificó la configuración con el parámetro <code>xdebug.mode</code>:</p>
+        
+        <div class="code-block"><pre><code># php.ini - Configuración básica de Xdebug 3
+
+# Cargar extensión
+zend_extension=xdebug.so  # Linux/Mac
+; zend_extension=php_xdebug.dll  # Windows
+
+# Modo de operación (puedes combinar varios con comas)
+xdebug.mode=debug,develop,coverage,profile
+
+# Configuración de debugging
+xdebug.start_with_request=trigger  # trigger, yes, no
+xdebug.client_host=localhost
+xdebug.client_port=9003  # Puerto por defecto en Xdebug 3 (antes era 9000)
+
+# Configuración de desarrollo
+xdebug.var_display_max_depth=10
+xdebug.var_display_max_children=256
+xdebug.var_display_max_data=1024
+
+# Configuración de profiling
+xdebug.output_dir=/tmp/xdebug
+xdebug.profiler_output_name=cachegrind.out.%p
+
+# Configuración de tracing
+xdebug.trace_output_dir=/tmp/xdebug
+xdebug.trace_format=1  # 0=texto, 1=computarizado
+
+# Mejorar var_dump()
+xdebug.cli_color=1  # Colores en CLI
+</code></pre></div>
+
+        <div class="warning-box">
+            <strong>⚠️ Importante:</strong><br>
+            • <strong>Xdebug 3 usa puerto 9003</strong> (Xdebug 2 usaba 9000)<br>
+            • <strong>NO uses Xdebug en producción</strong> - reduce el rendimiento significativamente<br>
+            • <strong>start_with_request=trigger</strong> es más seguro que "yes"<br>
+            • Reinicia PHP/servidor web después de cambiar php.ini
+        </div>
+
+        <h3>Modos de Xdebug 3</h3>
+        <div class="code-block"><pre><code># Modos disponibles en xdebug.mode:
+
+# 1. debug - Step debugging con IDE
+xdebug.mode=debug
+
+# 2. develop - Mejoras en desarrollo (var_dump mejorado, etc.)
+xdebug.mode=develop
+
+# 3. coverage - Cobertura de código para tests
+xdebug.mode=coverage
+
+# 4. profile - Profiling de rendimiento
+xdebug.mode=profile
+
+# 5. trace - Rastreo de ejecución
+xdebug.mode=trace
+
+# 6. gcstats - Estadísticas de garbage collector
+xdebug.mode=gcstats
+
+# Combinar varios modos (separados por coma)
+xdebug.mode=debug,develop,coverage
+
+# Desactivar Xdebug
+xdebug.mode=off
+</code></pre></div>
+
+        <h3>Configuración en VS Code</h3>
+        <p>VS Code es uno de los IDEs más populares para PHP con Xdebug:</p>
+        
+        <div class="code-block"><pre><code>// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for Xdebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/html": "\${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Launch currently open script",
+            "type": "php",
+            "request": "launch",
+            "program": "\${file}",
+            "cwd": "\${fileDirname}",
+            "port": 9003
+        }
+    ]
+}
+
+// Extensión requerida:
+// PHP Debug por Xdebug
+// https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug
+</code></pre></div>
+
+        <h3>Configuración en PhpStorm</h3>
+        <div class="code-block"><pre><code>// PhpStorm tiene soporte nativo para Xdebug
+
+// 1. Settings → PHP → Debug
+//    - Xdebug port: 9003
+//    - ✓ Can accept external connections
+//    - ✓ Break at first line in PHP scripts
+
+// 2. Settings → PHP → Servers
+//    - Name: localhost
+//    - Host: localhost
+//    - Port: 80
+//    - Debugger: Xdebug
+//    - ✓ Use path mappings
+//    - Absolute path on server: /var/www/html
+//    - Project files: /path/to/project
+
+// 3. Activar "Start Listening for PHP Debug Connections"
+//    (icono de teléfono en la barra superior)
+
+// 4. Establecer breakpoints (click en margen izquierdo)
+
+// 5. Iniciar debugging con navegador o CLI
+</code></pre></div>
+
+        <h3>Activar Debugging (Trigger)</h3>
+        <p>Con <code>start_with_request=trigger</code>, necesitas activar Xdebug manualmente:</p>
+        
+        <div class="code-block"><pre><code># 1. Navegador - Agregar parámetro GET
+http://localhost/index.php?XDEBUG_SESSION_START=1
+
+# O usar cookie (más conveniente)
+# Instalar extensión de navegador:
+# - Chrome: Xdebug helper
+# - Firefox: Xdebug Helper
+# - Edge: Xdebug Helper
+
+# 2. CLI - Variable de entorno
+export XDEBUG_SESSION=1
+php script.php
+
+# O en una sola línea
+XDEBUG_SESSION=1 php script.php
+
+# 3. Curl - Header
+curl -H "Cookie: XDEBUG_SESSION=1" http://localhost/api/users
+
+# 4. Postman - Cookie
+# Agregar cookie: XDEBUG_SESSION=1
+
+# Desactivar debugging
+http://localhost/index.php?XDEBUG_SESSION_STOP=1
+</code></pre></div>
+
+        <h3>Uso Básico: Breakpoints y Step Debugging</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ejemplo.php
+
+function calcularTotal(array $items): float {
+    $total = 0;
+    
+    // Breakpoint aquí - La ejecución se pausará
+    foreach ($items as $item) {
+        $precio = $item['precio'];
+        $cantidad = $item['cantidad'];
+        $subtotal = $precio * $cantidad;
+        
+        // Breakpoint condicional: solo si $subtotal > 100
+        $total += $subtotal;
+    }
+    
+    return $total;
+}
+
+$items = [
+    ['nombre' => 'Laptop', 'precio' => 999.99, 'cantidad' => 2],
+    ['nombre' => 'Mouse', 'precio' => 29.99, 'cantidad' => 5],
+    ['nombre' => 'Teclado', 'precio' => 79.99, 'cantidad' => 3]
+];
+
+// Breakpoint aquí
+$total = calcularTotal($items);
+echo "Total: $total\\n";
+
+// Controles de debugging:
+// F9 / F5: Continue (continuar hasta siguiente breakpoint)
+// F10: Step Over (ejecutar línea actual, no entrar en funciones)
+// F11: Step Into (entrar en función)
+// Shift+F11: Step Out (salir de función actual)
+// F8: Evaluate Expression (evaluar expresión)
+?&gt;</code></pre></div>
+
+        <h3>var_dump() Mejorado con Xdebug</h3>
+        <p>Con <code>xdebug.mode=develop</code>, var_dump() se vuelve mucho más útil:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+// Sin Xdebug
+$usuario = [
+    'id' => 123,
+    'nombre' => 'Ana García',
+    'email' => 'ana@example.com',
+    'roles' => ['admin', 'editor'],
+    'metadata' => ['created_at' => '2024-01-01', 'updated_at' => '2024-11-19']
+];
+
+var_dump($usuario);
+// Salida: array(5) { ["id"]=> int(123) ["nombre"]=> ... }
+
+// Con Xdebug (modo develop)
+var_dump($usuario);
+// Salida colorida, indentada, con tipos resaltados
+// Muestra estructura completa de forma legible
+
+// Funciones útiles de Xdebug
+xdebug_info();  // Información de configuración de Xdebug
+
+xdebug_var_dump($usuario);  // var_dump mejorado explícito
+
+xdebug_debug_zval('usuario');  // Ver información interna de la variable
+
+// Stack trace actual
+xdebug_print_function_stack();
+
+// Tiempo de ejecución
+xdebug_time_index();  // Segundos desde inicio del script
+?&gt;</code></pre></div>
+
+        <h3>Profiling - Análisis de Rendimiento</h3>
+        <p>El profiling te ayuda a identificar cuellos de botella:</p>
+        
+        <div class="code-block"><pre><code># php.ini - Configuración de profiling
+xdebug.mode=profile
+xdebug.output_dir=/tmp/xdebug
+xdebug.profiler_output_name=cachegrind.out.%p
+xdebug.start_with_request=trigger
+
+# Activar profiling
+http://localhost/script.php?XDEBUG_PROFILE=1
+
+# O con cookie
+# Cookie: XDEBUG_PROFILE=1
+
+# Esto genera un archivo: /tmp/xdebug/cachegrind.out.12345
+
+# Analizar con herramientas:
+# 1. KCacheGrind (Linux)
+kcachegrind /tmp/xdebug/cachegrind.out.12345
+
+# 2. QCacheGrind (Mac/Windows)
+qcachegrind /tmp/xdebug/cachegrind.out.12345
+
+# 3. Webgrind (Web-based)
+# https://github.com/jokkedk/webgrind
+
+# 4. PhpStorm (integrado)
+# Tools → Analyze Xdebug Profiler Snapshot
+</code></pre></div>
+
+        <div class="code-block"><pre><code>&lt;?php
+// Ejemplo de código a perfilar
+
+function operacionLenta() {
+    sleep(1);  // Simulación
+    return array_map(fn($i) => $i * 2, range(1, 10000));
+}
+
+function operacionRapida() {
+    return range(1, 100);
+}
+
+function procesarDatos() {
+    $inicio = microtime(true);
+    
+    // Esto aparecerá en el profiler
+    $datos1 = operacionLenta();  // Cuello de botella
+    $datos2 = operacionRapida();
+    
+    $tiempo = microtime(true) - $inicio;
+    echo "Tiempo: {$tiempo}s\\n";
+}
+
+// Activar profiling con XDEBUG_PROFILE=1
+procesarDatos();
+
+// El profiler mostrará:
+// - Tiempo de cada función
+// - Número de llamadas
+// - Memoria utilizada
+// - Árbol de llamadas
+?&gt;</code></pre></div>
+
+        <h3>Code Coverage para Tests</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Xdebug proporciona cobertura de código para PHPUnit
+
+// phpunit.xml
+&lt;phpunit&gt;
+    &lt;coverage&gt;
+        &lt;include&gt;
+            &lt;directory suffix=".php"&gt;src&lt;/directory&gt;
+        &lt;/include&gt;
+        &lt;report&gt;
+            &lt;html outputDirectory="coverage"/&gt;
+            &lt;text outputFile="php://stdout"/&gt;
+        &lt;/report&gt;
+    &lt;/coverage&gt;
+&lt;/phpunit&gt;
+
+// Ejecutar tests con cobertura
+phpunit --coverage-html coverage
+
+// Xdebug 3 requiere:
+// xdebug.mode=coverage
+
+// Ver reporte en: coverage/index.html
+// Muestra:
+// - Líneas ejecutadas (verde)
+// - Líneas no ejecutadas (rojo)
+// - Porcentaje de cobertura
+// - Ramas condicionales cubiertas
+?&gt;</code></pre></div>
+
+        <h3>Debugging Remoto (Docker/VM)</h3>
+        <div class="code-block"><pre><code># docker-compose.yml
+version: '3.8'
+services:
+  php:
+    image: php:8.2-fpm
+    volumes:
+      - ./:/var/www/html
+    environment:
+      # Configuración de Xdebug para Docker
+      XDEBUG_MODE: debug
+      XDEBUG_CONFIG: >
+        client_host=host.docker.internal
+        client_port=9003
+        start_with_request=trigger
+    extra_hosts:
+      # Permitir conexión al host
+      - "host.docker.internal:host-gateway"
+
+# php.ini en Docker
+xdebug.mode=debug
+xdebug.client_host=host.docker.internal
+xdebug.client_port=9003
+xdebug.start_with_request=trigger
+
+# VS Code - launch.json para Docker
+{
+    "name": "Listen for Xdebug (Docker)",
+    "type": "php",
+    "request": "launch",
+    "port": 9003,
+    "pathMappings": {
+        "/var/www/html": "\${workspaceFolder}"
+    }
+}
+
+# Activar debugging
+docker-compose exec php bash
+export XDEBUG_SESSION=1
+php script.php
+</code></pre></div>
+
+        <h3>Comandos Útiles de Xdebug</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Funciones útiles de Xdebug
+
+// 1. Información de Xdebug
+xdebug_info();  // Página HTML con toda la configuración
+
+// 2. Stack trace
+xdebug_print_function_stack('Error personalizado');
+
+// 3. Tiempo de ejecución
+$inicio = xdebug_time_index();
+// ... código ...
+$fin = xdebug_time_index();
+echo "Tiempo: " . ($fin - $inicio) . "s\\n";
+
+// 4. Uso de memoria
+echo "Memoria: " . xdebug_memory_usage() . " bytes\\n";
+echo "Pico de memoria: " . xdebug_peak_memory_usage() . " bytes\\n";
+
+// 5. Breakpoint programático
+xdebug_break();  // Pausa ejecución aquí (si debugger está activo)
+
+// 6. Verificar si Xdebug está activo
+if (function_exists('xdebug_info')) {
+    echo "Xdebug está activo\\n";
+}
+
+// 7. Obtener configuración
+$config = ini_get_all('xdebug');
+print_r($config);
+?&gt;</code></pre></div>
+
+        <h3>Troubleshooting - Problemas Comunes</h3>
+        <div class="code-block"><pre><code># 1. Xdebug no se conecta al IDE
+# Verificar:
+php -v  # ¿Aparece Xdebug?
+php -i | grep xdebug.mode  # ¿Modo correcto?
+php -i | grep xdebug.client_port  # ¿Puerto 9003?
+
+# Verificar firewall
+sudo ufw allow 9003/tcp  # Linux
+# Windows: Agregar regla en Firewall
+
+# 2. Puerto ocupado
+netstat -an | grep 9003  # ¿Está en uso?
+lsof -i :9003  # ¿Qué proceso lo usa?
+
+# 3. Path mappings incorrectos
+# Verificar que las rutas coincidan:
+# IDE: /home/user/project
+# Servidor: /var/www/html
+# Configurar en launch.json o PhpStorm
+
+# 4. Xdebug no se carga
+php -m | grep xdebug  # ¿Aparece en módulos?
+# Verificar ruta en php.ini
+php --ini  # Ver qué php.ini se está usando
+
+# 5. Rendimiento lento
+# Desactivar Xdebug cuando no lo uses:
+xdebug.mode=off
+# O usar diferentes php.ini para CLI y web
+
+# 6. Docker no conecta
+# Usar host.docker.internal en lugar de localhost
+# Verificar extra_hosts en docker-compose.yml
+</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas con Xdebug:</strong><br>
+            • <strong>Solo en desarrollo</strong>: NUNCA en producción<br>
+            • <strong>Usa trigger mode</strong>: start_with_request=trigger<br>
+            • <strong>Breakpoints condicionales</strong>: Solo pausar cuando sea necesario<br>
+            • <strong>Step Over vs Step Into</strong>: No entres en funciones nativas<br>
+            • <strong>Profiling selectivo</strong>: Solo perfilar cuando sea necesario<br>
+            • <strong>Path mappings correctos</strong>: Crucial para Docker/VM<br>
+            • <strong>Extensión de navegador</strong>: Facilita activar/desactivar<br>
+            • <strong>Desactiva cuando no uses</strong>: xdebug.mode=off
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Advertencias Importantes:</strong><br>
+            • <strong>Impacto en rendimiento</strong>: Xdebug hace PHP 2-3x más lento<br>
+            • <strong>NO usar en producción</strong>: Riesgo de seguridad y rendimiento<br>
+            • <strong>Puerto 9003</strong>: Xdebug 3 cambió de 9000 a 9003<br>
+            • <strong>Firewall</strong>: Debe permitir conexiones en puerto 9003<br>
+            • <strong>Path mappings</strong>: Deben coincidir exactamente<br>
+            • <strong>Archivos grandes</strong>: Profiling genera archivos grandes
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Xdebug 3</strong>: Configuración simplificada con xdebug.mode<br>
+            • <strong>Puerto 9003</strong>: Puerto por defecto en Xdebug 3<br>
+            • <strong>Modos</strong>: debug, develop, coverage, profile, trace<br>
+            • <strong>IDEs</strong>: VS Code, PhpStorm, Eclipse, NetBeans<br>
+            • <strong>Trigger</strong>: XDEBUG_SESSION=1 para activar<br>
+            • <strong>Profiling</strong>: Analizar con KCacheGrind/QCacheGrind<br>
+            • <strong>Coverage</strong>: Integración con PHPUnit<br>
+            • <strong>Docker</strong>: Usar host.docker.internal
+        </div>
     `,
     
     // OOP

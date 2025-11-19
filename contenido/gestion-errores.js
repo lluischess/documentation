@@ -232,75 +232,139 @@ set_error_handler([$logger, 'handleError']);
     `,
 
     'clases-excepciones': `
-        <h1>Clases de Excepciones Estándar</h1>
+        <h1>Clases de Excepciones Estándar en PHP 8+</h1>
         
-        <p>PHP proporciona una jerarquía completa de clases de excepciones para manejar diferentes tipos de errores de forma orientada a objetos.</p>
+        <p>PHP proporciona una <strong>jerarquía completa de excepciones</strong> para manejar diferentes tipos de errores. Cada excepción tiene un propósito específico y te ayuda a escribir código más robusto y mantenible.</p>
 
-        <h3>Jerarquía de Excepciones</h3>
-        <div class="code-block"><pre><code>Throwable (interface)
-├── Error
-│   ├── ParseError
-│   ├── TypeError
-│   ├── ArgumentCountError
-│   ├── ArithmeticError
-│   │   └── DivisionByZeroError
-│   ├── CompileError
-│   └── AssertionError
-└── Exception
-    ├── LogicException
-    │   ├── BadFunctionCallException
-    │   │   └── BadMethodCallException
-    │   ├── DomainException
-    │   ├── InvalidArgumentException
-    │   ├── LengthException
-    │   └── OutOfRangeException
-    └── RuntimeException
-        ├── OutOfBoundsException
-        ├── OverflowException
-        ├── RangeException
-        ├── UnderflowException
-        └── UnexpectedValueException</code></pre></div>
+        <h3>Jerarquía de Excepciones (Árbol Completo)</h3>
+        <p>Todas las excepciones heredan de <code>Throwable</code>, que se divide en dos ramas principales:</p>
+        
+        <div class="code-block"><pre><code>Throwable (interface) ← Solo esto se puede lanzar con throw
+├── Error ← Errores internos de PHP (normalmente NO se capturan)
+│   ├── ParseError ← Error de sintaxis
+│   ├── TypeError ← Tipo incorrecto (PHP 8+ más estricto)
+│   ├── ArgumentCountError ← Número incorrecto de argumentos
+│   ├── ArithmeticError ← Error aritmético
+│   │   └── DivisionByZeroError ← División por cero
+│   ├── CompileError ← Error de compilación
+│   └── AssertionError ← Fallo de assert()
+│
+└── Exception ← Excepciones de aplicación (SÍ se capturan)
+    ├── LogicException ← Errores de lógica (bugs en tu código)
+    │   ├── BadFunctionCallException ← Función llamada incorrectamente
+    │   │   └── BadMethodCallException ← Método llamado incorrectamente
+    │   ├── DomainException ← Valor fuera del dominio válido
+    │   ├── InvalidArgumentException ← Argumento inválido
+    │   ├── LengthException ← Longitud inválida
+    │   └── OutOfRangeException ← Índice fuera de rango
+    │
+    └── RuntimeException ← Errores en tiempo de ejecución
+        ├── OutOfBoundsException ← Acceso fuera de límites
+        ├── OverflowException ← Overflow en estructura
+        ├── RangeException ← Rango inválido
+        ├── UnderflowException ← Underflow en estructura
+        └── UnexpectedValueException ← Valor inesperado</code></pre></div>
+
+        <div class="info-box">
+            <strong>💡 ¿Error o Exception?</strong><br>
+            • <strong>Error</strong>: Problemas internos de PHP (TypeError, ParseError). Normalmente NO deberías capturarlos.<br>
+            • <strong>Exception</strong>: Problemas de tu aplicación. SÍ debes capturarlos y manejarlos.<br>
+            • <strong>LogicException</strong>: Bugs que deberías arreglar en desarrollo.<br>
+            • <strong>RuntimeException</strong>: Problemas que solo ocurren en ejecución (BD caída, archivo no existe).
+        </div>
 
         <h3>Exception (Clase Base)</h3>
+        <p>Todas las excepciones heredan de <code>Exception</code> y tienen estos métodos útiles:</p>
+        
         <div class="code-block"><pre><code>&lt;?php
 try {
-    throw new Exception("Mensaje de error", 500);
+    throw new Exception("Algo salió mal", 500);
 } catch (Exception $e) {
-    echo $e->getMessage();     // "Mensaje de error"
-    echo $e->getCode();        // 500
-    echo $e->getFile();        // Archivo donde se lanzó
-    echo $e->getLine();        // Línea donde se lanzó
-    echo $e->getTrace();       // Array del stack trace
-    echo $e->getTraceAsString(); // Stack trace como string
-    echo $e->getPrevious();    // Excepción anterior (si existe)
-    echo $e->__toString();     // Representación completa
+    // Métodos disponibles en TODAS las excepciones:
+    echo $e->getMessage();        // "Algo salió mal"
+    echo $e->getCode();           // 500
+    echo $e->getFile();           // "/ruta/archivo.php"
+    echo $e->getLine();           // 42
+    echo $e->getTrace();          // Array con stack trace
+    echo $e->getTraceAsString();  // Stack trace como string
+    echo $e->getPrevious();       // Excepción anterior (si existe)
+    echo $e->__toString();        // Representación completa
+}
+
+// PHP 8+: Crear excepción con excepción anterior
+try {
+    try {
+        throw new Exception("Error original");
+    } catch (Exception $e) {
+        throw new Exception("Error secundario", 0, $e);
+    }
+} catch (Exception $e) {
+    echo $e->getMessage();           // "Error secundario"
+    echo $e->getPrevious()->getMessage(); // "Error original"
 }
 ?&gt;</code></pre></div>
 
-        <h3>LogicException - Errores de Lógica</h3>
-        <p>Se usan para errores que deberían detectarse en desarrollo:</p>
+        <h3>LogicException - Errores de Lógica (Bugs)</h3>
+        <p>Usa estas excepciones para <strong>errores que deberían detectarse en desarrollo</strong>. Indican bugs en tu código:</p>
         
         <div class="code-block"><pre><code>&lt;?php
-// InvalidArgumentException - Argumento inválido
-function establecerEdad($edad) {
-    if (!is_int($edad)) {
-        throw new InvalidArgumentException(
-            "La edad debe ser un entero, " . gettype($edad) . " dado"
-        );
+// 1️⃣ InvalidArgumentException - Argumento inválido
+class Usuario {
+    public function __construct(
+        private string $nombre,
+        private int $edad
+    ) {
+        if (empty($nombre)) {
+            throw new InvalidArgumentException(
+                "El nombre no puede estar vacío"
+            );
+        }
+        
+        if ($edad < 0 || $edad > 150) {
+            throw new InvalidArgumentException(
+                "La edad debe estar entre 0 y 150, $edad dado"
+            );
+        }
     }
-    
-    if ($edad < 0 || $edad > 150) {
-        throw new OutOfRangeException(
-            "La edad debe estar entre 0 y 150, $edad dado"
-        );
-    }
-    
-    return $edad;
 }
 
-// DomainException - Valor fuera del dominio válido
+// Uso:
+try {
+    $usuario = new Usuario("", -5);
+} catch (InvalidArgumentException $e) {
+    echo "Error de validación: " . $e->getMessage();
+}
+
+// 2️⃣ OutOfRangeException - Índice fuera de rango
+function obtenerMes(int $numero): string {
+    $meses = [
+        1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo',
+        4 => 'Abril', 5 => 'Mayo', 6 => 'Junio',
+        7 => 'Julio', 8 => 'Agosto', 9 => 'Septiembre',
+        10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+    ];
+    
+    if ($numero < 1 || $numero > 12) {
+        throw new OutOfRangeException(
+            "El mes debe estar entre 1 y 12, $numero dado"
+        );
+    }
+    
+    return $meses[$numero];
+}
+
+// 3️⃣ DomainException - Valor fuera del dominio válido
 class Calculadora {
-    public function logaritmo($numero) {
+    public function raizCuadrada(float $numero): float {
+        if ($numero < 0) {
+            throw new DomainException(
+                "No se puede calcular la raíz cuadrada de un número negativo"
+            );
+        }
+        return sqrt($numero);
+    }
+    
+    public function logaritmo(float $numero): float {
         if ($numero <= 0) {
             throw new DomainException(
                 "El logaritmo requiere un número positivo"
@@ -310,36 +374,51 @@ class Calculadora {
     }
 }
 
-// LengthException - Longitud inválida
-function validarPassword($password) {
-    if (strlen($password) < 8) {
-        throw new LengthException(
-            "La contraseña debe tener al menos 8 caracteres"
-        );
+// 4️⃣ LengthException - Longitud inválida
+class ValidadorPassword {
+    public function validar(string $password): bool {
+        if (strlen($password) < 8) {
+            throw new LengthException(
+                "La contraseña debe tener al menos 8 caracteres"
+            );
+        }
+        
+        if (strlen($password) > 128) {
+            throw new LengthException(
+                "La contraseña no puede exceder 128 caracteres"
+            );
+        }
+        
+        return true;
     }
 }
 
-// BadMethodCallException - Método no válido
-class MagicClass {
-    private $metodos = ['metodo1', 'metodo2'];
+// 5️⃣ BadMethodCallException - Método llamado incorrectamente
+class ServicioAPI {
+    private bool $autenticado = false;
     
-    public function __call($name, $args) {
-        if (!in_array($name, $this->metodos)) {
+    public function autenticar(string $token): void {
+        $this->autenticado = true;
+    }
+    
+    public function obtenerDatos(): array {
+        if (!$this->autenticado) {
             throw new BadMethodCallException(
-                "El método $name no existe"
+                "Debes autenticarte antes de obtener datos"
             );
         }
+        return ['data' => 'valores'];
     }
 }
 ?&gt;</code></pre></div>
 
         <h3>RuntimeException - Errores en Tiempo de Ejecución</h3>
-        <p>Para errores que solo se pueden detectar durante la ejecución:</p>
+        <p>Usa estas excepciones para <strong>errores que solo se pueden detectar durante la ejecución</strong> (BD caída, archivo no existe, etc.):</p>
         
         <div class="code-block"><pre><code>&lt;?php
-// RuntimeException - Error genérico de runtime
+// 1️⃣ RuntimeException - Error genérico de runtime
 class BaseDatos {
-    public function conectar($host, $user, $pass) {
+    public function conectar(string $host, string $user, string $pass): mysqli {
         $conexion = @mysqli_connect($host, $user, $pass);
         
         if (!$conexion) {
@@ -351,21 +430,257 @@ class BaseDatos {
         
         return $conexion;
     }
+    
+    public function ejecutar(string $query): mysqli_result|bool {
+        $resultado = mysqli_query($this->conexion, $query);
+        
+        if (!$resultado) {
+            throw new RuntimeException(
+                "Error al ejecutar query: " . mysqli_error($this->conexion)
+            );
+        }
+        
+        return $resultado;
+    }
 }
 
-// OutOfBoundsException - Índice fuera de límites
+// 2️⃣ OutOfBoundsException - Acceso fuera de límites
 class ColeccionSegura {
-    private $items = [];
+    private array $items = [];
     
-    public function get($indice) {
+    public function agregar(mixed $item): void {
+        $this->items[] = $item;
+    }
+    
+    public function obtener(int $indice): mixed {
         if (!isset($this->items[$indice])) {
             throw new OutOfBoundsException(
-                "El índice $indice no existe en la colección"
+                "El índice $indice no existe. Índices válidos: 0-" . 
+                (count($this->items) - 1)
             );
         }
         return $this->items[$indice];
     }
 }
+
+// 3️⃣ OverflowException - Overflow en estructura de datos
+class ColaLimitada {
+    private array $items = [];
+    
+    public function __construct(
+        private readonly int $maxSize = 10
+    ) {}
+    
+    public function agregar(mixed $item): void {
+        if (count($this->items) >= $this->maxSize) {
+            throw new OverflowException(
+                "La cola ha alcanzado su capacidad máxima de {$this->maxSize} elementos"
+            );
+        }
+        $this->items[] = $item;
+    }
+}
+
+// 4️⃣ UnderflowException - Underflow en estructura de datos
+class Pila {
+    private array $items = [];
+    
+    public function push(mixed $item): void {
+        $this->items[] = $item;
+    }
+    
+    public function pop(): mixed {
+        if (empty($this->items)) {
+            throw new UnderflowException(
+                "No se puede hacer pop de una pila vacía"
+            );
+        }
+        return array_pop($this->items);
+    }
+}
+
+// 5️⃣ UnexpectedValueException - Valor inesperado
+class ProcesadorJSON {
+    public function procesar(string $json): array {
+        $datos = json_decode($json, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new UnexpectedValueException(
+                "JSON inválido: " . json_last_error_msg()
+            );
+        }
+        
+        if (!is_array($datos)) {
+            throw new UnexpectedValueException(
+                "Se esperaba un array JSON, " . gettype($datos) . " dado"
+            );
+        }
+        
+        return $datos;
+    }
+}
+
+// 6️⃣ RangeException - Valor fuera de rango permitido
+class Temperatura {
+    private float $celsius;
+    
+    public function setCelsius(float $celsius): void {
+        // Temperatura absoluta mínima: -273.15°C
+        if ($celsius < -273.15) {
+            throw new RangeException(
+                "La temperatura no puede ser menor a -273.15°C (cero absoluto)"
+            );
+        }
+        $this->celsius = $celsius;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>PHP 8+: TypeError (Error, no Exception)</h3>
+        <p>PHP 8+ lanza <code>TypeError</code> automáticamente cuando hay problemas de tipos:</p>
+        
+        <div class="code-block"><pre><code>&lt;?php
+declare(strict_types=1);
+
+function sumar(int $a, int $b): int {
+    return $a + $b;
+}
+
+try {
+    // PHP 8+ con strict_types lanza TypeError
+    sumar("5", "10");  // TypeError: debe ser int, string dado
+} catch (TypeError $e) {
+    echo "Error de tipo: " . $e->getMessage();
+}
+
+// PHP 8+: Union types también lanzan TypeError
+function procesar(int|float $numero): string {
+    return (string)$numero;
+}
+
+try {
+    procesar("texto");  // TypeError: debe ser int|float, string dado
+} catch (TypeError $e) {
+    echo "Tipo incorrecto: " . $e->getMessage();
+}
+
+// PHP 8.1+: Intersection types
+interface Loggable {}
+interface Cacheable {}
+
+function guardar(Loggable&Cacheable $objeto): void {
+    // ...
+}
+
+try {
+    guardar(new stdClass());  // TypeError
+} catch (TypeError $e) {
+    echo $e->getMessage();
+}
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Uso Práctico</h3>
+        <div class="code-block"><pre><code>&lt;?php
+declare(strict_types=1);
+
+class UsuarioService {
+    public function crear(string $nombre, string $email, int $edad): array {
+        // Validaciones (LogicException)
+        if (empty($nombre)) {
+            throw new InvalidArgumentException("El nombre es obligatorio");
+        }
+        
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException("Email inválido: $email");
+        }
+        
+        if ($edad < 18 || $edad > 120) {
+            throw new OutOfRangeException("Edad debe estar entre 18 y 120");
+        }
+        
+        // Operación que puede fallar (RuntimeException)
+        try {
+            $resultado = $this->guardarEnBD($nombre, $email, $edad);
+        } catch (RuntimeException $e) {
+            // Re-lanzar con más contexto
+            throw new RuntimeException(
+                "Error al guardar usuario: " . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+        
+        return $resultado;
+    }
+    
+    private function guardarEnBD(string $nombre, string $email, int $edad): array {
+        // Simular error de BD
+        if (rand(0, 1)) {
+            throw new RuntimeException("Conexión a BD perdida");
+        }
+        
+        return ['id' => 1, 'nombre' => $nombre, 'email' => $email];
+    }
+}
+
+// Uso con manejo específico
+$service = new UsuarioService();
+
+try {
+    $usuario = $service->crear("Ana", "ana@example.com", 25);
+    echo "Usuario creado: " . json_encode($usuario);
+    
+} catch (InvalidArgumentException $e) {
+    // Error de validación - mostrar al usuario
+    echo "Error de validación: " . $e->getMessage();
+    
+} catch (OutOfRangeException $e) {
+    // Error de rango - mostrar al usuario
+    echo "Valor fuera de rango: " . $e->getMessage();
+    
+} catch (RuntimeException $e) {
+    // Error de sistema - loguear y mostrar mensaje genérico
+    error_log($e->getMessage());
+    echo "Error del sistema. Intenta más tarde.";
+    
+} catch (Throwable $e) {
+    // Captura TODO (último recurso)
+    error_log("Error inesperado: " . $e->getMessage());
+    echo "Error inesperado";
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Guía Rápida: ¿Qué Excepción Usar?</strong><br>
+            <strong>Validación de parámetros:</strong> <code>InvalidArgumentException</code><br>
+            <strong>Índice/rango inválido:</strong> <code>OutOfRangeException</code> o <code>OutOfBoundsException</code><br>
+            <strong>Longitud incorrecta:</strong> <code>LengthException</code><br>
+            <strong>Valor matemático inválido:</strong> <code>DomainException</code><br>
+            <strong>Error de BD/archivo/red:</strong> <code>RuntimeException</code><br>
+            <strong>Estructura llena:</strong> <code>OverflowException</code><br>
+            <strong>Estructura vacía:</strong> <code>UnderflowException</code><br>
+            <strong>Valor inesperado:</strong> <code>UnexpectedValueException</code><br>
+            <strong>Método mal llamado:</strong> <code>BadMethodCallException</code>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Buenas Prácticas:</strong><br>
+            • Usa la excepción <strong>más específica</strong> posible (no solo <code>Exception</code>)<br>
+            • <strong>LogicException</strong> = bugs que debes arreglar<br>
+            • <strong>RuntimeException</strong> = problemas externos (BD, archivos)<br>
+            • NO captures <code>Error</code> (solo <code>Exception</code> y sus hijos)<br>
+            • Captura excepciones específicas primero, genéricas después<br>
+            • Usa <code>getPrevious()</code> para mantener contexto de errores
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Exception</strong>: Clase base de todas las excepciones<br>
+            • <strong>LogicException</strong>: Errores de programación (bugs)<br>
+            • <strong>RuntimeException</strong>: Errores en ejecución (BD, archivos)<br>
+            • <strong>TypeError</strong>: PHP 8+ lo lanza automáticamente<br>
+            • Cada excepción tiene un <strong>propósito específico</strong> - úsalas correctamente
+        </div>
 
 // OverflowException - Overflow en estructura de datos
 class ColaLimitada {
