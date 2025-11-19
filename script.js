@@ -2,18 +2,25 @@
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
+const overlay = document.getElementById('overlay');
 
-menuToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
-    menuToggle.classList.toggle('active');
-});
+function toggleMenu() {
+    const isActive = sidebar.classList.toggle('active');
+    menuToggle.classList.toggle('active', isActive);
+    overlay.classList.toggle('active', isActive);
+    document.body.classList.toggle('sidebar-active', isActive);
+}
+
+menuToggle.addEventListener('click', toggleMenu);
+overlay.addEventListener('click', toggleMenu);
 
 // Cerrar sidebar al hacer click fuera en móvil
 document.addEventListener('click', (e) => {
-    if (window.innerWidth <= 1024) {
+    if (window.innerWidth > 1024) return;
+
+    if (sidebar.classList.contains('active')) {
         if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-            sidebar.classList.remove('active');
-            menuToggle.classList.remove('active');
+            toggleMenu();
         }
     }
 });
@@ -98,11 +105,12 @@ function loadContent(sectionId) {
             }
         });
         
-        // Scroll al top en móvil
+        // Scroll al top y cerrar menu en móvil
         if (window.innerWidth <= 1024) {
             window.scrollTo(0, 0);
-            sidebar.classList.remove('active');
-            menuToggle.classList.remove('active');
+            if (sidebar.classList.contains('active')) {
+                toggleMenu();
+            }
         }
         
         // Actualizar URL sin recargar

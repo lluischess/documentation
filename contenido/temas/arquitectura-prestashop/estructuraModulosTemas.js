@@ -259,6 +259,5 @@ URL: /admin-dev/mi-modulo/config (Ruta amigable)
               v
 +---------------------------+
 |     View (Twig Template)  | views/templates/admin/config.html.twig
-+---------------------------+
-</code></pre></div>
++---------------------------+</code></pre></div>
 `;

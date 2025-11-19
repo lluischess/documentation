@@ -5,8 +5,8 @@ const temasPrestaShop = {
     // Arquitectura y Conceptos de PrestaShop
     'ciclo-vida-peticiones-prestashop': cicloVidaPeticiones,
     'estructura-modulos-temas': estructuraModulosTemas,
-    'overrides-clases-controladores': `<h1>Overrides de Clases, Controladores y Modelos</h1><p>Contenido en desarrollo...</p>`,
-    'hooks-eventos-prestashop': `<h1>Hooks y Eventos en PrestaShop</h1><p>Contenido en desarrollo...</p>`,
+    'overrides-clases-controladores': overridesClasesControladores,
+    'hooks-eventos-prestashop': hooksYEventos,
     'modelo-datos-prestashop': `<h1>Modelo de Datos de PrestaShop y Clases Core</h1><p>Contenido en desarrollo...</p>`,
     'configuracion-multitienda-multiidioma': `<h1>Configuración Multitienda y Multi-idioma</h1><p>Contenido en desarrollo...</p>`,
     'cache-prestashop-smarty-apcu': `<h1>Caché de PrestaShop (Smarty, APCu, Memcached)</h1><p>Contenido en desarrollo...</p>`,
