@@ -15167,10 +15167,2292 @@ echo $documento->render();
             • Añade complejidad innecesaria
         </div>
     `,
-    'patron-prototype': `<h1>Patrón Prototype</h1><p>Contenido en desarrollo...</p>`,
-    'inyeccion-dependencias': `<h1>Inyección de Dependencias (DI) y Contenedores DI</h1><p>Contenido en desarrollo...</p>`,
-    'service-locator': `<h1>Service Locator</h1><p>Contenido en desarrollo...</p>`,
-    'patron-adapter': `<h1>Patrón Adapter</h1><p>Contenido en desarrollo...</p>`,
+    'patron-prototype': `
+        <h1>Patrón Prototype</h1>
+        
+        <p>El <strong>patrón Prototype</strong> es un patrón de diseño creacional que permite copiar objetos existentes sin hacer que el código dependa de sus clases. En lugar de crear objetos desde cero, clonas un prototipo existente.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es Prototype?</strong><br>
+            • <strong>Propósito</strong>: Crear nuevos objetos clonando prototipos existentes<br>
+            • <strong>Problema</strong>: Evitar la creación costosa de objetos desde cero<br>
+            • <strong>Solución</strong>: Implementar un método clone() que copia el objeto<br>
+            • <strong>Ventaja</strong>: Rápido y no depende de clases concretas<br>
+            • <strong>Uso común</strong>: Objetos complejos o costosos de crear
+        </div>
+
+        <h3>¿Por Qué Usar Prototype?</h3>
+        <p>Imagina que tienes un objeto complejo que tarda mucho en inicializarse (carga datos de BD, archivos, APIs). En lugar de recrearlo cada vez:</p>
+        <ul>
+            <li>Creas una instancia inicial (prototipo)</li>
+            <li>Clonas ese prototipo cuando necesitas copias</li>
+            <li>Modificas solo lo necesario en cada clon</li>
+            <li>Ahorras tiempo y recursos</li>
+        </ul>
+
+        <h3>Clonación Superficial vs Profunda</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Diferencia entre clonación superficial y profunda
+
+class Direccion {
+    public function __construct(
+        public string $calle,
+        public string $ciudad
+    ) {}
+}
+
+class Persona {
+    public function __construct(
+        public string $nombre,
+        public int $edad,
+        public Direccion $direccion
+    ) {}
+}
+
+// Clonación superficial (shallow copy)
+$persona1 = new Persona('Juan', 30, new Direccion('Calle 1', 'Madrid'));
+$persona2 = clone $persona1; // PHP usa __clone() por defecto
+
+$persona2->nombre = 'Ana';
+$persona2->direccion->ciudad = 'Barcelona';
+
+echo "Persona 1: {$persona1->nombre}, {$persona1->direccion->ciudad}\\n";
+echo "Persona 2: {$persona2->nombre}, {$persona2->direccion->ciudad}\\n";
+
+// ⚠️ Problema: Ambas personas comparten el mismo objeto Direccion
+// Persona 1: Juan, Barcelona (¡cambió!)
+// Persona 2: Ana, Barcelona
+?&gt;</code></pre></div>
+
+        <h3>Implementación Correcta con Clonación Profunda</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ Clonación profunda (deep copy)
+
+class Direccion {
+    public function __construct(
+        public string $calle,
+        public string $ciudad,
+        public string $codigoPostal
+    ) {}
+    
+    // Método para clonar
+    public function __clone() {
+        // Direccion no tiene objetos anidados, no necesita hacer nada
+    }
+}
+
+class Persona {
+    public function __construct(
+        public string $nombre,
+        public int $edad,
+        public Direccion $direccion,
+        public array $hobbies = []
+    ) {}
+    
+    // Método mágico __clone para clonación profunda
+    public function __clone() {
+        // Clonar objetos anidados
+        $this->direccion = clone $this->direccion;
+        
+        // Copiar arrays (PHP copia arrays por valor, pero por seguridad)
+        $this->hobbies = [...$this->hobbies];
+    }
+    
+    public function describir(): string {
+        return "{$this->nombre}, {$this->edad} años, " .
+               "{$this->direccion->ciudad}, " .
+               "hobbies: " . implode(', ', $this->hobbies);
+    }
+}
+
+// Uso
+$persona1 = new Persona(
+    'Juan',
+    30,
+    new Direccion('Calle 1', 'Madrid', '28001'),
+    ['fútbol', 'lectura']
+);
+
+// Clonar persona
+$persona2 = clone $persona1;
+
+// Modificar el clon
+$persona2->nombre = 'Ana';
+$persona2->edad = 25;
+$persona2->direccion->ciudad = 'Barcelona';
+$persona2->hobbies[] = 'música';
+
+// ✅ Ahora son independientes
+echo "Persona 1: " . $persona1->describir() . "\\n";
+echo "Persona 2: " . $persona2->describir() . "\\n";
+
+// Persona 1: Juan, 30 años, Madrid, hobbies: fútbol, lectura
+// Persona 2: Ana, 25 años, Barcelona, hobbies: fútbol, lectura, música
+?&gt;</code></pre></div>
+
+        <h3>Patrón Prototype con Interfaz</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Interfaz Prototype
+
+interface Prototype {
+    public function clone(): self;
+}
+
+// Implementación base
+abstract class Forma implements Prototype {
+    public function __construct(
+        public int $x,
+        public int $y,
+        public string $color
+    ) {}
+    
+    abstract public function dibujar(): void;
+    
+    public function clone(): self {
+        return clone $this;
+    }
+}
+
+class Circulo extends Forma {
+    public function __construct(
+        int $x,
+        int $y,
+        string $color,
+        public int $radio
+    ) {
+        parent::__construct($x, $y, $color);
+    }
+    
+    public function dibujar(): void {
+        echo "⭕ Círculo en ({$this->x}, {$this->y}), " .
+             "color: {$this->color}, radio: {$this->radio}\\n";
+    }
+}
+
+class Rectangulo extends Forma {
+    public function __construct(
+        int $x,
+        int $y,
+        string $color,
+        public int $ancho,
+        public int $alto
+    ) {
+        parent::__construct($x, $y, $color);
+    }
+    
+    public function dibujar(): void {
+        echo "▭ Rectángulo en ({$this->x}, {$this->y}), " .
+             "color: {$this->color}, {$this->ancho}x{$this->alto}\\n";
+    }
+}
+
+// Uso: Clonar formas
+$circuloRojo = new Circulo(10, 20, 'rojo', 5);
+$circuloAzul = $circuloRojo->clone();
+$circuloAzul->color = 'azul';
+$circuloAzul->x = 50;
+
+$circuloRojo->dibujar();
+$circuloAzul->dibujar();
+
+$rectanguloVerde = new Rectangulo(0, 0, 'verde', 100, 50);
+$rectanguloAmarillo = $rectanguloVerde->clone();
+$rectanguloAmarillo->color = 'amarillo';
+$rectanguloAmarillo->y = 100;
+
+$rectanguloVerde->dibujar();
+$rectanguloAmarillo->dibujar();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Registro de Prototipos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Registry de prototipos para gestionar y clonar objetos
+
+interface DocumentoPrototype {
+    public function clone(): self;
+    public function getTipo(): string;
+}
+
+class DocumentoPDF implements DocumentoPrototype {
+    public function __construct(
+        private string $plantilla,
+        private array $estilos,
+        private array $configuracion
+    ) {}
+    
+    public function clone(): self {
+        return new self(
+            $this->plantilla,
+            [...$this->estilos],
+            [...$this->configuracion]
+        );
+    }
+    
+    public function getTipo(): string {
+        return 'PDF';
+    }
+    
+    public function setContenido(string $contenido): void {
+        echo "Configurando contenido en PDF: {$contenido}\\n";
+    }
+    
+    public function generar(): void {
+        echo "📄 Generando PDF con plantilla: {$this->plantilla}\\n";
+    }
+}
+
+class DocumentoWord implements DocumentoPrototype {
+    public function __construct(
+        private string $plantilla,
+        private array $estilos
+    ) {}
+    
+    public function clone(): self {
+        return new self($this->plantilla, [...$this->estilos]);
+    }
+    
+    public function getTipo(): string {
+        return 'Word';
+    }
+    
+    public function setContenido(string $contenido): void {
+        echo "Configurando contenido en Word: {$contenido}\\n";
+    }
+    
+    public function generar(): void {
+        echo "📝 Generando Word con plantilla: {$this->plantilla}\\n";
+    }
+}
+
+// Registry: Almacena y gestiona prototipos
+class DocumentoRegistry {
+    private array $prototipos = [];
+    
+    public function registrar(string $nombre, DocumentoPrototype $prototipo): void {
+        $this->prototipos[$nombre] = $prototipo;
+    }
+    
+    public function obtener(string $nombre): ?DocumentoPrototype {
+        if (!isset($this->prototipos[$nombre])) {
+            return null;
+        }
+        
+        // Retornar un clon del prototipo
+        return $this->prototipos[$nombre]->clone();
+    }
+    
+    public function listar(): array {
+        return array_keys($this->prototipos);
+    }
+}
+
+// Uso del Registry
+$registry = new DocumentoRegistry();
+
+// Registrar prototipos predefinidos
+$registry->registrar('factura-pdf', new DocumentoPDF(
+    'plantilla-factura.pdf',
+    ['fuente' => 'Arial', 'tamano' => 12],
+    ['orientacion' => 'vertical', 'margenes' => 20]
+));
+
+$registry->registrar('reporte-word', new DocumentoWord(
+    'plantilla-reporte.docx',
+    ['fuente' => 'Times New Roman', 'tamano' => 11]
+));
+
+// Crear documentos clonando prototipos
+echo "=== Creando documentos desde prototipos ===\\n";
+
+$factura1 = $registry->obtener('factura-pdf');
+$factura1->setContenido('Factura #001');
+$factura1->generar();
+
+$factura2 = $registry->obtener('factura-pdf');
+$factura2->setContenido('Factura #002');
+$factura2->generar();
+
+$reporte1 = $registry->obtener('reporte-word');
+$reporte1->setContenido('Reporte Mensual');
+$reporte1->generar();
+
+echo "\\nPrototipos disponibles: " . implode(', ', $registry->listar()) . "\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Configuración de Productos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Clonar configuraciones complejas de productos
+
+class Caracteristicas {
+    public function __construct(
+        public array $especificaciones,
+        public array $dimensiones
+    ) {}
+    
+    public function __clone() {
+        // Clonar arrays anidados
+        $this->especificaciones = [...$this->especificaciones];
+        $this->dimensiones = [...$this->dimensiones];
+    }
+}
+
+class Producto {
+    public function __construct(
+        public string $nombre,
+        public float $precio,
+        public Caracteristicas $caracteristicas,
+        public array $imagenes = []
+    ) {}
+    
+    public function __clone() {
+        // Clonación profunda de objetos anidados
+        $this->caracteristicas = clone $this->caracteristicas;
+        $this->imagenes = [...$this->imagenes];
+    }
+    
+    public function describir(): void {
+        echo "Producto: {$this->nombre}\\n";
+        echo "Precio: \${$this->precio}\\n";
+        echo "Especificaciones: " . 
+             json_encode($this->caracteristicas->especificaciones) . "\\n";
+        echo "Imágenes: " . implode(', ', $this->imagenes) . "\\n";
+        echo "---\\n";
+    }
+}
+
+// Crear producto base (prototipo)
+$laptopBase = new Producto(
+    'Laptop Estándar',
+    800,
+    new Caracteristicas(
+        ['RAM' => '8GB', 'Almacenamiento' => '256GB SSD', 'Procesador' => 'i5'],
+        ['ancho' => 35, 'alto' => 25, 'grosor' => 2]
+    ),
+    ['laptop-front.jpg', 'laptop-side.jpg']
+);
+
+echo "=== Prototipo Base ===\\n";
+$laptopBase->describir();
+
+// Clonar y personalizar para diferentes modelos
+echo "=== Modelo Pro (clonado y mejorado) ===\\n";
+$laptopPro = clone $laptopBase;
+$laptopPro->nombre = 'Laptop Pro';
+$laptopPro->precio = 1200;
+$laptopPro->caracteristicas->especificaciones['RAM'] = '16GB';
+$laptopPro->caracteristicas->especificaciones['Almacenamiento'] = '512GB SSD';
+$laptopPro->imagenes[] = 'laptop-pro-detail.jpg';
+$laptopPro->describir();
+
+echo "=== Modelo Básico (clonado y simplificado) ===\\n";
+$laptopBasica = clone $laptopBase;
+$laptopBasica->nombre = 'Laptop Básica';
+$laptopBasica->precio = 600;
+$laptopBasica->caracteristicas->especificaciones['RAM'] = '4GB';
+$laptopBasica->caracteristicas->especificaciones['Almacenamiento'] = '128GB SSD';
+$laptopBasica->describir();
+
+// Verificar que el prototipo original no cambió
+echo "=== Prototipo Original (sin cambios) ===\\n";
+$laptopBase->describir();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Plantillas</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de plantillas de emails con Prototype
+
+class EmailTemplate {
+    public function __construct(
+        private string $asunto,
+        private string $cuerpo,
+        private array $variables,
+        private array $estilos
+    ) {}
+    
+    public function __clone() {
+        $this->variables = [...$this->variables];
+        $this->estilos = [...$this->estilos];
+    }
+    
+    public function setVariable(string $nombre, string $valor): void {
+        $this->variables[$nombre] = $valor;
+    }
+    
+    public function render(): string {
+        $contenido = $this->cuerpo;
+        
+        foreach ($this->variables as $nombre => $valor) {
+            $contenido = str_replace("{{$nombre}}", $valor, $contenido);
+        }
+        
+        return $contenido;
+    }
+    
+    public function enviar(string $destinatario): void {
+        echo "📧 Enviando email a: {$destinatario}\\n";
+        echo "Asunto: {$this->asunto}\\n";
+        echo "Contenido:\\n{$this->render()}\\n";
+        echo "---\\n";
+    }
+}
+
+// Crear plantillas base (prototipos)
+$plantillaBienvenida = new EmailTemplate(
+    'Bienvenido a {empresa}',
+    'Hola {nombre},\\n\\nGracias por registrarte en {empresa}.\\n\\nSaludos,\\nEl equipo',
+    ['nombre' => '', 'empresa' => 'MiApp'],
+    ['color' => '#007bff', 'fuente' => 'Arial']
+);
+
+$plantillaRecuperacion = new EmailTemplate(
+    'Recupera tu contraseña',
+    'Hola {nombre},\\n\\nTu código de recuperación es: {codigo}\\n\\nSaludos,\\nEl equipo',
+    ['nombre' => '', 'codigo' => ''],
+    ['color' => '#dc3545', 'fuente' => 'Arial']
+);
+
+// Usar prototipos para enviar emails personalizados
+echo "=== Emails de bienvenida ===\\n";
+
+$email1 = clone $plantillaBienvenida;
+$email1->setVariable('nombre', 'Juan');
+$email1->enviar('juan@example.com');
+
+$email2 = clone $plantillaBienvenida;
+$email2->setVariable('nombre', 'Ana');
+$email2->enviar('ana@example.com');
+
+echo "\\n=== Emails de recuperación ===\\n";
+
+$email3 = clone $plantillaRecuperacion;
+$email3->setVariable('nombre', 'Pedro');
+$email3->setVariable('codigo', 'ABC123');
+$email3->enviar('pedro@example.com');
+
+$email4 = clone $plantillaRecuperacion;
+$email4->setVariable('nombre', 'María');
+$email4->setVariable('codigo', 'XYZ789');
+$email4->enviar('maria@example.com');
+?&gt;</code></pre></div>
+
+        <h3>Prototype vs Factory</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Comparación: Cuándo usar Prototype vs Factory
+
+// Factory: Cuando creas objetos desde cero
+class UsuarioFactory {
+    public static function crear(string $tipo): Usuario {
+        return match($tipo) {
+            'admin' => new Usuario('Admin', ['*']),
+            'editor' => new Usuario('Editor', ['edit', 'view']),
+            'viewer' => new Usuario('Viewer', ['view']),
+        };
+    }
+}
+
+// Prototype: Cuando clonas objetos existentes
+class ConfiguracionCompleja {
+    public function __construct(
+        private array $database,
+        private array $cache,
+        private array $mail,
+        private array $api
+    ) {
+        // Inicialización costosa
+        echo "⏱️ Inicializando configuración compleja...\\n";
+    }
+    
+    public function __clone() {
+        $this->database = [...$this->database];
+        $this->cache = [...$this->cache];
+        $this->mail = [...$this->mail];
+        $this->api = [...$this->api];
+    }
+}
+
+// Crear una vez (costoso)
+$configProduccion = new ConfiguracionCompleja(
+    ['host' => 'prod.db', 'port' => 3306],
+    ['driver' => 'redis', 'ttl' => 3600],
+    ['smtp' => 'smtp.prod.com', 'port' => 587],
+    ['url' => 'https://api.prod.com', 'timeout' => 30]
+);
+
+// Clonar para diferentes entornos (rápido)
+$configDesarrollo = clone $configProduccion;
+// Modificar solo lo necesario...
+
+$configTesting = clone $configProduccion;
+// Modificar solo lo necesario...
+
+echo "✅ Configuraciones creadas mediante clonación\\n";
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Prototype:</strong><br>
+            • <strong>Rendimiento</strong>: Más rápido que crear desde cero<br>
+            • <strong>Flexibilidad</strong>: Clonar objetos sin conocer sus clases<br>
+            • <strong>Menos código</strong>: No necesitas múltiples constructores<br>
+            • <strong>Configuración</strong>: Fácil crear variantes de objetos complejos<br>
+            • <strong>Runtime</strong>: Puedes agregar/quitar prototipos en tiempo de ejecución<br>
+            • <strong>Independencia</strong>: No depende de jerarquías de clases
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas del Prototype:</strong><br>
+            • <strong>Clonación profunda</strong>: Complejo con objetos anidados<br>
+            • <strong>Referencias circulares</strong>: Difícil de clonar correctamente<br>
+            • <strong>__clone()</strong>: Debes implementar correctamente el método<br>
+            • <strong>Confusión</strong>: No siempre es claro qué se está clonando
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar Prototype:</strong><br>
+            • <strong>Objetos costosos</strong>: Creación requiere mucho tiempo/recursos<br>
+            • <strong>Configuraciones</strong>: Objetos con muchas configuraciones similares<br>
+            • <strong>Variantes</strong>: Necesitas crear variantes de objetos existentes<br>
+            • <strong>Runtime</strong>: Tipos de objetos determinados en tiempo de ejecución<br>
+            • <strong>Plantillas</strong>: Sistema de plantillas o prototipos predefinidos<br>
+            • <strong>Evitar subclases</strong>: No quieres crear muchas subclases<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Objetos simples sin estado complejo<br>
+            • Creación desde cero es suficientemente rápida<br>
+            • Objetos con muchas referencias circulares<br>
+            • La clonación profunda es muy compleja
+        </div>
+    `,
+    'inyeccion-dependencias': `
+        <h1>Inyección de Dependencias (DI) y Contenedores DI</h1>
+        
+        <p>La <strong>Inyección de Dependencias (DI)</strong> es un patrón de diseño que implementa el principio de Inversión de Dependencias (DIP). En lugar de que una clase cree sus propias dependencias, estas se "inyectan" desde el exterior, haciendo el código más flexible, testeable y desacoplado.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es Inyección de Dependencias?</strong><br>
+            • <strong>Propósito</strong>: Proveer dependencias desde el exterior en lugar de crearlas internamente<br>
+            • <strong>Problema</strong>: Acoplamiento fuerte entre clases<br>
+            • <strong>Solución</strong>: Pasar dependencias por constructor, setter o interfaz<br>
+            • <strong>Ventaja</strong>: Código testeable, flexible y desacoplado<br>
+            • <strong>Uso común</strong>: Frameworks modernos (Symfony, Laravel, Spring)
+        </div>
+
+        <h3>Problema Sin Inyección de Dependencias</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ SIN DI: Acoplamiento fuerte
+
+class MySQLDatabase {
+    public function query(string $sql): array {
+        echo "Ejecutando query en MySQL: {$sql}\\n";
+        return [];
+    }
+}
+
+class UsuarioRepository {
+    private MySQLDatabase $db;
+    
+    public function __construct() {
+        // ❌ Crea su propia dependencia
+        $this->db = new MySQLDatabase();
+    }
+    
+    public function obtenerUsuario(int $id): array {
+        return $this->db->query("SELECT * FROM usuarios WHERE id = {$id}");
+    }
+}
+
+// Problemas:
+// 1. Acoplado a MySQLDatabase (no puedes cambiar a PostgreSQL)
+// 2. Imposible testear sin base de datos real
+// 3. No puedes reutilizar la conexión
+// 4. Viola el principio de Inversión de Dependencias
+
+$repo = new UsuarioRepository();
+$repo->obtenerUsuario(1);
+?&gt;</code></pre></div>
+
+        <h3>Solución Con Inyección de Dependencias</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ CON DI: Desacoplamiento
+
+// 1. Definir interfaz (abstracción)
+interface Database {
+    public function query(string $sql): array;
+}
+
+// 2. Implementaciones concretas
+class MySQLDatabase implements Database {
+    public function query(string $sql): array {
+        echo "📊 MySQL: {$sql}\\n";
+        return [];
+    }
+}
+
+class PostgreSQLDatabase implements Database {
+    public function query(string $sql): array {
+        echo "🐘 PostgreSQL: {$sql}\\n";
+        return [];
+    }
+}
+
+// 3. Clase que recibe dependencias
+class UsuarioRepository {
+    // ✅ Depende de la abstracción, no de implementación concreta
+    public function __construct(private Database $db) {}
+    
+    public function obtenerUsuario(int $id): array {
+        return $this->db->query("SELECT * FROM usuarios WHERE id = {$id}");
+    }
+}
+
+// Uso: Inyectar dependencia
+$mysqlDb = new MySQLDatabase();
+$repoMySQL = new UsuarioRepository($mysqlDb);
+$repoMySQL->obtenerUsuario(1);
+
+// Fácil cambiar de base de datos
+$postgresDb = new PostgreSQLDatabase();
+$repoPostgres = new UsuarioRepository($postgresDb);
+$repoPostgres->obtenerUsuario(1);
+
+// Ventajas:
+// 1. Desacoplado de implementaciones concretas
+// 2. Fácil de testear (inyectar mock)
+// 3. Flexible (cambiar implementación sin modificar código)
+// 4. Reutilizar conexiones
+?&gt;</code></pre></div>
+
+        <h3>Tipos de Inyección de Dependencias</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// 1. Inyección por Constructor (más común y recomendada)
+class ServicioEmail {
+    public function __construct(
+        private MailerInterface $mailer,
+        private LoggerInterface $logger
+    ) {}
+    
+    public function enviar(string $destinatario, string $mensaje): void {
+        $this->logger->info("Enviando email a {$destinatario}");
+        $this->mailer->send($destinatario, $mensaje);
+    }
+}
+
+// 2. Inyección por Setter
+class ServicioNotificacion {
+    private ?LoggerInterface $logger = null;
+    
+    public function setLogger(LoggerInterface $logger): void {
+        $this->logger = $logger;
+    }
+    
+    public function notificar(string $mensaje): void {
+        $this->logger?->info($mensaje);
+        echo "Notificación: {$mensaje}\\n";
+    }
+}
+
+// 3. Inyección por Interfaz
+interface LoggerAwareInterface {
+    public function setLogger(LoggerInterface $logger): void;
+}
+
+class ServicioConLogger implements LoggerAwareInterface {
+    private ?LoggerInterface $logger = null;
+    
+    public function setLogger(LoggerInterface $logger): void {
+        $this->logger = $logger;
+    }
+    
+    public function procesar(): void {
+        $this->logger?->info("Procesando...");
+    }
+}
+
+// 4. Inyección por Método
+class ServicioProcesamiento {
+    public function procesar(LoggerInterface $logger, array $datos): void {
+        $logger->info("Procesando datos");
+        // Procesar datos...
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>Contenedor de Dependencias Simple</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Contenedor DI básico
+
+class Container {
+    private array $services = [];
+    private array $instances = [];
+    
+    // Registrar un servicio
+    public function set(string $id, callable $factory): void {
+        $this->services[$id] = $factory;
+    }
+    
+    // Obtener un servicio (singleton)
+    public function get(string $id): mixed {
+        // Si ya existe la instancia, retornarla
+        if (isset($this->instances[$id])) {
+            return $this->instances[$id];
+        }
+        
+        // Si no existe el servicio, error
+        if (!isset($this->services[$id])) {
+            throw new Exception("Servicio no encontrado: {$id}");
+        }
+        
+        // Crear instancia usando la factory
+        $factory = $this->services[$id];
+        $instance = $factory($this);
+        
+        // Guardar instancia (singleton)
+        $this->instances[$id] = $instance;
+        
+        return $instance;
+    }
+    
+    // Verificar si existe un servicio
+    public function has(string $id): bool {
+        return isset($this->services[$id]);
+    }
+}
+
+// Uso del contenedor
+$container = new Container();
+
+// Registrar servicios
+$container->set('database', function($c) {
+    return new MySQLDatabase();
+});
+
+$container->set('logger', function($c) {
+    return new FileLogger('app.log');
+});
+
+$container->set('usuario.repository', function($c) {
+    return new UsuarioRepository(
+        $c->get('database')
+    );
+});
+
+$container->set('usuario.service', function($c) {
+    return new UsuarioService(
+        $c->get('usuario.repository'),
+        $c->get('logger')
+    );
+});
+
+// Obtener servicios del contenedor
+$usuarioService = $container->get('usuario.service');
+$usuarioService->crearUsuario('Juan', 'juan@example.com');
+?&gt;</code></pre></div>
+
+        <h3>Contenedor DI Avanzado con Autowiring</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Contenedor con resolución automática de dependencias
+
+class AdvancedContainer {
+    private array $bindings = [];
+    private array $instances = [];
+    
+    // Vincular interfaz a implementación
+    public function bind(string $abstract, string|callable $concrete): void {
+        $this->bindings[$abstract] = $concrete;
+    }
+    
+    // Registrar singleton
+    public function singleton(string $abstract, string|callable $concrete): void {
+        $this->bind($abstract, $concrete);
+    }
+    
+    // Resolver dependencias automáticamente
+    public function make(string $abstract): mixed {
+        // Si es singleton y ya existe, retornar
+        if (isset($this->instances[$abstract])) {
+            return $this->instances[$abstract];
+        }
+        
+        // Obtener la implementación concreta
+        $concrete = $this->bindings[$abstract] ?? $abstract;
+        
+        // Si es un callable, ejecutarlo
+        if (is_callable($concrete)) {
+            $instance = $concrete($this);
+        } else {
+            // Resolver usando reflexión
+            $instance = $this->resolve($concrete);
+        }
+        
+        // Guardar singleton si está registrado
+        if (isset($this->bindings[$abstract])) {
+            $this->instances[$abstract] = $instance;
+        }
+        
+        return $instance;
+    }
+    
+    // Resolver clase usando reflexión
+    private function resolve(string $class): object {
+        $reflector = new ReflectionClass($class);
+        
+        // Verificar si la clase es instanciable
+        if (!$reflector->isInstantiable()) {
+            throw new Exception("La clase {$class} no es instanciable");
+        }
+        
+        // Obtener constructor
+        $constructor = $reflector->getConstructor();
+        
+        // Si no tiene constructor, crear instancia simple
+        if ($constructor === null) {
+            return new $class;
+        }
+        
+        // Obtener parámetros del constructor
+        $parameters = $constructor->getParameters();
+        
+        // Resolver cada dependencia
+        $dependencies = [];
+        foreach ($parameters as $parameter) {
+            $type = $parameter->getType();
+            
+            if ($type === null) {
+                throw new Exception(
+                    "No se puede resolver el parámetro {\$parameter->getName()} sin type hint"
+                );
+            }
+            
+            $typeName = $type->getName();
+            
+            // Resolver dependencia recursivamente
+            $dependencies[] = $this->make($typeName);
+        }
+        
+        // Crear instancia con dependencias resueltas
+        return $reflector->newInstanceArgs($dependencies);
+    }
+}
+
+// Ejemplo de uso con autowiring
+interface LoggerInterface {
+    public function log(string $message): void;
+}
+
+class FileLogger implements LoggerInterface {
+    public function __construct(private string $filename = 'app.log') {}
+    
+    public function log(string $message): void {
+        echo "📝 Log en {$this->filename}: {$message}\\n";
+    }
+}
+
+interface CacheInterface {
+    public function get(string $key): mixed;
+    public function set(string $key, mixed $value): void;
+}
+
+class RedisCache implements CacheInterface {
+    public function get(string $key): mixed {
+        echo "🔍 Obteniendo de cache: {$key}\\n";
+        return null;
+    }
+    
+    public function set(string $key, mixed $value): void {
+        echo "💾 Guardando en cache: {$key}\\n";
+    }
+}
+
+class UsuarioService {
+    public function __construct(
+        private UsuarioRepository $repository,
+        private LoggerInterface $logger,
+        private CacheInterface $cache
+    ) {}
+    
+    public function obtenerUsuario(int $id): void {
+        $this->logger->log("Obteniendo usuario {$id}");
+        
+        // Intentar obtener de cache
+        $usuario = $this->cache->get("usuario_{$id}");
+        
+        if ($usuario === null) {
+            $usuario = $this->repository->obtenerUsuario($id);
+            $this->cache->set("usuario_{$id}", $usuario);
+        }
+    }
+}
+
+// Configurar contenedor
+$container = new AdvancedContainer();
+
+// Vincular interfaces a implementaciones
+$container->bind(Database::class, MySQLDatabase::class);
+$container->bind(LoggerInterface::class, FileLogger::class);
+$container->bind(CacheInterface::class, RedisCache::class);
+
+// ✨ Autowiring: El contenedor resuelve todas las dependencias automáticamente
+$usuarioService = $container->make(UsuarioService::class);
+$usuarioService->obtenerUsuario(1);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Facturación</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema completo con DI
+
+// Interfaces
+interface RepositorioFacturas {
+    public function guardar(Factura $factura): void;
+    public function obtener(int $id): ?Factura;
+}
+
+interface ServicioEmail {
+    public function enviar(string $destinatario, string $asunto, string $cuerpo): void;
+}
+
+interface GeneradorPDF {
+    public function generar(Factura $factura): string;
+}
+
+// Implementaciones
+class FacturaRepositoryMySQL implements RepositorioFacturas {
+    public function __construct(private Database $db) {}
+    
+    public function guardar(Factura $factura): void {
+        echo "💾 Guardando factura en MySQL\\n";
+    }
+    
+    public function obtener(int $id): ?Factura {
+        echo "🔍 Obteniendo factura {$id} de MySQL\\n";
+        return new Factura($id, 'Cliente', 100.00);
+    }
+}
+
+class SMTPEmailService implements ServicioEmail {
+    public function __construct(
+        private string $host,
+        private int $port,
+        private LoggerInterface $logger
+    ) {}
+    
+    public function enviar(string $destinatario, string $asunto, string $cuerpo): void {
+        $this->logger->log("Enviando email a {$destinatario}");
+        echo "📧 Email enviado vía SMTP ({$this->host}:{$this->port})\\n";
+    }
+}
+
+class DomPDFGenerator implements GeneradorPDF {
+    public function generar(Factura $factura): string {
+        echo "📄 Generando PDF para factura #{$factura->id}\\n";
+        return "factura_{$factura->id}.pdf";
+    }
+}
+
+// Modelo
+class Factura {
+    public function __construct(
+        public int $id,
+        public string $cliente,
+        public float $total
+    ) {}
+}
+
+// Servicio principal
+class ServicioFacturacion {
+    public function __construct(
+        private RepositorioFacturas $repository,
+        private ServicioEmail $emailService,
+        private GeneradorPDF $pdfGenerator,
+        private LoggerInterface $logger
+    ) {}
+    
+    public function crearYEnviarFactura(string $cliente, float $total): void {
+        $this->logger->log("Creando factura para {$cliente}");
+        
+        // Crear factura
+        $factura = new Factura(rand(1000, 9999), $cliente, $total);
+        
+        // Guardar en BD
+        $this->repository->guardar($factura);
+        
+        // Generar PDF
+        $pdf = $this->pdfGenerator->generar($factura);
+        
+        // Enviar por email
+        $this->emailService->enviar(
+            "{$cliente}@example.com",
+            "Factura #{$factura->id}",
+            "Adjunto encontrarás tu factura"
+        );
+        
+        $this->logger->log("Factura procesada exitosamente");
+    }
+}
+
+// Configurar contenedor
+$container = new AdvancedContainer();
+
+$container->bind(Database::class, MySQLDatabase::class);
+$container->bind(LoggerInterface::class, FileLogger::class);
+$container->bind(RepositorioFacturas::class, FacturaRepositoryMySQL::class);
+$container->bind(GeneradorPDF::class, DomPDFGenerator::class);
+
+$container->bind(ServicioEmail::class, function($c) {
+    return new SMTPEmailService(
+        'smtp.example.com',
+        587,
+        $c->make(LoggerInterface::class)
+    );
+});
+
+// Usar el servicio
+$servicioFacturacion = $container->make(ServicioFacturacion::class);
+$servicioFacturacion->crearYEnviarFactura('Juan Pérez', 250.00);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Contenedor con Configuración</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Service Provider Pattern
+
+abstract class ServiceProvider {
+    public function __construct(protected Container $container) {}
+    
+    abstract public function register(): void;
+}
+
+class DatabaseServiceProvider extends ServiceProvider {
+    public function register(): void {
+        $this->container->singleton('db.connection', function($c) {
+            $config = $c->get('config');
+            
+            return match($config['database']['driver']) {
+                'mysql' => new MySQLDatabase(
+                    $config['database']['host'],
+                    $config['database']['port']
+                ),
+                'pgsql' => new PostgreSQLDatabase(
+                    $config['database']['host'],
+                    $config['database']['port']
+                ),
+                default => throw new Exception('Driver no soportado')
+            };
+        });
+    }
+}
+
+class LoggerServiceProvider extends ServiceProvider {
+    public function register(): void {
+        $this->container->singleton('logger', function($c) {
+            $config = $c->get('config');
+            
+            return new FileLogger($config['logging']['file']);
+        });
+    }
+}
+
+class RepositoryServiceProvider extends ServiceProvider {
+    public function register(): void {
+        $this->container->bind('usuario.repository', function($c) {
+            return new UsuarioRepository(
+                $c->get('db.connection')
+            );
+        });
+        
+        $this->container->bind('producto.repository', function($c) {
+            return new ProductoRepository(
+                $c->get('db.connection')
+            );
+        });
+    }
+}
+
+// Configuración de la aplicación
+$config = [
+    'database' => [
+        'driver' => 'mysql',
+        'host' => 'localhost',
+        'port' => 3306,
+    ],
+    'logging' => [
+        'file' => 'app.log',
+    ],
+];
+
+// Crear contenedor
+$container = new Container();
+$container->set('config', fn() => $config);
+
+// Registrar providers
+$providers = [
+    new DatabaseServiceProvider($container),
+    new LoggerServiceProvider($container),
+    new RepositoryServiceProvider($container),
+];
+
+foreach ($providers as $provider) {
+    $provider->register();
+}
+
+// Usar servicios
+$usuarioRepo = $container->get('usuario.repository');
+$logger = $container->get('logger');
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas de la Inyección de Dependencias:</strong><br>
+            • <strong>Testeable</strong>: Fácil inyectar mocks y stubs en tests<br>
+            • <strong>Desacoplamiento</strong>: Clases no dependen de implementaciones concretas<br>
+            • <strong>Flexibilidad</strong>: Cambiar implementaciones sin modificar código<br>
+            • <strong>Reutilización</strong>: Compartir instancias entre múltiples clases<br>
+            • <strong>Mantenibilidad</strong>: Código más limpio y fácil de mantener<br>
+            • <strong>SOLID</strong>: Respeta principios de diseño (DIP, SRP, OCP)
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Complejidad inicial</strong>: Más código de configuración<br>
+            • <strong>Curva de aprendizaje</strong>: Concepto difícil para principiantes<br>
+            • <strong>Over-engineering</strong>: Puede ser excesivo para proyectos simples<br>
+            • <strong>Debugging</strong>: Más difícil seguir el flujo de dependencias
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar DI:</strong><br>
+            • <strong>Aplicaciones grandes</strong>: Proyectos con muchas dependencias<br>
+            • <strong>Testing</strong>: Necesitas tests unitarios extensivos<br>
+            • <strong>Múltiples implementaciones</strong>: Diferentes entornos (dev, prod, test)<br>
+            • <strong>Frameworks</strong>: Trabajas con frameworks modernos<br>
+            • <strong>Equipos grandes</strong>: Múltiples desarrolladores<br>
+            • <strong>Mantenibilidad</strong>: Código que cambiará frecuentemente<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Scripts simples o pequeños<br>
+            • Prototipos rápidos<br>
+            • Aplicaciones con pocas dependencias<br>
+            • Cuando añade complejidad innecesaria
+        </div>
+    `,
+    'service-locator': `
+        <h1>Service Locator</h1>
+        
+        <p>El <strong>patrón Service Locator</strong> es un patrón de diseño que proporciona un registro centralizado donde las clases pueden obtener sus dependencias. Actúa como un "directorio" de servicios que las clases consultan cuando necesitan una dependencia.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es Service Locator?</strong><br>
+            • <strong>Propósito</strong>: Registro centralizado para localizar y obtener servicios<br>
+            • <strong>Problema</strong>: Evitar crear dependencias manualmente en cada clase<br>
+            • <strong>Solución</strong>: Localizador global que provee servicios bajo demanda<br>
+            • <strong>Ventaja</strong>: Desacoplamiento entre clases y sus dependencias<br>
+            • <strong>Controversia</strong>: Considerado anti-patrón por muchos desarrolladores
+        </div>
+
+        <h3>Implementación Básica</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Service Locator básico
+
+class ServiceLocator {
+    private static ?self $instance = null;
+    private array $services = [];
+    
+    // Singleton: Una sola instancia del locator
+    private function __construct() {}
+    
+    public static function getInstance(): self {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    // Registrar un servicio
+    public function register(string $name, object $service): void {
+        $this->services[$name] = $service;
+    }
+    
+    // Obtener un servicio
+    public function get(string $name): object {
+        if (!isset($this->services[$name])) {
+            throw new Exception("Servicio no encontrado: {$name}");
+        }
+        return $this->services[$name];
+    }
+    
+    // Verificar si existe un servicio
+    public function has(string $name): bool {
+        return isset($this->services[$name]);
+    }
+}
+
+// Servicios
+class Logger {
+    public function log(string $message): void {
+        echo "📝 Log: {$message}\\n";
+    }
+}
+
+class Database {
+    public function query(string $sql): array {
+        echo "🗄️ Query: {$sql}\\n";
+        return [];
+    }
+}
+
+// Clase que usa el Service Locator
+class UsuarioRepository {
+    private Logger $logger;
+    private Database $db;
+    
+    public function __construct() {
+        // ⚠️ Obtiene dependencias del Service Locator
+        $locator = ServiceLocator::getInstance();
+        $this->logger = $locator->get('logger');
+        $this->db = $locator->get('database');
+    }
+    
+    public function obtenerUsuario(int $id): void {
+        $this->logger->log("Obteniendo usuario {$id}");
+        $this->db->query("SELECT * FROM usuarios WHERE id = {$id}");
+    }
+}
+
+// Configuración inicial
+$locator = ServiceLocator::getInstance();
+$locator->register('logger', new Logger());
+$locator->register('database', new Database());
+
+// Uso
+$repo = new UsuarioRepository();
+$repo->obtenerUsuario(1);
+?&gt;</code></pre></div>
+
+        <h3>Service Locator con Factory</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Service Locator que crea servicios bajo demanda
+
+class LazyServiceLocator {
+    private static ?self $instance = null;
+    private array $factories = [];
+    private array $instances = [];
+    
+    private function __construct() {}
+    
+    public static function getInstance(): self {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    // Registrar una factory para crear el servicio
+    public function registerFactory(string $name, callable $factory): void {
+        $this->factories[$name] = $factory;
+    }
+    
+    // Obtener servicio (lazy loading)
+    public function get(string $name): object {
+        // Si ya existe la instancia, retornarla
+        if (isset($this->instances[$name])) {
+            return $this->instances[$name];
+        }
+        
+        // Si no existe la factory, error
+        if (!isset($this->factories[$name])) {
+            throw new Exception("Servicio no encontrado: {$name}");
+        }
+        
+        // Crear instancia usando la factory
+        $factory = $this->factories[$name];
+        $instance = $factory();
+        
+        // Guardar instancia (singleton)
+        $this->instances[$name] = $instance;
+        
+        return $instance;
+    }
+    
+    // Resetear instancias (útil para testing)
+    public function reset(): void {
+        $this->instances = [];
+    }
+}
+
+// Configuración
+$locator = LazyServiceLocator::getInstance();
+
+$locator->registerFactory('logger', function() {
+    echo "🔨 Creando Logger\\n";
+    return new Logger();
+});
+
+$locator->registerFactory('database', function() {
+    echo "🔨 Creando Database\\n";
+    return new Database();
+});
+
+$locator->registerFactory('cache', function() {
+    echo "🔨 Creando Cache\\n";
+    return new Cache();
+});
+
+// Los servicios se crean solo cuando se solicitan
+echo "=== Obteniendo servicios ===\\n";
+$logger = $locator->get('logger');  // Se crea aquí
+$logger2 = $locator->get('logger'); // Retorna la misma instancia
+?&gt;</code></pre></div>
+
+        <h3>Service Locator con Interfaces</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Service Locator tipado con interfaces
+
+interface LoggerInterface {
+    public function log(string $message): void;
+}
+
+interface CacheInterface {
+    public function get(string $key): mixed;
+    public function set(string $key, mixed $value): void;
+}
+
+interface DatabaseInterface {
+    public function query(string $sql): array;
+}
+
+class FileLogger implements LoggerInterface {
+    public function __construct(private string $filename) {}
+    
+    public function log(string $message): void {
+        echo "📝 [{$this->filename}] {$message}\\n";
+    }
+}
+
+class RedisCache implements CacheInterface {
+    public function get(string $key): mixed {
+        echo "🔍 Cache GET: {$key}\\n";
+        return null;
+    }
+    
+    public function set(string $key, mixed $value): void {
+        echo "💾 Cache SET: {$key}\\n";
+    }
+}
+
+class MySQLDatabase implements DatabaseInterface {
+    public function query(string $sql): array {
+        echo "🗄️ MySQL: {$sql}\\n";
+        return [];
+    }
+}
+
+// Service Locator tipado
+class TypedServiceLocator {
+    private static ?self $instance = null;
+    private array $services = [];
+    
+    private function __construct() {}
+    
+    public static function getInstance(): self {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    public function registerLogger(LoggerInterface $logger): void {
+        $this->services[LoggerInterface::class] = $logger;
+    }
+    
+    public function registerCache(CacheInterface $cache): void {
+        $this->services[CacheInterface::class] = $cache;
+    }
+    
+    public function registerDatabase(DatabaseInterface $db): void {
+        $this->services[DatabaseInterface::class] = $db;
+    }
+    
+    public function getLogger(): LoggerInterface {
+        return $this->services[LoggerInterface::class] 
+            ?? throw new Exception('Logger no registrado');
+    }
+    
+    public function getCache(): CacheInterface {
+        return $this->services[CacheInterface::class] 
+            ?? throw new Exception('Cache no registrado');
+    }
+    
+    public function getDatabase(): DatabaseInterface {
+        return $this->services[DatabaseInterface::class] 
+            ?? throw new Exception('Database no registrado');
+    }
+}
+
+// Clase que usa el locator tipado
+class ProductoService {
+    private LoggerInterface $logger;
+    private CacheInterface $cache;
+    private DatabaseInterface $db;
+    
+    public function __construct() {
+        $locator = TypedServiceLocator::getInstance();
+        $this->logger = $locator->getLogger();
+        $this->cache = $locator->getCache();
+        $this->db = $locator->getDatabase();
+    }
+    
+    public function obtenerProducto(int $id): void {
+        $this->logger->log("Obteniendo producto {$id}");
+        
+        // Intentar cache
+        $producto = $this->cache->get("producto_{$id}");
+        
+        if ($producto === null) {
+            $producto = $this->db->query("SELECT * FROM productos WHERE id = {$id}");
+            $this->cache->set("producto_{$id}", $producto);
+        }
+    }
+}
+
+// Configuración
+$locator = TypedServiceLocator::getInstance();
+$locator->registerLogger(new FileLogger('app.log'));
+$locator->registerCache(new RedisCache());
+$locator->registerDatabase(new MySQLDatabase());
+
+// Uso
+$service = new ProductoService();
+$service->obtenerProducto(1);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Notificaciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema completo con Service Locator
+
+interface NotificadorInterface {
+    public function enviar(string $destinatario, string $mensaje): void;
+}
+
+class EmailNotificador implements NotificadorInterface {
+    public function enviar(string $destinatario, string $mensaje): void {
+        echo "📧 Email a {$destinatario}: {$mensaje}\\n";
+    }
+}
+
+class SMSNotificador implements NotificadorInterface {
+    public function enviar(string $destinatario, string $mensaje): void {
+        echo "📱 SMS a {$destinatario}: {$mensaje}\\n";
+    }
+}
+
+class PushNotificador implements NotificadorInterface {
+    public function enviar(string $destinatario, string $mensaje): void {
+        echo "🔔 Push a {$destinatario}: {$mensaje}\\n";
+    }
+}
+
+// Service Locator para notificadores
+class NotificadorLocator {
+    private static ?self $instance = null;
+    private array $notificadores = [];
+    
+    private function __construct() {}
+    
+    public static function getInstance(): self {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    public function register(string $tipo, NotificadorInterface $notificador): void {
+        $this->notificadores[$tipo] = $notificador;
+    }
+    
+    public function get(string $tipo): NotificadorInterface {
+        if (!isset($this->notificadores[$tipo])) {
+            throw new Exception("Notificador no encontrado: {$tipo}");
+        }
+        return $this->notificadores[$tipo];
+    }
+    
+    public function getAll(): array {
+        return $this->notificadores;
+    }
+}
+
+// Servicio que usa múltiples notificadores
+class ServicioNotificaciones {
+    public function notificarUsuario(string $usuario, string $mensaje, array $canales): void {
+        $locator = NotificadorLocator::getInstance();
+        
+        foreach ($canales as $canal) {
+            try {
+                $notificador = $locator->get($canal);
+                $notificador->enviar($usuario, $mensaje);
+            } catch (Exception $e) {
+                echo "⚠️ Error: {$e->getMessage()}\\n";
+            }
+        }
+    }
+    
+    public function notificarATodos(string $usuario, string $mensaje): void {
+        $locator = NotificadorLocator::getInstance();
+        
+        foreach ($locator->getAll() as $tipo => $notificador) {
+            echo "Enviando por {$tipo}...\\n";
+            $notificador->enviar($usuario, $mensaje);
+        }
+    }
+}
+
+// Configuración
+$locator = NotificadorLocator::getInstance();
+$locator->register('email', new EmailNotificador());
+$locator->register('sms', new SMSNotificador());
+$locator->register('push', new PushNotificador());
+
+// Uso
+$servicio = new ServicioNotificaciones();
+
+echo "=== Notificación por canales específicos ===\\n";
+$servicio->notificarUsuario('juan@example.com', 'Hola Juan', ['email', 'push']);
+
+echo "\\n=== Notificación por todos los canales ===\\n";
+$servicio->notificarATodos('maria@example.com', 'Hola María');
+?&gt;</code></pre></div>
+
+        <h3>Service Locator vs Dependency Injection</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Comparación directa
+
+// ❌ Service Locator (Pull)
+class UsuarioServiceConLocator {
+    private Logger $logger;
+    private Database $db;
+    
+    public function __construct() {
+        // La clase "tira" (pull) de sus dependencias
+        $locator = ServiceLocator::getInstance();
+        $this->logger = $locator->get('logger');
+        $this->db = $locator->get('database');
+    }
+    
+    public function crear(string $nombre): void {
+        $this->logger->log("Creando usuario: {$nombre}");
+        $this->db->query("INSERT INTO usuarios...");
+    }
+}
+
+// ✅ Dependency Injection (Push)
+class UsuarioServiceConDI {
+    // Las dependencias se "empujan" (push) desde afuera
+    public function __construct(
+        private Logger $logger,
+        private Database $db
+    ) {}
+    
+    public function crear(string $nombre): void {
+        $this->logger->log("Creando usuario: {$nombre}");
+        $this->db->query("INSERT INTO usuarios...");
+    }
+}
+
+// Uso de Service Locator
+$locator = ServiceLocator::getInstance();
+$locator->register('logger', new Logger());
+$locator->register('database', new Database());
+
+$serviceLocator = new UsuarioServiceConLocator();
+$serviceLocator->crear('Juan');
+
+// Uso de DI
+$logger = new Logger();
+$db = new Database();
+$serviceDI = new UsuarioServiceConDI($logger, $db);
+$serviceDI->crear('Ana');
+?&gt;</code></pre></div>
+
+        <h3>Ventajas y Desventajas Comparadas</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Ejemplo que muestra problemas del Service Locator
+
+// ❌ Problema 1: Dependencias ocultas
+class PedidoService {
+    public function procesarPedido(int $id): void {
+        // No es obvio qué dependencias necesita esta clase
+        $locator = ServiceLocator::getInstance();
+        $db = $locator->get('database');
+        $email = $locator->get('email');
+        $logger = $locator->get('logger');
+        $cache = $locator->get('cache');
+        $payment = $locator->get('payment');
+        
+        // ... procesar pedido
+    }
+}
+
+// ✅ Con DI las dependencias son explícitas
+class PedidoServiceDI {
+    // Claramente visible qué necesita esta clase
+    public function __construct(
+        private Database $db,
+        private EmailService $email,
+        private Logger $logger,
+        private Cache $cache,
+        private PaymentGateway $payment
+    ) {}
+    
+    public function procesarPedido(int $id): void {
+        // ... procesar pedido
+    }
+}
+
+// ❌ Problema 2: Difícil de testear
+class ReporteService {
+    public function generar(): string {
+        $locator = ServiceLocator::getInstance();
+        $db = $locator->get('database'); // Difícil mockear
+        
+        return "Reporte generado";
+    }
+}
+
+// ✅ Con DI es fácil testear
+class ReporteServiceDI {
+    public function __construct(private Database $db) {}
+    
+    public function generar(): string {
+        return "Reporte generado";
+    }
+}
+
+// Test con DI (fácil)
+$mockDb = new MockDatabase();
+$service = new ReporteServiceDI($mockDb);
+$resultado = $service->generar();
+
+// Test con Service Locator (complicado)
+// Necesitas resetear el locator global, puede afectar otros tests
+?&gt;</code></pre></div>
+
+        <h3>Cuándo Usar Service Locator</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Casos donde Service Locator puede ser útil
+
+// 1. Framework Legacy o código existente
+class LegacyController {
+    public function action(): void {
+        // En código legacy puede ser más práctico
+        $locator = ServiceLocator::getInstance();
+        $db = $locator->get('database');
+        // ...
+    }
+}
+
+// 2. Plugin System
+interface Plugin {
+    public function execute(): void;
+}
+
+class PluginManager {
+    private static array $plugins = [];
+    
+    public static function register(string $name, Plugin $plugin): void {
+        self::$plugins[$name] = $plugin;
+    }
+    
+    public static function get(string $name): ?Plugin {
+        return self::$plugins[$name] ?? null;
+    }
+    
+    public static function executeAll(): void {
+        foreach (self::$plugins as $plugin) {
+            $plugin->execute();
+        }
+    }
+}
+
+// 3. Registry de configuración global
+class Config {
+    private static array $values = [];
+    
+    public static function set(string $key, mixed $value): void {
+        self::$values[$key] = $value;
+    }
+    
+    public static function get(string $key, mixed $default = null): mixed {
+        return self::$values[$key] ?? $default;
+    }
+}
+
+// Uso
+Config::set('app.name', 'Mi Aplicación');
+Config::set('app.debug', true);
+
+$appName = Config::get('app.name');
+$debug = Config::get('app.debug', false);
+?&gt;</code></pre></div>
+
+        <div class="warning-box">
+            <strong>⚠️ Por Qué Service Locator es Considerado Anti-Patrón:</strong><br>
+            • <strong>Dependencias ocultas</strong>: No es claro qué necesita una clase<br>
+            • <strong>Acoplamiento global</strong>: Todas las clases dependen del locator<br>
+            • <strong>Difícil de testear</strong>: Complicado mockear el locator global<br>
+            • <strong>Violación de principios</strong>: No respeta el principio de inversión de dependencias<br>
+            • <strong>Runtime errors</strong>: Errores en tiempo de ejecución si falta un servicio<br>
+            • <strong>Dificulta refactoring</strong>: No sabes qué clases usan qué servicios
+        </div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Service Locator:</strong><br>
+            • <strong>Simplicidad</strong>: Fácil de entender e implementar<br>
+            • <strong>Flexibilidad</strong>: Agregar/quitar servicios en runtime<br>
+            • <strong>Centralización</strong>: Un solo punto para gestionar servicios<br>
+            • <strong>Legacy code</strong>: Útil para migrar código antiguo<br>
+            • <strong>Menos boilerplate</strong>: No necesitas pasar dependencias por constructor
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Service Locator vs Dependency Injection:</strong><br>
+            <br>
+            <strong>Service Locator (Pull):</strong><br>
+            • La clase "tira" de sus dependencias<br>
+            • Dependencias ocultas<br>
+            • Acoplamiento al locator<br>
+            • Difícil de testear<br>
+            • Útil en código legacy<br>
+            <br>
+            <strong>Dependency Injection (Push):</strong><br>
+            • Las dependencias se "empujan" desde afuera<br>
+            • Dependencias explícitas<br>
+            • Sin acoplamiento global<br>
+            • Fácil de testear<br>
+            • Recomendado para código nuevo<br>
+            <br>
+            <strong>⚠️ Recomendación:</strong><br>
+            Prefiere <strong>Dependency Injection</strong> sobre Service Locator en código nuevo. Usa Service Locator solo cuando:<br>
+            • Trabajas con código legacy<br>
+            • Necesitas un sistema de plugins<br>
+            • Implementas un registry de configuración<br>
+            • La complejidad de DI no se justifica
+        </div>
+    `,
+    'patron-adapter': `
+        <h1>Patrón Adapter (Adaptador)</h1>
+        
+        <p>El <strong>patrón Adapter</strong> es un patrón estructural que permite que interfaces incompatibles trabajen juntas. Actúa como un "traductor" entre dos interfaces diferentes, convirtiendo la interfaz de una clase en otra que el cliente espera.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es el Patrón Adapter?</strong><br>
+            • <strong>Propósito</strong>: Hacer compatibles interfaces incompatibles<br>
+            • <strong>Problema</strong>: Necesitas usar una clase pero su interfaz no coincide con la que esperas<br>
+            • <strong>Solución</strong>: Crear un adaptador que traduce una interfaz a otra<br>
+            • <strong>Analogía</strong>: Como un adaptador de enchufe para viajar<br>
+            • <strong>Tipo</strong>: Patrón estructural
+        </div>
+
+        <h3>Problema: Interfaces Incompatibles</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Problema: Tienes una interfaz esperada pero una implementación diferente
+
+// Interfaz que tu aplicación espera
+interface Logger {
+    public function log(string $message): void;
+}
+
+// Tu código usa esta interfaz
+class UserService {
+    public function __construct(private Logger $logger) {}
+    
+    public function createUser(string $name): void {
+        $this->logger->log("Usuario creado: {$name}");
+    }
+}
+
+// ❌ Problema: Librería externa con interfaz diferente
+class ThirdPartyLogger {
+    public function writeLog(string $level, string $msg): void {
+        echo "[{$level}] {$msg}\\n";
+    }
+}
+
+// No puedes hacer esto:
+// $service = new UserService(new ThirdPartyLogger()); // ❌ Error de tipos
+
+// Necesitas un ADAPTER
+?&gt;</code></pre></div>
+
+        <h3>Solución: Patrón Adapter</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ Adapter que hace compatible la librería externa
+
+interface Logger {
+    public function log(string $message): void;
+}
+
+// Librería externa (no puedes modificarla)
+class ThirdPartyLogger {
+    public function writeLog(string $level, string $msg): void {
+        echo "[{$level}] {$msg}\\n";
+    }
+}
+
+// ✅ Adapter: Traduce la interfaz
+class ThirdPartyLoggerAdapter implements Logger {
+    public function __construct(
+        private ThirdPartyLogger $thirdPartyLogger
+    ) {}
+    
+    public function log(string $message): void {
+        // Adapta la llamada a la interfaz externa
+        $this->thirdPartyLogger->writeLog('INFO', $message);
+    }
+}
+
+// Tu código
+class UserService {
+    public function __construct(private Logger $logger) {}
+    
+    public function createUser(string $name): void {
+        $this->logger->log("Usuario creado: {$name}");
+    }
+}
+
+// Uso: Ahora funciona perfectamente
+$thirdPartyLogger = new ThirdPartyLogger();
+$adapter = new ThirdPartyLoggerAdapter($thirdPartyLogger);
+$service = new UserService($adapter);
+$service->createUser('Juan');
+?&gt;</code></pre></div>
+
+        <h3>Adapter de Clase vs Adapter de Objeto</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Dos formas de implementar Adapter
+
+// 1. ADAPTER DE OBJETO (Composición - Recomendado)
+class ObjectAdapter implements Logger {
+    public function __construct(
+        private ThirdPartyLogger $adaptee
+    ) {}
+    
+    public function log(string $message): void {
+        $this->adaptee->writeLog('INFO', $message);
+    }
+}
+
+// 2. ADAPTER DE CLASE (Herencia - Menos flexible)
+class ClassAdapter extends ThirdPartyLogger implements Logger {
+    public function log(string $message): void {
+        $this->writeLog('INFO', $message);
+    }
+}
+
+// Uso
+echo "=== Adapter de Objeto ===\\n";
+$objectAdapter = new ObjectAdapter(new ThirdPartyLogger());
+$objectAdapter->log('Mensaje con adapter de objeto');
+
+echo "\\n=== Adapter de Clase ===\\n";
+$classAdapter = new ClassAdapter();
+$classAdapter->log('Mensaje con adapter de clase');
+
+// Ventaja del Adapter de Objeto:
+// - Más flexible (composición sobre herencia)
+// - Puede adaptar múltiples clases
+// - No expone métodos innecesarios
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Adaptadores de Pago</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de pagos con múltiples proveedores
+
+// Interfaz común que tu aplicación usa
+interface PaymentGateway {
+    public function processPayment(float $amount, string $currency): bool;
+    public function refund(string $transactionId, float $amount): bool;
+}
+
+// Proveedor 1: Stripe (API externa)
+class StripeAPI {
+    public function charge(int $amountInCents, string $curr): array {
+        echo "💳 Stripe: Cobrando {$amountInCents} centavos en {$curr}\\n";
+        return ['id' => 'stripe_' . rand(1000, 9999), 'status' => 'success'];
+    }
+    
+    public function createRefund(string $chargeId, int $amountInCents): array {
+        echo "💰 Stripe: Reembolsando {$amountInCents} centavos\\n";
+        return ['status' => 'refunded'];
+    }
+}
+
+// Proveedor 2: PayPal (API externa diferente)
+class PayPalSDK {
+    public function makePayment(array $data): string {
+        echo "💵 PayPal: Procesando pago de {$data['amount']} {$data['currency']}\\n";
+        return 'PAYPAL-' . rand(1000, 9999);
+    }
+    
+    public function refundTransaction(string $txId, array $details): bool {
+        echo "💸 PayPal: Reembolsando transacción {$txId}\\n";
+        return true;
+    }
+}
+
+// ✅ Adapter para Stripe
+class StripeAdapter implements PaymentGateway {
+    private ?string $lastTransactionId = null;
+    
+    public function __construct(private StripeAPI $stripe) {}
+    
+    public function processPayment(float $amount, string $currency): bool {
+        // Convertir a centavos (Stripe usa centavos)
+        $amountInCents = (int)($amount * 100);
+        
+        $result = $this->stripe->charge($amountInCents, strtoupper($currency));
+        $this->lastTransactionId = $result['id'];
+        
+        return $result['status'] === 'success';
+    }
+    
+    public function refund(string $transactionId, float $amount): bool {
+        $amountInCents = (int)($amount * 100);
+        $result = $this->stripe->createRefund($transactionId, $amountInCents);
+        
+        return $result['status'] === 'refunded';
+    }
+}
+
+// ✅ Adapter para PayPal
+class PayPalAdapter implements PaymentGateway {
+    public function __construct(private PayPalSDK $paypal) {}
+    
+    public function processPayment(float $amount, string $currency): bool {
+        $data = [
+            'amount' => $amount,
+            'currency' => $currency,
+            'description' => 'Payment'
+        ];
+        
+        $transactionId = $this->paypal->makePayment($data);
+        
+        return !empty($transactionId);
+    }
+    
+    public function refund(string $transactionId, float $amount): bool {
+        $details = ['amount' => $amount];
+        return $this->paypal->refundTransaction($transactionId, $details);
+    }
+}
+
+// Servicio que usa la interfaz común
+class CheckoutService {
+    public function __construct(private PaymentGateway $gateway) {}
+    
+    public function checkout(float $amount, string $currency): void {
+        echo "🛒 Procesando checkout de {$amount} {$currency}\\n";
+        
+        if ($this->gateway->processPayment($amount, $currency)) {
+            echo "✅ Pago exitoso\\n";
+        } else {
+            echo "❌ Pago fallido\\n";
+        }
+    }
+}
+
+// Uso: Mismo código, diferentes proveedores
+echo "=== Checkout con Stripe ===\\n";
+$stripeGateway = new StripeAdapter(new StripeAPI());
+$checkoutStripe = new CheckoutService($stripeGateway);
+$checkoutStripe->checkout(99.99, 'USD');
+
+echo "\\n=== Checkout con PayPal ===\\n";
+$paypalGateway = new PayPalAdapter(new PayPalSDK());
+$checkoutPaypal = new CheckoutService($paypalGateway);
+$checkoutPaypal->checkout(149.99, 'EUR');
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Adaptadores de Almacenamiento</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de almacenamiento con múltiples backends
+
+interface StorageInterface {
+    public function save(string $key, string $data): bool;
+    public function load(string $key): ?string;
+    public function delete(string $key): bool;
+    public function exists(string $key): bool;
+}
+
+// Backend 1: Sistema de archivos
+class FileSystem {
+    public function __construct(private string $basePath) {}
+    
+    public function writeFile(string $filename, string $content): void {
+        echo "📁 Escribiendo archivo: {$this->basePath}/{$filename}\\n";
+    }
+    
+    public function readFile(string $filename): string {
+        echo "📖 Leyendo archivo: {$this->basePath}/{$filename}\\n";
+        return "contenido del archivo";
+    }
+    
+    public function removeFile(string $filename): void {
+        echo "🗑️ Eliminando archivo: {$this->basePath}/{$filename}\\n";
+    }
+    
+    public function fileExists(string $filename): bool {
+        return true;
+    }
+}
+
+// Backend 2: Amazon S3
+class S3Client {
+    public function putObject(array $params): array {
+        echo "☁️ S3: Subiendo objeto {$params['Key']} al bucket {$params['Bucket']}\\n";
+        return ['status' => 'success'];
+    }
+    
+    public function getObject(array $params): array {
+        echo "☁️ S3: Descargando objeto {$params['Key']}\\n";
+        return ['Body' => 'contenido de S3'];
+    }
+    
+    public function deleteObject(array $params): void {
+        echo "☁️ S3: Eliminando objeto {$params['Key']}\\n";
+    }
+    
+    public function headObject(array $params): bool {
+        return true;
+    }
+}
+
+// ✅ Adapter para FileSystem
+class FileSystemAdapter implements StorageInterface {
+    public function __construct(private FileSystem $fs) {}
+    
+    public function save(string $key, string $data): bool {
+        $this->fs->writeFile($key, $data);
+        return true;
+    }
+    
+    public function load(string $key): ?string {
+        return $this->fs->readFile($key);
+    }
+    
+    public function delete(string $key): bool {
+        $this->fs->removeFile($key);
+        return true;
+    }
+    
+    public function exists(string $key): bool {
+        return $this->fs->fileExists($key);
+    }
+}
+
+// ✅ Adapter para S3
+class S3Adapter implements StorageInterface {
+    public function __construct(
+        private S3Client $s3,
+        private string $bucket
+    ) {}
+    
+    public function save(string $key, string $data): bool {
+        $result = $this->s3->putObject([
+            'Bucket' => $this->bucket,
+            'Key' => $key,
+            'Body' => $data
+        ]);
+        
+        return $result['status'] === 'success';
+    }
+    
+    public function load(string $key): ?string {
+        $result = $this->s3->getObject([
+            'Bucket' => $this->bucket,
+            'Key' => $key
+        ]);
+        
+        return $result['Body'] ?? null;
+    }
+    
+    public function delete(string $key): bool {
+        $this->s3->deleteObject([
+            'Bucket' => $this->bucket,
+            'Key' => $key
+        ]);
+        
+        return true;
+    }
+    
+    public function exists(string $key): bool {
+        return $this->s3->headObject([
+            'Bucket' => $this->bucket,
+            'Key' => $key
+        ]);
+    }
+}
+
+// Servicio que usa almacenamiento
+class DocumentService {
+    public function __construct(private StorageInterface $storage) {}
+    
+    public function saveDocument(string $id, string $content): void {
+        echo "📄 Guardando documento {$id}\\n";
+        $this->storage->save("doc_{$id}.txt", $content);
+    }
+    
+    public function loadDocument(string $id): ?string {
+        echo "📄 Cargando documento {$id}\\n";
+        return $this->storage->load("doc_{$id}.txt");
+    }
+}
+
+// Uso: Cambiar de backend sin modificar DocumentService
+echo "=== Usando FileSystem ===\\n";
+$fsStorage = new FileSystemAdapter(new FileSystem('/var/data'));
+$docService = new DocumentService($fsStorage);
+$docService->saveDocument('123', 'Contenido del documento');
+
+echo "\\n=== Usando S3 ===\\n";
+$s3Storage = new S3Adapter(new S3Client(), 'my-bucket');
+$docService2 = new DocumentService($s3Storage);
+$docService2->saveDocument('456', 'Contenido en la nube');
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Adaptador de API REST a GraphQL</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Adaptar una API REST legacy a GraphQL
+
+// Interfaz moderna que quieres usar
+interface UserRepository {
+    public function findById(int $id): array;
+    public function findByEmail(string $email): array;
+    public function create(array $data): array;
+}
+
+// API REST legacy (no puedes modificarla)
+class LegacyRestAPI {
+    public function get(string $endpoint): array {
+        echo "🌐 GET {$endpoint}\\n";
+        return ['id' => 1, 'name' => 'Juan', 'email' => 'juan@example.com'];
+    }
+    
+    public function post(string $endpoint, array $body): array {
+        echo "🌐 POST {$endpoint}\\n";
+        return array_merge(['id' => rand(100, 999)], $body);
+    }
+}
+
+// Nueva API GraphQL
+class GraphQLClient {
+    public function query(string $query, array $variables = []): array {
+        echo "🔷 GraphQL Query: {$query}\\n";
+        return ['data' => ['user' => ['id' => 1, 'name' => 'Ana', 'email' => 'ana@example.com']]];
+    }
+    
+    public function mutate(string $mutation, array $variables): array {
+        echo "🔷 GraphQL Mutation: {$mutation}\\n";
+        return ['data' => ['createUser' => array_merge(['id' => rand(100, 999)], $variables)]];
+    }
+}
+
+// ✅ Adapter para REST
+class RestUserAdapter implements UserRepository {
+    public function __construct(private LegacyRestAPI $api) {}
+    
+    public function findById(int $id): array {
+        return $this->api->get("/users/{$id}");
+    }
+    
+    public function findByEmail(string $email): array {
+        return $this->api->get("/users?email=" . urlencode($email));
+    }
+    
+    public function create(array $data): array {
+        return $this->api->post('/users', $data);
+    }
+}
+
+// ✅ Adapter para GraphQL
+class GraphQLUserAdapter implements UserRepository {
+    public function __construct(private GraphQLClient $client) {}
+    
+    public function findById(int $id): array {
+        $query = "query GetUser(\$id: ID!) { user(id: \$id) { id name email } }";
+        $result = $this->client->query($query, ['id' => $id]);
+        return $result['data']['user'];
+    }
+    
+    public function findByEmail(string $email): array {
+        $query = "query GetUserByEmail(\$email: String!) { user(email: \$email) { id name email } }";
+        $result = $this->client->query($query, ['email' => $email]);
+        return $result['data']['user'];
+    }
+    
+    public function create(array $data): array {
+        $mutation = "mutation CreateUser(\$name: String!, \$email: String!) { createUser(name: \$name, email: \$email) { id name email } }";
+        $result = $this->client->mutate($mutation, $data);
+        return $result['data']['createUser'];
+    }
+}
+
+// Servicio que usa el repositorio
+class UserService {
+    public function __construct(private UserRepository $repository) {}
+    
+    public function getUser(int $id): void {
+        $user = $this->repository->findById($id);
+        echo "👤 Usuario: {$user['name']} ({$user['email']})\\n";
+    }
+    
+    public function registerUser(string $name, string $email): void {
+        $user = $this->repository->create(['name' => $name, 'email' => $email]);
+        echo "✅ Usuario registrado con ID: {$user['id']}\\n";
+    }
+}
+
+// Uso: Migración gradual de REST a GraphQL
+echo "=== Usando API REST Legacy ===\\n";
+$restRepo = new RestUserAdapter(new LegacyRestAPI());
+$service1 = new UserService($restRepo);
+$service1->getUser(1);
+
+echo "\\n=== Usando GraphQL Moderno ===\\n";
+$graphqlRepo = new GraphQLUserAdapter(new GraphQLClient());
+$service2 = new UserService($graphqlRepo);
+$service2->getUser(1);
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Patrón Adapter:</strong><br>
+            • <strong>Reutilización</strong>: Usa código existente sin modificarlo<br>
+            • <strong>SRP</strong>: Separa la lógica de conversión de la lógica de negocio<br>
+            • <strong>OCP</strong>: Abierto a extensión, cerrado a modificación<br>
+            • <strong>Flexibilidad</strong>: Cambia implementaciones fácilmente<br>
+            • <strong>Integración</strong>: Integra librerías de terceros sin problemas<br>
+            • <strong>Testing</strong>: Fácil crear mocks del adaptador
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Complejidad</strong>: Añade una capa adicional<br>
+            • <strong>Overhead</strong>: Pequeña penalización de rendimiento<br>
+            • <strong>Mantenimiento</strong>: Más clases que mantener<br>
+            • <strong>Sobre-ingeniería</strong>: Puede ser excesivo para casos simples
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar Adapter:</strong><br>
+            • <strong>Librerías externas</strong>: Integrar APIs de terceros<br>
+            • <strong>Código legacy</strong>: Adaptar código antiguo a nuevas interfaces<br>
+            • <strong>Múltiples proveedores</strong>: Pagos, almacenamiento, notificaciones<br>
+            • <strong>Migración</strong>: Transición gradual entre sistemas<br>
+            • <strong>Interfaces incompatibles</strong>: Hacer trabajar juntas clases incompatibles<br>
+            • <strong>Testing</strong>: Aislar dependencias externas<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Puedes modificar directamente la clase original<br>
+            • La conversión es trivial (una línea)<br>
+            • Solo usarás la clase en un lugar<br>
+            • Añade complejidad innecesaria
+        </div>
+    `,
     'patron-decorator': `<h1>Patrón Decorator</h1><p>Contenido en desarrollo...</p>`,
     'patron-facade': `<h1>Patrón Facade</h1><p>Contenido en desarrollo...</p>`,
     'patron-bridge': `<h1>Patrón Bridge</h1><p>Contenido en desarrollo...</p>`,
