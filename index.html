@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fundamentos de PHP Avanzado - Documentación</title>
+    <title>Fullstack experto en prestashop, php y symfony: arquitecturas, patrones, docker, apis, testing, ci/cd y buenas prácticas - Documentación</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
                 <span></span>
                 <span></span>
             </button>
-            <h1 class="header-title">Fundamentos de PHP Avanzado</h1>
+            <h1 class="header-title">Fullstack experto en prestashop, php y symfony: arquitecturas, patrones, docker, apis, testing, ci/cd y buenas prácticas</h1>
         </div>
     </header>
 
@@ -233,6 +233,79 @@
                             <li><a href="#encriptacion-contrasenas-password-hasher" class="nav-link">Encriptación de Contraseñas (Password Hasher)</a></li>
                             <li><a href="#proteccion-csrf-headers" class="nav-link">Protección CSRF y Headers de Seguridad</a></li>
                             <li><a href="#autorizacion-roles-usuario" class="nav-link">Autorización y Roles de Usuario</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Desarrollo con PrestaShop -->
+                <div class="nav-section">
+                    <h2 class="nav-title">Desarrollo con PrestaShop</h2>
+                    
+                    <!-- Symfony Messenger y Colas de Mensajes -->
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="symfony-messenger">
+                            <span class="chevron">›</span>
+                            Symfony Messenger y Colas de Mensajes
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#conceptos-message-bus-handlers" class="nav-link">Conceptos de Message Bus, Messages y Handlers</a></li>
+                            <li><a href="#sincronizacion-asincronia-mensajes" class="nav-link">Sincronización y Asincronía de Mensajes</a></li>
+                            <li><a href="#integracion-colas-redis-rabbitmq" class="nav-link">Integración con Colas de Mensajes (Redis, RabbitMQ, SQS)</a></li>
+                            <li><a href="#workers-supervision" class="nav-link">Workers y Supervisión</a></li>
+                            <li><a href="#serializacion-mensajes" class="nav-link">Serialización de Mensajes</a></li>
+                            <li><a href="#middleware-messenger" class="nav-link">Middleware de Messenger</a></li>
+                            <li><a href="#fallos-reintentos-mensajes" class="nav-link">Fallos y Reintentos de Mensajes</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Arquitectura y Conceptos de PrestaShop -->
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="arquitectura-prestashop">
+                            <span class="chevron">›</span>
+                            Arquitectura y Conceptos de PrestaShop
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#ciclo-vida-peticiones-prestashop" class="nav-link">Ciclo de Vida de Peticiones en PrestaShop</a></li>
+                            <li><a href="#estructura-modulos-temas" class="nav-link">Estructura de Módulos y Temas</a></li>
+                            <li><a href="#overrides-clases-controladores" class="nav-link">Overrides de Clases, Controladores y Modelos</a></li>
+                            <li><a href="#hooks-eventos-prestashop" class="nav-link">Hooks y Eventos en PrestaShop</a></li>
+                            <li><a href="#modelo-datos-prestashop" class="nav-link">Modelo de Datos de PrestaShop y Clases Core</a></li>
+                            <li><a href="#configuracion-multitienda-multiidioma" class="nav-link">Configuración Multitienda y Multi-idioma</a></li>
+                            <li><a href="#cache-prestashop-smarty-apcu" class="nav-link">Caché de PrestaShop (Smarty, APCu, Memcached)</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Desarrollo de Módulos Avanzados -->
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="modulos-avanzados">
+                            <span class="chevron">›</span>
+                            Desarrollo de Módulos Avanzados
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#creacion-controladores-front-back" class="nav-link">Creación de Controladores Front Office y Back Office</a></li>
+                            <li><a href="#uso-orm-prestashop" class="nav-link">Uso del ORM de PrestaShop (ORM Core)</a></li>
+                            <li><a href="#configuracion-modulos-back-office" class="nav-link">Configuración de Módulos y Pestañas en el Back Office</a></li>
+                            <li><a href="#gestion-activos-css-js" class="nav-link">Gestión de Activos (CSS/JS) y Compilación</a></li>
+                            <li><a href="#internacionalizacion-traducciones-modulos" class="nav-link">Internacionalización y Traducciones en Módulos</a></li>
+                            <li><a href="#integracion-web-services-prestashop" class="nav-link">Integración con Web Services de PrestaShop</a></li>
+                            <li><a href="#buenas-practicas-estandares-modulos" class="nav-link">Buenas Prácticas y Estándares de Codificación para Módulos</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Desarrollo de Temas Personalizados -->
+                    <div class="nav-category">
+                        <button class="nav-category-title" data-category="temas-personalizados">
+                            <span class="chevron">›</span>
+                            Desarrollo de Temas Personalizados
+                        </button>
+                        <ul class="nav-items">
+                            <li><a href="#estructura-tema-classic-starter" class="nav-link">Estructura de un Tema (Classic, Starter Theme)</a></li>
+                            <li><a href="#sobreescritura-plantillas-smarty-twig" class="nav-link">Sobreescritura de Plantillas Smarty/Twig (PrestaShop 1.7+)</a></li>
+                            <li><a href="#integracion-modulos-tema" class="nav-link">Integración de Módulos en el Tema</a></li>
+                            <li><a href="#personalizacion-css-sass-javascript" class="nav-link">Personalización Avanzada de CSS (Sass/Less) y JavaScript</a></li>
+                            <li><a href="#optimizacion-rendimiento-tema" class="nav-link">Optimización de Rendimiento del Tema</a></li>
+                            <li><a href="#responsive-design-adaptacion-movil" class="nav-link">Responsive Design y Adaptación Móvil</a></li>
+                            <li><a href="#creacion-paginas-layouts-personalizados" class="nav-link">Creación de Páginas y Layouts Personalizados</a></li>
                         </ul>
                     </div>
                 </div>
