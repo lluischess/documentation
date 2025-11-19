@@ -7194,20 +7194,7979 @@ class HelperExtendido extends Helper {
     ...patronesDiseno,
     
     // Placeholders para secciones pendientes (a desarrollar)
-    'declaraciones-tipos': `<h1>Declaraciones de Tipos Escalares y de Retorno</h1><p>Contenido en desarrollo...</p>`,
-    'propiedades-promocionadas': `<h1>Propiedades Promocionadas en Constructores (PHP 8+)</h1><p>Ver la sección de Constructores para más detalles.</p>`,
-    'atributos': `<h1>Atributos (PHP 8+) y su uso</h1><p>Contenido en desarrollo...</p>`,
-    'enumeraciones': `<h1>Enumeraciones (Enums) (PHP 8.1+)</h1><p>Contenido en desarrollo...</p>`,
-    'principio-ocp': `<h1>Principio Abierto/Cerrado (OCP)</h1><p>Contenido en desarrollo...</p>`,
-    'principio-lsp': `<h1>Principio de Sustitución de Liskov (LSP)</h1><p>Contenido en desarrollo...</p>`,
-    'principio-isp': `<h1>Principio de Segregación de Interfaces (ISP)</h1><p>Contenido en desarrollo...</p>`,
-    'principio-dip': `<h1>Principio de Inversión de Dependencias (DIP)</h1><p>Contenido en desarrollo...</p>`,
-    'aplicacion-solid': `<h1>Aplicación de SOLID en PHP</h1><p>Contenido en desarrollo...</p>`,
-    'refactoring-solid': `<h1>Refactoring Basado en SOLID</h1><p>Contenido en desarrollo...</p>`,
-    'patron-singleton': `<h1>Patrón Singleton</h1><p>Contenido en desarrollo...</p>`,
-    'patron-factory': `<h1>Patrón Factory Method</h1><p>Contenido en desarrollo...</p>`,
-    'patron-abstract-factory': `<h1>Patrón Abstract Factory</h1><p>Contenido en desarrollo...</p>`,
-    'patron-builder': `<h1>Patrón Builder</h1><p>Contenido en desarrollo...</p>`,
+    'declaraciones-tipos': `
+        <h1>Declaraciones de Tipos Escalares y de Retorno</h1>
+        
+        <p>PHP permite declarar tipos para parámetros y valores de retorno, mejorando la seguridad y claridad del código.</p>
+
+        <h3>Strict Types</h3>
+        <div class="code-block"><pre><code>&lt;?php
+declare(strict_types=1);  // Activar modo estricto
+
+function sumar(int $a, int $b): int {
+    return $a + $b;
+}
+
+echo sumar(5, 3);      // ✅ 8
+// echo sumar(5.5, 3); // ❌ TypeError en modo estricto
+?&gt;</code></pre></div>
+
+        <h3>Tipos Escalares</h3>
+        <div class="code-block"><pre><code>&lt;?php
+function procesar(
+    int $entero,
+    float $decimal,
+    string $texto,
+    bool $bandera,
+    array $lista
+): void {
+    // Lógica aquí
+}
+
+procesar(10, 3.14, "Hola", true, [1, 2, 3]);
+?&gt;</code></pre></div>
+
+        <h3>Tipos de Retorno</h3>
+        <div class="code-block"><pre><code>&lt;?php
+function getNumero(): int {
+    return 42;
+}
+
+function getTexto(): string {
+    return "Hola";
+}
+
+function getNada(): void {
+    echo "Sin retorno";
+}
+
+function getPosibleNull(): ?string {
+    return null;  // Nullable
+}
+
+function getMultiple(): int|float {
+    return rand(0, 1) ? 10 : 3.14;  // Union type
+}
+?&gt;</code></pre></div>
+
+        <h3>Tipos Especiales (PHP 8+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// mixed: cualquier tipo
+function procesar(mixed $valor): mixed {
+    return $valor;
+}
+
+// never: nunca retorna
+function error(string $msg): never {
+    throw new Exception($msg);
+}
+
+// self: retorna instancia de la misma clase
+class Builder {
+    public function setNombre(string $n): self {
+        return $this;  // Chainable
+    }
+}
+?&gt;</code></pre></div>
+
+        <div class="info-box">
+            <strong>💡 Resumen Rápido:</strong><br>
+            • <code>declare(strict_types=1)</code>: Modo estricto<br>
+            • <strong>Escalares</strong>: int, float, string, bool, array<br>
+            • <strong>Nullable</strong>: <code>?Type</code> o <code>Type|null</code><br>
+            • <strong>Union</strong>: <code>int|float|string</code> (PHP 8.0+)<br>
+            • <strong>mixed</strong>: Cualquier tipo (PHP 8.0+)<br>
+            • <strong>void</strong>: Sin retorno<br>
+            • <strong>never</strong>: Nunca retorna (PHP 8.1+)<br>
+            • <strong>self</strong>: Retorna la misma clase
+        </div>
+    `,
+    'propiedades-promocionadas': `
+        <h1>Propiedades Promocionadas en Constructores (PHP 8+)</h1>
+        
+        <p>Las <strong>propiedades promocionadas</strong> permiten declarar y asignar propiedades directamente en el constructor, reduciendo código repetitivo.</p>
+
+        <div class="info-box">
+            <strong>💡 Ventajas:</strong><br>
+            • <strong>Menos código</strong>: Declaración y asignación en una línea<br>
+            • <strong>Más legible</strong>: Constructor más limpio y claro<br>
+            • <strong>Type hints</strong>: Tipos declarados directamente<br>
+            • <strong>Visibilidad</strong>: public, protected, private en el constructor<br>
+            • <strong>Readonly</strong>: Compatible con propiedades readonly (PHP 8.1+)
+        </div>
+
+        <h3>Antes vs Después (PHP 8.0+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ ANTES (PHP 7.x): Código repetitivo
+class Usuario {
+    private string $nombre;
+    private string $email;
+    private int $edad;
+    
+    public function __construct(string $nombre, string $email, int $edad) {
+        $this->nombre = $nombre;
+        $this->email = $email;
+        $this->edad = $edad;
+    }
+}
+
+// ✅ DESPUÉS (PHP 8.0+): Constructor Property Promotion
+class Usuario {
+    public function __construct(
+        private string $nombre,
+        private string $email,
+        private int $edad
+    ) {}
+}
+
+// Uso idéntico
+$usuario = new Usuario("Juan", "juan@example.com", 30);
+?&gt;</code></pre></div>
+
+        <h3>Con Diferentes Visibilidades</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Producto {
+    public function __construct(
+        public int $id,              // Público: accesible desde fuera
+        public string $nombre,       // Público
+        protected float $precio,     // Protegido: solo clase e hijas
+        private int $stock           // Privado: solo esta clase
+    ) {}
+    
+    public function getPrecio(): float {
+        return $this->precio;
+    }
+    
+    public function getStock(): int {
+        return $this->stock;
+    }
+}
+
+$producto = new Producto(1, "Laptop", 999.99, 10);
+echo $producto->id;      // ✅ OK: público
+echo $producto->nombre;  // ✅ OK: público
+// echo $producto->precio;  // ❌ Error: protegido
+// echo $producto->stock;   // ❌ Error: privado
+?&gt;</code></pre></div>
+
+        <h3>Con Readonly (PHP 8.1+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Pedido {
+    public function __construct(
+        public readonly int $id,
+        public readonly string $numero,
+        public readonly DateTime $fecha,
+        private float $total = 0
+    ) {}
+    
+    public function agregarTotal(float $monto): void {
+        $this->total += $monto;  // ✅ OK: no es readonly
+    }
+    
+    public function getTotal(): float {
+        return $this->total;
+    }
+}
+
+$pedido = new Pedido(1, "PED-001", new DateTime());
+echo $pedido->id;      // ✅ Leer: OK
+// $pedido->id = 2;    // ❌ Error: readonly no se puede modificar
+
+$pedido->agregarTotal(100);
+echo $pedido->getTotal();  // 100
+?&gt;</code></pre></div>
+
+        <h3>Combinando Promocionadas y Tradicionales</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Empleado {
+    // Propiedades tradicionales
+    private array $proyectos = [];
+    private DateTime $fechaContratacion;
+    
+    public function __construct(
+        // Propiedades promocionadas
+        public readonly int $id,
+        public readonly string $nombre,
+        private float $salario,
+        public string $departamento
+    ) {
+        // Lógica adicional en el constructor
+        $this->fechaContratacion = new DateTime();
+        $this->validarSalario();
+    }
+    
+    private function validarSalario(): void {
+        if ($this->salario < 0) {
+            throw new InvalidArgumentException("Salario no puede ser negativo");
+        }
+    }
+    
+    public function asignarProyecto(string $proyecto): void {
+        $this->proyectos[] = $proyecto;
+    }
+    
+    public function getSalario(): float {
+        return $this->salario;
+    }
+    
+    public function aumentarSalario(float $porcentaje): void {
+        $this->salario *= (1 + $porcentaje / 100);
+    }
+}
+
+$empleado = new Empleado(1, "Ana García", 50000, "IT");
+$empleado->asignarProyecto("Proyecto Alpha");
+$empleado->aumentarSalario(10);  // +10%
+echo $empleado->getSalario();  // 55000
+?&gt;</code></pre></div>
+
+        <h3>Con Valores por Defecto</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Configuracion {
+    public function __construct(
+        public string $nombre,
+        public string $entorno = 'production',
+        public bool $debug = false,
+        public int $timeout = 30,
+        public array $opciones = []
+    ) {}
+}
+
+// Todos los parámetros
+$config1 = new Configuracion("App", "development", true, 60, ['cache' => true]);
+
+// Solo obligatorios (usa valores por defecto)
+$config2 = new Configuracion("App");
+echo $config2->entorno;  // "production"
+echo $config2->debug ? 'true' : 'false';  // false
+echo $config2->timeout;  // 30
+
+// Algunos opcionales
+$config3 = new Configuracion("App", "staging", true);
+?&gt;</code></pre></div>
+
+        <h3>Con Named Arguments (PHP 8.0+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Notificacion {
+    public function __construct(
+        public string $titulo,
+        public string $mensaje,
+        public string $tipo = 'info',
+        public bool $urgente = false,
+        public ?DateTime $programada = null
+    ) {}
+}
+
+// Argumentos posicionales tradicionales
+$notif1 = new Notificacion("Alerta", "Mensaje importante", "warning", true);
+
+// Named arguments: más claro y flexible
+$notif2 = new Notificacion(
+    titulo: "Recordatorio",
+    mensaje: "Tienes una reunión",
+    urgente: true,
+    tipo: "info"
+);
+
+// Solo los necesarios
+$notif3 = new Notificacion(
+    titulo: "Info",
+    mensaje: "Todo OK"
+);
+
+// Saltar parámetros opcionales
+$notif4 = new Notificacion(
+    titulo: "Programada",
+    mensaje: "Enviar mañana",
+    programada: new DateTime('+1 day')
+);
+?&gt;</code></pre></div>
+
+        <h3>Clase Readonly Completa (PHP 8.2+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Todas las propiedades son readonly automáticamente
+readonly class Coordenada {
+    public function __construct(
+        public float $latitud,
+        public float $longitud,
+        public ?string $nombre = null
+    ) {
+        // Validación
+        if ($latitud < -90 || $latitud > 90) {
+            throw new InvalidArgumentException("Latitud inválida");
+        }
+        if ($longitud < -180 || $longitud > 180) {
+            throw new InvalidArgumentException("Longitud inválida");
+        }
+    }
+    
+    public function distanciaA(Coordenada $otra): float {
+        // Fórmula de Haversine simplificada
+        $deltaLat = deg2rad($otra->latitud - $this->latitud);
+        $deltaLon = deg2rad($otra->longitud - $this->longitud);
+        
+        $a = sin($deltaLat / 2) ** 2 +
+             cos(deg2rad($this->latitud)) * 
+             cos(deg2rad($otra->latitud)) *
+             sin($deltaLon / 2) ** 2;
+        
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return 6371 * $c;  // Radio de la Tierra en km
+    }
+}
+
+$madrid = new Coordenada(40.4168, -3.7038, "Madrid");
+$barcelona = new Coordenada(41.3851, 2.1734, "Barcelona");
+
+echo $madrid->distanciaA($barcelona);  // ~504 km
+
+// ❌ No se puede modificar (readonly)
+// $madrid->latitud = 50;  // Error
+?&gt;</code></pre></div>
+
+        <h3>Con Herencia</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Persona {
+    public function __construct(
+        public string $nombre,
+        public int $edad
+    ) {}
+}
+
+class Estudiante extends Persona {
+    public function __construct(
+        string $nombre,
+        int $edad,
+        public string $matricula,
+        public string $carrera
+    ) {
+        // Llamar al constructor padre
+        parent::__construct($nombre, $edad);
+    }
+    
+    public function getInfo(): string {
+        return "{$this->nombre} - {$this->carrera} ({$this->matricula})";
+    }
+}
+
+$estudiante = new Estudiante("Carlos", 20, "EST-2024-001", "Ingeniería");
+echo $estudiante->nombre;     // "Carlos" (heredado)
+echo $estudiante->matricula;  // "EST-2024-001"
+echo $estudiante->getInfo();  // "Carlos - Ingeniería (EST-2024-001)"
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de E-commerce</h3>
+        <div class="code-block"><pre><code>&lt;?php
+readonly class Direccion {
+    public function __construct(
+        public string $calle,
+        public string $ciudad,
+        public string $codigoPostal,
+        public string $pais = 'España'
+    ) {}
+    
+    public function formato(): string {
+        return "{$this->calle}, {$this->ciudad} {$this->codigoPostal}, {$this->pais}";
+    }
+}
+
+class Cliente {
+    private array $pedidos = [];
+    
+    public function __construct(
+        public readonly int $id,
+        public readonly string $nombre,
+        public readonly string $email,
+        public readonly Direccion $direccion,
+        private bool $activo = true
+    ) {}
+    
+    public function agregarPedido(Pedido $pedido): void {
+        $this->pedidos[] = $pedido;
+    }
+    
+    public function getPedidos(): array {
+        return $this->pedidos;
+    }
+    
+    public function isActivo(): bool {
+        return $this->activo;
+    }
+    
+    public function desactivar(): void {
+        $this->activo = false;
+    }
+}
+
+class ItemPedido {
+    public function __construct(
+        public readonly string $producto,
+        public readonly float $precio,
+        public readonly int $cantidad
+    ) {}
+    
+    public function getSubtotal(): float {
+        return $this->precio * $this->cantidad;
+    }
+}
+
+class Pedido {
+    private array $items = [];
+    
+    public function __construct(
+        public readonly int $id,
+        public readonly Cliente $cliente,
+        public readonly DateTime $fecha
+    ) {}
+    
+    public function agregarItem(ItemPedido $item): void {
+        $this->items[] = $item;
+    }
+    
+    public function getTotal(): float {
+        return array_reduce(
+            $this->items,
+            fn($total, $item) => $total + $item->getSubtotal(),
+            0
+        );
+    }
+    
+    public function getItems(): array {
+        return $this->items;
+    }
+}
+
+// Uso del sistema
+$direccion = new Direccion("Calle Mayor 1", "Madrid", "28001");
+$cliente = new Cliente(1, "Juan Pérez", "juan@example.com", $direccion);
+
+$pedido = new Pedido(1, $cliente, new DateTime());
+$pedido->agregarItem(new ItemPedido("Laptop", 999.99, 1));
+$pedido->agregarItem(new ItemPedido("Mouse", 29.99, 2));
+
+$cliente->agregarPedido($pedido);
+
+echo "Cliente: {$cliente->nombre}\\n";
+echo "Dirección: {$cliente->direccion->formato()}\\n";
+echo "Total pedido: €" . number_format($pedido->getTotal(), 2);
+// Cliente: Juan Pérez
+// Dirección: Calle Mayor 1, Madrid 28001, España
+// Total pedido: €1059.97
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Usa siempre</strong>: En PHP 8+ para constructores simples<br>
+            • <strong>Readonly</strong>: Combina con readonly para inmutabilidad<br>
+            • <strong>Visibilidad</strong>: Usa private/protected por defecto<br>
+            • <strong>Validación</strong>: Añade lógica de validación en el constructor<br>
+            • <strong>Named arguments</strong>: Combina con named arguments para claridad<br>
+            • <strong>DTOs</strong>: Perfecto para Data Transfer Objects<br>
+            • <strong>Value Objects</strong>: Ideal para objetos inmutables
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Limitaciones:</strong><br>
+            • NO puedes usar <code>var</code> (solo public, protected, private)<br>
+            • NO puedes declarar propiedades promocionadas como static<br>
+            • NO puedes usar el mismo nombre para promocionada y tradicional<br>
+            • Las propiedades promocionadas NO pueden tener valores calculados<br>
+            • Si necesitas lógica compleja, usa propiedades tradicionales
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Sintaxis</strong>: <code>public function __construct(private Type $prop) {}</code><br>
+            • <strong>PHP 8.0+</strong>: Constructor Property Promotion<br>
+            • <strong>PHP 8.1+</strong>: Compatible con readonly<br>
+            • <strong>PHP 8.2+</strong>: Clases readonly completas<br>
+            • <strong>Ventaja</strong>: Reduce código repetitivo hasta 70%<br>
+            • <strong>Uso ideal</strong>: DTOs, Value Objects, entidades simples
+        </div>
+    `,
+    'atributos': `
+        <h1>Atributos (PHP 8+) y su uso</h1>
+        
+        <p>Los <strong>atributos</strong> (anteriormente llamados "anotaciones") permiten añadir metadatos estructurados a clases, métodos, propiedades y parámetros. Son una alternativa moderna a los docblocks.</p>
+
+        <div class="info-box">
+            <strong>💡 Conceptos Clave:</strong><br>
+            • <strong>Metadatos estructurados</strong>: Información sobre el código<br>
+            • <strong>Sintaxis nativa</strong>: <code>#[Atributo]</code> en lugar de docblocks<br>
+            • <strong>Reflexión</strong>: Accesibles mediante Reflection API<br>
+            • <strong>Tipado</strong>: Clases PHP normales con validación<br>
+            • <strong>Múltiples targets</strong>: Clases, métodos, propiedades, parámetros, constantes
+        </div>
+
+        <h3>Sintaxis Básica</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Definir un atributo
+#[Attribute]
+class Ruta {
+    public function __construct(
+        public string $path,
+        public string $metodo = 'GET'
+    ) {}
+}
+
+// Usar el atributo
+#[Ruta('/usuarios', 'GET')]
+class UsuarioController {
+    #[Ruta('/usuarios/{id}', 'GET')]
+    public function mostrar(int $id) {
+        return "Usuario $id";
+    }
+    
+    #[Ruta('/usuarios', 'POST')]
+    public function crear() {
+        return "Crear usuario";
+    }
+}
+
+// Leer atributos con Reflection
+$reflection = new ReflectionClass(UsuarioController::class);
+$atributos = $reflection->getAttributes(Ruta::class);
+
+foreach ($atributos as $atributo) {
+    $instancia = $atributo->newInstance();
+    echo "{$instancia->metodo} {$instancia->path}\\n";
+}
+// GET /usuarios
+?&gt;</code></pre></div>
+
+        <h3>Targets de Atributos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Atributo solo para clases
+#[Attribute(Attribute::TARGET_CLASS)]
+class Entidad {
+    public function __construct(public string $tabla) {}
+}
+
+// Atributo solo para métodos
+#[Attribute(Attribute::TARGET_METHOD)]
+class Cache {
+    public function __construct(public int $ttl = 3600) {}
+}
+
+// Atributo solo para propiedades
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class Columna {
+    public function __construct(
+        public string $nombre,
+        public string $tipo = 'string'
+    ) {}
+}
+
+// Atributo para múltiples targets
+#[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
+class Deprecated {
+    public function __construct(public string $mensaje = '') {}
+}
+
+// Atributo repetible
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+class Validar {
+    public function __construct(public string $regla) {}
+}
+
+// Uso
+#[Entidad('usuarios')]
+class Usuario {
+    #[Columna('id', 'int')]
+    public int $id;
+    
+    #[Columna('nombre', 'string')]
+    public string $nombre;
+    
+    #[Deprecated('Usar getNombreCompleto()')]
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    #[Cache(ttl: 1800)]
+    #[Validar('required')]
+    #[Validar('min:3')]
+    #[Validar('max:50')]
+    public function getNombreCompleto(): string {
+        return $this->nombre;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>Atributos para Validación</h3>
+        <div class="code-block"><pre><code>&lt;?php
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class Required {
+    public function __construct(public string $mensaje = 'Campo requerido') {}
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class Email {
+    public function __construct(public string $mensaje = 'Email inválido') {}
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class MinLength {
+    public function __construct(
+        public int $min,
+        public string $mensaje = 'Muy corto'
+    ) {}
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class MaxLength {
+    public function __construct(
+        public int $max,
+        public string $mensaje = 'Muy largo'
+    ) {}
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class Range {
+    public function __construct(
+        public int $min,
+        public int $max,
+        public string $mensaje = 'Fuera de rango'
+    ) {}
+}
+
+class RegistroDTO {
+    #[Required]
+    #[MinLength(3, 'Nombre debe tener al menos 3 caracteres')]
+    #[MaxLength(50)]
+    public string $nombre;
+    
+    #[Required]
+    #[Email]
+    public string $email;
+    
+    #[Required]
+    #[MinLength(8, 'Password debe tener al menos 8 caracteres')]
+    public string $password;
+    
+    #[Range(18, 100, 'Edad debe estar entre 18 y 100')]
+    public int $edad;
+}
+
+// Validador simple
+class Validador {
+    public function validar(object $objeto): array {
+        $errores = [];
+        $reflection = new ReflectionClass($objeto);
+        
+        foreach ($reflection->getProperties() as $propiedad) {
+            $nombre = $propiedad->getName();
+            $valor = $propiedad->getValue($objeto);
+            
+            foreach ($propiedad->getAttributes() as $atributo) {
+                $instancia = $atributo->newInstance();
+                
+                if ($instancia instanceof Required && empty($valor)) {
+                    $errores[$nombre][] = $instancia->mensaje;
+                }
+                
+                if ($instancia instanceof Email && !filter_var($valor, FILTER_VALIDATE_EMAIL)) {
+                    $errores[$nombre][] = $instancia->mensaje;
+                }
+                
+                if ($instancia instanceof MinLength && strlen($valor) < $instancia->min) {
+                    $errores[$nombre][] = $instancia->mensaje;
+                }
+                
+                if ($instancia instanceof MaxLength && strlen($valor) > $instancia->max) {
+                    $errores[$nombre][] = $instancia->mensaje;
+                }
+                
+                if ($instancia instanceof Range) {
+                    if ($valor < $instancia->min || $valor > $instancia->max) {
+                        $errores[$nombre][] = $instancia->mensaje;
+                    }
+                }
+            }
+        }
+        
+        return $errores;
+    }
+}
+
+// Uso
+$registro = new RegistroDTO();
+$registro->nombre = "An";  // Muy corto
+$registro->email = "invalido";
+$registro->password = "123";  // Muy corto
+$registro->edad = 15;  // Fuera de rango
+
+$validador = new Validador();
+$errores = $validador->validar($registro);
+print_r($errores);
+?&gt;</code></pre></div>
+
+        <h3>Atributos para Routing</h3>
+        <div class="code-block"><pre><code>&lt;?php
+#[Attribute(Attribute::TARGET_CLASS)]
+class Controller {
+    public function __construct(public string $prefijo = '') {}
+}
+
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+class Route {
+    public function __construct(
+        public string $path,
+        public string $metodo = 'GET',
+        public string $nombre = ''
+    ) {}
+}
+
+#[Attribute(Attribute::TARGET_METHOD)]
+class Middleware {
+    public function __construct(public array $middlewares = []) {}
+}
+
+#[Controller('/api/productos')]
+class ProductoController {
+    #[Route('/', 'GET', 'productos.index')]
+    #[Middleware(['auth'])]
+    public function index() {
+        return ['productos' => []];
+    }
+    
+    #[Route('/{id}', 'GET', 'productos.show')]
+    #[Route('/{id}/detalles', 'GET')]
+    #[Middleware(['auth'])]
+    public function show(int $id) {
+        return ['producto' => ['id' => $id]];
+    }
+    
+    #[Route('/', 'POST', 'productos.store')]
+    #[Middleware(['auth', 'admin'])]
+    public function store() {
+        return ['mensaje' => 'Producto creado'];
+    }
+    
+    #[Route('/{id}', 'PUT', 'productos.update')]
+    #[Middleware(['auth', 'admin'])]
+    public function update(int $id) {
+        return ['mensaje' => "Producto $id actualizado"];
+    }
+    
+    #[Route('/{id}', 'DELETE', 'productos.destroy')]
+    #[Middleware(['auth', 'admin'])]
+    public function destroy(int $id) {
+        return ['mensaje' => "Producto $id eliminado"];
+    }
+}
+
+// Router simple
+class Router {
+    private array $rutas = [];
+    
+    public function registrarControlador(string $clase): void {
+        $reflection = new ReflectionClass($clase);
+        
+        // Obtener prefijo del controlador
+        $prefijo = '';
+        $atributosClase = $reflection->getAttributes(Controller::class);
+        if (!empty($atributosClase)) {
+            $prefijo = $atributosClase[0]->newInstance()->prefijo;
+        }
+        
+        // Registrar rutas de métodos
+        foreach ($reflection->getMethods() as $metodo) {
+            $atributosRuta = $metodo->getAttributes(Route::class);
+            
+            foreach ($atributosRuta as $atributoRuta) {
+                $ruta = $atributoRuta->newInstance();
+                $pathCompleto = $prefijo . $ruta->path;
+                
+                // Obtener middlewares
+                $middlewares = [];
+                $atributosMiddleware = $metodo->getAttributes(Middleware::class);
+                if (!empty($atributosMiddleware)) {
+                    $middlewares = $atributosMiddleware[0]->newInstance()->middlewares;
+                }
+                
+                $this->rutas[] = [
+                    'metodo' => $ruta->metodo,
+                    'path' => $pathCompleto,
+                    'nombre' => $ruta->nombre,
+                    'handler' => [$clase, $metodo->getName()],
+                    'middlewares' => $middlewares
+                ];
+            }
+        }
+    }
+    
+    public function getRutas(): array {
+        return $this->rutas;
+    }
+}
+
+// Uso
+$router = new Router();
+$router->registrarControlador(ProductoController::class);
+
+foreach ($router->getRutas() as $ruta) {
+    echo "{$ruta['metodo']} {$ruta['path']}";
+    if (!empty($ruta['middlewares'])) {
+        echo " [" . implode(', ', $ruta['middlewares']) . "]";
+    }
+    echo "\\n";
+}
+?&gt;</code></pre></div>
+
+        <h3>Atributos para ORM/Serialización</h3>
+        <div class="code-block"><pre><code>&lt;?php
+#[Attribute(Attribute::TARGET_CLASS)]
+class Table {
+    public function __construct(public string $nombre) {}
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class Column {
+    public function __construct(
+        public string $nombre,
+        public string $tipo = 'string',
+        public bool $nullable = false,
+        public bool $unique = false
+    ) {}
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class PrimaryKey {
+    public function __construct(public bool $autoIncrement = true) {}
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class JsonIgnore {}
+
+#[Table('usuarios')]
+class Usuario {
+    #[PrimaryKey]
+    #[Column('id', 'int')]
+    public int $id;
+    
+    #[Column('nombre', 'string', nullable: false)]
+    public string $nombre;
+    
+    #[Column('email', 'string', unique: true)]
+    public string $email;
+    
+    #[Column('password', 'string')]
+    #[JsonIgnore]  // No incluir en JSON
+    public string $password;
+    
+    #[Column('activo', 'bool')]
+    public bool $activo = true;
+    
+    #[Column('created_at', 'datetime')]
+    public DateTime $createdAt;
+}
+
+// Generador de SQL
+class SchemaGenerator {
+    public function generarCreateTable(string $clase): string {
+        $reflection = new ReflectionClass($clase);
+        
+        // Obtener nombre de tabla
+        $atributosTabla = $reflection->getAttributes(Table::class);
+        $nombreTabla = $atributosTabla[0]->newInstance()->nombre;
+        
+        $columnas = [];
+        
+        foreach ($reflection->getProperties() as $propiedad) {
+            $atributosColumna = $propiedad->getAttributes(Column::class);
+            if (empty($atributosColumna)) continue;
+            
+            $columna = $atributosColumna[0]->newInstance();
+            $sql = "{$columna->nombre} {$columna->tipo}";
+            
+            // Primary key
+            if (!empty($propiedad->getAttributes(PrimaryKey::class))) {
+                $sql .= " PRIMARY KEY";
+                $pk = $propiedad->getAttributes(PrimaryKey::class)[0]->newInstance();
+                if ($pk->autoIncrement) {
+                    $sql .= " AUTO_INCREMENT";
+                }
+            }
+            
+            if (!$columna->nullable) {
+                $sql .= " NOT NULL";
+            }
+            
+            if ($columna->unique) {
+                $sql .= " UNIQUE";
+            }
+            
+            $columnas[] = $sql;
+        }
+        
+        return "CREATE TABLE {$nombreTabla} (\\n  " . 
+               implode(",\\n  ", $columnas) . 
+               "\\n);";
+    }
+}
+
+// Serializador JSON
+class JsonSerializer {
+    public function toJson(object $objeto): string {
+        $reflection = new ReflectionClass($objeto);
+        $data = [];
+        
+        foreach ($reflection->getProperties() as $propiedad) {
+            // Ignorar propiedades con JsonIgnore
+            if (!empty($propiedad->getAttributes(JsonIgnore::class))) {
+                continue;
+            }
+            
+            $nombre = $propiedad->getName();
+            $valor = $propiedad->getValue($objeto);
+            
+            if ($valor instanceof DateTime) {
+                $valor = $valor->format('Y-m-d H:i:s');
+            }
+            
+            $data[$nombre] = $valor;
+        }
+        
+        return json_encode($data, JSON_PRETTY_PRINT);
+    }
+}
+
+// Uso
+$generator = new SchemaGenerator();
+echo $generator->generarCreateTable(Usuario::class);
+
+$usuario = new Usuario();
+$usuario->id = 1;
+$usuario->nombre = "Juan";
+$usuario->email = "juan@example.com";
+$usuario->password = "secret123";  // No aparecerá en JSON
+$usuario->createdAt = new DateTime();
+
+$serializer = new JsonSerializer();
+echo $serializer->toJson($usuario);
+?&gt;</code></pre></div>
+
+        <h3>Atributos Personalizados Avanzados</h3>
+        <div class="code-block"><pre><code>&lt;?php
+#[Attribute(Attribute::TARGET_METHOD)]
+class RateLimit {
+    public function __construct(
+        public int $maxIntentos,
+        public int $ventanaSegundos = 60
+    ) {}
+}
+
+#[Attribute(Attribute::TARGET_METHOD)]
+class RequiresPermission {
+    public function __construct(public string $permiso) {}
+}
+
+#[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
+class Log {
+    public function __construct(
+        public string $nivel = 'info',
+        public string $mensaje = ''
+    ) {}
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class Encrypt {}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class Computed {
+    public function __construct(public string $metodo) {}
+}
+
+#[Log('info', 'API de pagos')]
+class PagoController {
+    #[RateLimit(maxIntentos: 5, ventanaSegundos: 60)]
+    #[RequiresPermission('pagos.crear')]
+    #[Log('warning', 'Intento de pago')]
+    public function procesarPago(float $monto) {
+        return ['monto' => $monto, 'estado' => 'procesado'];
+    }
+}
+
+class DatosSensibles {
+    #[Encrypt]
+    public string $numeroTarjeta;
+    
+    #[Encrypt]
+    public string $cvv;
+    
+    public string $titular;
+    
+    #[Computed('calcularExpiracion')]
+    public ?DateTime $expiracion = null;
+    
+    private function calcularExpiracion(): DateTime {
+        return new DateTime('+5 years');
+    }
+}
+
+// Procesador de atributos
+class AttributeProcessor {
+    public function procesarObjeto(object $objeto): void {
+        $reflection = new ReflectionClass($objeto);
+        
+        foreach ($reflection->getProperties() as $propiedad) {
+            // Procesar Encrypt
+            if (!empty($propiedad->getAttributes(Encrypt::class))) {
+                $valor = $propiedad->getValue($objeto);
+                if ($valor) {
+                    $encriptado = base64_encode($valor);  // Simplificado
+                    $propiedad->setValue($objeto, $encriptado);
+                }
+            }
+            
+            // Procesar Computed
+            $atributosComputed = $propiedad->getAttributes(Computed::class);
+            if (!empty($atributosComputed)) {
+                $computed = $atributosComputed[0]->newInstance();
+                $metodo = $reflection->getMethod($computed->metodo);
+                $metodo->setAccessible(true);
+                $valor = $metodo->invoke($objeto);
+                $propiedad->setValue($objeto, $valor);
+            }
+        }
+    }
+}
+
+// Uso
+$datos = new DatosSensibles();
+$datos->numeroTarjeta = "4532123456789012";
+$datos->cvv = "123";
+$datos->titular = "Juan Pérez";
+
+$processor = new AttributeProcessor();
+$processor->procesarObjeto($datos);
+
+echo $datos->numeroTarjeta;  // NDUzMjEyMzQ1Njc4OTAxMg== (encriptado)
+echo $datos->expiracion->format('Y-m-d');  // Fecha calculada
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Usa atributos</strong>: En lugar de docblocks para metadatos<br>
+            • <strong>Define targets</strong>: Especifica dónde se puede usar el atributo<br>
+            • <strong>Valida en constructor</strong>: Valida parámetros del atributo<br>
+            • <strong>Nombra claramente</strong>: Nombres descriptivos y específicos<br>
+            • <strong>Documenta</strong>: Explica el propósito y uso del atributo<br>
+            • <strong>Combina con Reflection</strong>: Para leer y procesar atributos<br>
+            • <strong>Reutiliza</strong>: Crea bibliotecas de atributos comunes
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Consideraciones:</strong><br>
+            • Los atributos NO se ejecutan automáticamente<br>
+            • Necesitas Reflection API para leerlos<br>
+            • Impacto en rendimiento si usas mucha reflexión<br>
+            • NO reemplazan toda la funcionalidad de docblocks<br>
+            • Disponibles solo desde PHP 8.0+<br>
+            • Considera cachear resultados de reflexión
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Sintaxis</strong>: <code>#[Atributo(parametros)]</code><br>
+            • <strong>Definir</strong>: <code>#[Attribute]</code> en la clase<br>
+            • <strong>Targets</strong>: CLASS, METHOD, PROPERTY, PARAMETER, etc.<br>
+            • <strong>Repetible</strong>: <code>Attribute::IS_REPEATABLE</code><br>
+            • <strong>Leer</strong>: <code>$reflection->getAttributes()</code><br>
+            • <strong>Instanciar</strong>: <code>$atributo->newInstance()</code><br>
+            • <strong>Casos de uso</strong>: Routing, validación, ORM, serialización
+        </div>
+    `,
+    'enumeraciones': `
+        <h1>Enumeraciones (Enums) (PHP 8.1+)</h1>
+        
+        <p>Las <strong>enumeraciones</strong> permiten definir un tipo con un conjunto fijo de valores posibles. Son perfectas para representar estados, opciones o categorías.</p>
+
+        <div class="info-box">
+            <strong>💡 Conceptos Clave:</strong><br>
+            • <strong>Pure Enums</strong>: Sin valores asociados (solo nombres)<br>
+            • <strong>Backed Enums</strong>: Con valores string o int asociados<br>
+            • <strong>Type-safe</strong>: Validación de tipos en tiempo de compilación<br>
+            • <strong>Métodos</strong>: Pueden tener métodos propios<br>
+            • <strong>Interfaces</strong>: Pueden implementar interfaces
+        </div>
+
+        <h3>Pure Enums (Sin Valores)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Enum básico sin valores
+enum Estado {
+    case Pendiente;
+    case EnProceso;
+    case Completado;
+    case Cancelado;
+}
+
+// Uso
+function procesarPedido(Estado $estado): string {
+    return match($estado) {
+        Estado::Pendiente => "Esperando procesamiento",
+        Estado::EnProceso => "Procesando pedido",
+        Estado::Completado => "Pedido completado",
+        Estado::Cancelado => "Pedido cancelado"
+    };
+}
+
+$estado = Estado::Pendiente;
+echo procesarPedido($estado);  // "Esperando procesamiento"
+
+// Comparación
+if ($estado === Estado::Pendiente) {
+    echo "El pedido está pendiente";
+}
+
+// Obtener nombre
+echo $estado->name;  // "Pendiente"
+?&gt;</code></pre></div>
+
+        <h3>Backed Enums (Con Valores String)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+enum EstadoPedido: string {
+    case Pendiente = 'pending';
+    case EnProceso = 'processing';
+    case Completado = 'completed';
+    case Cancelado = 'cancelled';
+    case Reembolsado = 'refunded';
+}
+
+// Uso
+$estado = EstadoPedido::Pendiente;
+echo $estado->value;  // "pending"
+echo $estado->name;   // "Pendiente"
+
+// Crear desde valor
+$estadoDesdeDB = EstadoPedido::from('completed');
+echo $estadoDesdeDB->name;  // "Completado"
+
+// tryFrom: retorna null si no existe
+$estadoInvalido = EstadoPedido::tryFrom('invalid');
+var_dump($estadoInvalido);  // NULL
+
+// Guardar en base de datos
+function guardarPedido(int $id, EstadoPedido $estado): void {
+    $valorDB = $estado->value;  // 'pending', 'processing', etc.
+    echo "INSERT INTO pedidos (id, estado) VALUES ($id, '$valorDB')";
+}
+
+guardarPedido(1, EstadoPedido::Pendiente);
+?&gt;</code></pre></div>
+
+        <h3>Backed Enums (Con Valores Int)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+enum Prioridad: int {
+    case Baja = 1;
+    case Media = 2;
+    case Alta = 3;
+    case Urgente = 4;
+    case Critica = 5;
+}
+
+// Uso
+$prioridad = Prioridad::Alta;
+echo $prioridad->value;  // 3
+echo $prioridad->name;   // "Alta"
+
+// Comparación de valores
+if ($prioridad->value >= Prioridad::Alta->value) {
+    echo "Prioridad alta o superior";
+}
+
+// Crear desde valor
+$prioridadDesdeForm = Prioridad::from(4);
+echo $prioridadDesdeForm->name;  // "Urgente"
+
+// Ordenar por prioridad
+$tareas = [
+    ['nombre' => 'Tarea 1', 'prioridad' => Prioridad::Baja],
+    ['nombre' => 'Tarea 2', 'prioridad' => Prioridad::Urgente],
+    ['nombre' => 'Tarea 3', 'prioridad' => Prioridad::Media],
+];
+
+usort($tareas, fn($a, $b) => $b['prioridad']->value <=> $a['prioridad']->value);
+
+foreach ($tareas as $tarea) {
+    echo "{$tarea['nombre']}: {$tarea['prioridad']->name}\\n";
+}
+?&gt;</code></pre></div>
+
+        <h3>Enums con Métodos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+enum TipoUsuario: string {
+    case Admin = 'admin';
+    case Editor = 'editor';
+    case Autor = 'author';
+    case Suscriptor = 'subscriber';
+    
+    // Método para obtener permisos
+    public function getPermisos(): array {
+        return match($this) {
+            self::Admin => ['crear', 'editar', 'eliminar', 'publicar', 'gestionar_usuarios'],
+            self::Editor => ['crear', 'editar', 'eliminar', 'publicar'],
+            self::Autor => ['crear', 'editar'],
+            self::Suscriptor => ['leer']
+        };
+    }
+    
+    // Método para verificar permiso
+    public function tienePermiso(string $permiso): bool {
+        return in_array($permiso, $this->getPermisos());
+    }
+    
+    // Método para obtener label
+    public function getLabel(): string {
+        return match($this) {
+            self::Admin => 'Administrador',
+            self::Editor => 'Editor',
+            self::Autor => 'Autor',
+            self::Suscriptor => 'Suscriptor'
+        };
+    }
+    
+    // Método estático
+    public static function porDefecto(): self {
+        return self::Suscriptor;
+    }
+}
+
+// Uso
+$usuario = TipoUsuario::Editor;
+echo $usuario->getLabel();  // "Editor"
+
+if ($usuario->tienePermiso('publicar')) {
+    echo "Puede publicar";
+}
+
+$permisos = $usuario->getPermisos();
+print_r($permisos);  // ['crear', 'editar', 'eliminar', 'publicar']
+
+$nuevoUsuario = TipoUsuario::porDefecto();
+echo $nuevoUsuario->value;  // "subscriber"
+?&gt;</code></pre></div>
+
+        <h3>Enums con Interfaces</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Coloreable {
+    public function getColor(): string;
+    public function getIcono(): string;
+}
+
+enum EstadoTarea: string implements Coloreable {
+    case Pendiente = 'pending';
+    case EnProgreso = 'in_progress';
+    case Completada = 'completed';
+    case Bloqueada = 'blocked';
+    
+    public function getColor(): string {
+        return match($this) {
+            self::Pendiente => '#gray',
+            self::EnProgreso => '#blue',
+            self::Completada => '#green',
+            self::Bloqueada => '#red'
+        };
+    }
+    
+    public function getIcono(): string {
+        return match($this) {
+            self::Pendiente => '⏳',
+            self::EnProgreso => '🔄',
+            self::Completada => '✅',
+            self::Bloqueada => '🚫'
+        };
+    }
+    
+    public function puedeTransicionarA(self $nuevoEstado): bool {
+        return match($this) {
+            self::Pendiente => in_array($nuevoEstado, [self::EnProgreso, self::Bloqueada]),
+            self::EnProgreso => in_array($nuevoEstado, [self::Completada, self::Bloqueada]),
+            self::Bloqueada => $nuevoEstado === self::Pendiente,
+            self::Completada => false  // No se puede cambiar desde completada
+        };
+    }
+}
+
+// Uso
+$estado = EstadoTarea::EnProgreso;
+echo $estado->getIcono() . " " . $estado->name;  // "🔄 EnProgreso"
+echo "Color: " . $estado->getColor();  // "Color: #blue"
+
+// Validar transición
+if ($estado->puedeTransicionarA(EstadoTarea::Completada)) {
+    echo "Puede marcar como completada";
+}
+?&gt;</code></pre></div>
+
+        <h3>Listar Todos los Casos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+enum DiaSemana: int {
+    case Lunes = 1;
+    case Martes = 2;
+    case Miercoles = 3;
+    case Jueves = 4;
+    case Viernes = 5;
+    case Sabado = 6;
+    case Domingo = 7;
+    
+    public function esFinDeSemana(): bool {
+        return $this === self::Sabado || $this === self::Domingo;
+    }
+    
+    public function esLaboral(): bool {
+        return !$this->esFinDeSemana();
+    }
+}
+
+// Obtener todos los casos
+$dias = DiaSemana::cases();
+echo "Total de días: " . count($dias) . "\\n";
+
+foreach ($dias as $dia) {
+    $tipo = $dia->esLaboral() ? "Laboral" : "Fin de semana";
+    echo "{$dia->name} ({$dia->value}): {$tipo}\\n";
+}
+
+// Filtrar casos
+$diasLaborales = array_filter(
+    DiaSemana::cases(),
+    fn($dia) => $dia->esLaboral()
+);
+
+echo "Días laborales: " . count($diasLaborales);
+?&gt;</code></pre></div>
+
+        <h3>Enums en Clases</h3>
+        <div class="code-block"><pre><code>&lt;?php
+enum MetodoPago: string {
+    case Tarjeta = 'card';
+    case PayPal = 'paypal';
+    case Transferencia = 'transfer';
+    case Efectivo = 'cash';
+    case Cripto = 'crypto';
+    
+    public function getComision(): float {
+        return match($this) {
+            self::Tarjeta => 0.029,      // 2.9%
+            self::PayPal => 0.034,       // 3.4%
+            self::Transferencia => 0.01, // 1%
+            self::Efectivo => 0.0,       // 0%
+            self::Cripto => 0.015        // 1.5%
+        };
+    }
+    
+    public function requiereVerificacion(): bool {
+        return match($this) {
+            self::Tarjeta, self::Cripto => true,
+            default => false
+        };
+    }
+}
+
+class Pago {
+    public function __construct(
+        public readonly float $monto,
+        public readonly MetodoPago $metodo,
+        public readonly DateTime $fecha
+    ) {}
+    
+    public function calcularComision(): float {
+        return $this->monto * $this->metodo->getComision();
+    }
+    
+    public function getTotal(): float {
+        return $this->monto + $this->calcularComision();
+    }
+    
+    public function getDetalles(): array {
+        return [
+            'monto' => $this->monto,
+            'metodo' => $this->metodo->name,
+            'metodo_valor' => $this->metodo->value,
+            'comision' => $this->calcularComision(),
+            'total' => $this->getTotal(),
+            'requiere_verificacion' => $this->metodo->requiereVerificacion(),
+            'fecha' => $this->fecha->format('Y-m-d H:i:s')
+        ];
+    }
+}
+
+// Uso
+$pago = new Pago(100.0, MetodoPago::Tarjeta, new DateTime());
+echo "Total: $" . $pago->getTotal();  // $102.90
+echo "Comisión: $" . $pago->calcularComision();  // $2.90
+
+print_r($pago->getDetalles());
+?&gt;</code></pre></div>
+
+        <h3>Enums con Traits</h3>
+        <div class="code-block"><pre><code>&lt;?php
+trait EnumHelper {
+    public static function nombres(): array {
+        return array_map(fn($case) => $case->name, self::cases());
+    }
+    
+    public static function valores(): array {
+        return array_map(fn($case) => $case->value, self::cases());
+    }
+    
+    public static function opciones(): array {
+        $opciones = [];
+        foreach (self::cases() as $case) {
+            $opciones[$case->value] = $case->name;
+        }
+        return $opciones;
+    }
+    
+    public static function random(): self {
+        $cases = self::cases();
+        return $cases[array_rand($cases)];
+    }
+}
+
+enum Moneda: string {
+    use EnumHelper;
+    
+    case USD = 'usd';
+    case EUR = 'eur';
+    case GBP = 'gbp';
+    case JPY = 'jpy';
+    case MXN = 'mxn';
+    
+    public function getSimbolo(): string {
+        return match($this) {
+            self::USD => '$',
+            self::EUR => '€',
+            self::GBP => '£',
+            self::JPY => '¥',
+            self::MXN => '$'
+        };
+    }
+}
+
+// Uso del trait
+print_r(Moneda::nombres());   // ['USD', 'EUR', 'GBP', 'JPY', 'MXN']
+print_r(Moneda::valores());   // ['usd', 'eur', 'gbp', 'jpy', 'mxn']
+print_r(Moneda::opciones());  // ['usd' => 'USD', 'eur' => 'EUR', ...]
+
+$monedaAleatoria = Moneda::random();
+echo $monedaAleatoria->getSimbolo();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Pedidos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+enum EstadoPedido: string {
+    case Borrador = 'draft';
+    case Pendiente = 'pending';
+    case Confirmado = 'confirmed';
+    case Preparando = 'preparing';
+    case EnCamino = 'shipping';
+    case Entregado = 'delivered';
+    case Cancelado = 'cancelled';
+    case Devuelto = 'returned';
+    
+    public function getColor(): string {
+        return match($this) {
+            self::Borrador => 'gray',
+            self::Pendiente => 'yellow',
+            self::Confirmado => 'blue',
+            self::Preparando => 'cyan',
+            self::EnCamino => 'purple',
+            self::Entregado => 'green',
+            self::Cancelado => 'red',
+            self::Devuelto => 'orange'
+        };
+    }
+    
+    public function getDescripcion(): string {
+        return match($this) {
+            self::Borrador => 'Pedido en borrador',
+            self::Pendiente => 'Esperando confirmación de pago',
+            self::Confirmado => 'Pago confirmado, preparando envío',
+            self::Preparando => 'Preparando tu pedido',
+            self::EnCamino => 'Tu pedido está en camino',
+            self::Entregado => 'Pedido entregado',
+            self::Cancelado => 'Pedido cancelado',
+            self::Devuelto => 'Pedido devuelto'
+        };
+    }
+    
+    public function puedeTransicionarA(self $nuevo): bool {
+        return match($this) {
+            self::Borrador => in_array($nuevo, [self::Pendiente, self::Cancelado]),
+            self::Pendiente => in_array($nuevo, [self::Confirmado, self::Cancelado]),
+            self::Confirmado => in_array($nuevo, [self::Preparando, self::Cancelado]),
+            self::Preparando => in_array($nuevo, [self::EnCamino, self::Cancelado]),
+            self::EnCamino => in_array($nuevo, [self::Entregado]),
+            self::Entregado => in_array($nuevo, [self::Devuelto]),
+            self::Cancelado, self::Devuelto => false
+        };
+    }
+    
+    public function esEditable(): bool {
+        return in_array($this, [self::Borrador, self::Pendiente]);
+    }
+    
+    public function esCancelable(): bool {
+        return in_array($this, [
+            self::Borrador,
+            self::Pendiente,
+            self::Confirmado,
+            self::Preparando
+        ]);
+    }
+    
+    public function esFinal(): bool {
+        return in_array($this, [self::Entregado, self::Cancelado, self::Devuelto]);
+    }
+}
+
+class Pedido {
+    private EstadoPedido $estado;
+    private array $historialEstados = [];
+    
+    public function __construct(
+        public readonly int $id,
+        public readonly float $total
+    ) {
+        $this->estado = EstadoPedido::Borrador;
+        $this->registrarCambioEstado($this->estado);
+    }
+    
+    public function getEstado(): EstadoPedido {
+        return $this->estado;
+    }
+    
+    public function cambiarEstado(EstadoPedido $nuevoEstado): void {
+        if (!$this->estado->puedeTransicionarA($nuevoEstado)) {
+            throw new RuntimeException(
+                "No se puede cambiar de {$this->estado->name} a {$nuevoEstado->name}"
+            );
+        }
+        
+        $this->estado = $nuevoEstado;
+        $this->registrarCambioEstado($nuevoEstado);
+    }
+    
+    private function registrarCambioEstado(EstadoPedido $estado): void {
+        $this->historialEstados[] = [
+            'estado' => $estado,
+            'fecha' => new DateTime()
+        ];
+    }
+    
+    public function getHistorial(): array {
+        return $this->historialEstados;
+    }
+    
+    public function puedeEditar(): bool {
+        return $this->estado->esEditable();
+    }
+    
+    public function puedeCancelar(): bool {
+        return $this->estado->esCancelable();
+    }
+    
+    public function getInfo(): array {
+        return [
+            'id' => $this->id,
+            'total' => $this->total,
+            'estado' => $this->estado->name,
+            'estado_valor' => $this->estado->value,
+            'color' => $this->estado->getColor(),
+            'descripcion' => $this->estado->getDescripcion(),
+            'puede_editar' => $this->puedeEditar(),
+            'puede_cancelar' => $this->puedeCancelar(),
+            'es_final' => $this->estado->esFinal()
+        ];
+    }
+}
+
+// Uso
+$pedido = new Pedido(1, 150.00);
+echo "Estado inicial: {$pedido->getEstado()->name}\\n";
+
+try {
+    $pedido->cambiarEstado(EstadoPedido::Pendiente);
+    echo "✅ Cambio a Pendiente\\n";
+    
+    $pedido->cambiarEstado(EstadoPedido::Confirmado);
+    echo "✅ Cambio a Confirmado\\n";
+    
+    $pedido->cambiarEstado(EstadoPedido::Preparando);
+    echo "✅ Cambio a Preparando\\n";
+    
+    // Intentar cambio inválido
+    $pedido->cambiarEstado(EstadoPedido::Borrador);
+} catch (RuntimeException $e) {
+    echo "❌ Error: {$e->getMessage()}\\n";
+}
+
+print_r($pedido->getInfo());
+
+echo "\\nHistorial de estados:\\n";
+foreach ($pedido->getHistorial() as $registro) {
+    echo "- {$registro['estado']->name} ({$registro['fecha']->format('H:i:s')})\\n";
+}
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Mejores Prácticas:</strong><br>
+            • <strong>Usa Backed Enums</strong>: Para persistencia en BD (string o int)<br>
+            • <strong>Añade métodos</strong>: Encapsula lógica relacionada con el enum<br>
+            • <strong>Usa match</strong>: Perfecto para mapear casos a valores<br>
+            • <strong>Implementa interfaces</strong>: Para comportamiento común<br>
+            • <strong>Valida transiciones</strong>: En máquinas de estado<br>
+            • <strong>Documenta casos</strong>: Explica el significado de cada caso<br>
+            • <strong>Type hints</strong>: Usa enums en parámetros y retornos
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Limitaciones:</strong><br>
+            • Solo disponible desde PHP 8.1+<br>
+            • Los casos NO pueden ser dinámicos<br>
+            • Backed enums solo aceptan string o int (no float, bool, etc.)<br>
+            • NO puedes extender enums (no herencia)<br>
+            • Los valores deben ser únicos dentro del enum<br>
+            • NO puedes usar propiedades de instancia (solo métodos)
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Pure Enum</strong>: <code>enum Nombre { case Caso; }</code><br>
+            • <strong>Backed Enum</strong>: <code>enum Nombre: string { case Caso = 'valor'; }</code><br>
+            • <strong>Acceder</strong>: <code>$enum->name</code> y <code>$enum->value</code><br>
+            • <strong>Crear</strong>: <code>Enum::from('valor')</code> o <code>Enum::tryFrom('valor')</code><br>
+            • <strong>Listar</strong>: <code>Enum::cases()</code><br>
+            • <strong>Métodos</strong>: Pueden tener métodos públicos y estáticos<br>
+            • <strong>Interfaces</strong>: Pueden implementar interfaces<br>
+            • <strong>Uso ideal</strong>: Estados, opciones, categorías, máquinas de estado
+        </div>
+    `,
+    'principio-ocp': `
+        <h1>Principio Abierto/Cerrado (OCP)</h1>
+        
+        <p>El <strong>Principio Abierto/Cerrado</strong> establece que las clases deben estar <strong>abiertas para extensión</strong> pero <strong>cerradas para modificación</strong>. Debes poder añadir nueva funcionalidad sin cambiar el código existente.</p>
+
+        <div class="info-box">
+            <strong>💡 Conceptos Clave:</strong><br>
+            • <strong>Abierto para extensión</strong>: Puedes añadir nuevo comportamiento<br>
+            • <strong>Cerrado para modificación</strong>: No cambias código existente<br>
+            • <strong>Abstracción</strong>: Usa interfaces y clases abstractas<br>
+            • <strong>Polimorfismo</strong>: Diferentes implementaciones de la misma interfaz<br>
+            • <strong>Ventaja</strong>: Código más estable y menos propenso a bugs
+        </div>
+
+        <h3>❌ Violando OCP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// MAL: Cada vez que añades un tipo, debes modificar la clase
+class CalculadorDescuento {
+    public function calcular(string $tipoCliente, float $monto): float {
+        if ($tipoCliente === 'regular') {
+            return $monto * 0.05;  // 5%
+        } elseif ($tipoCliente === 'premium') {
+            return $monto * 0.10;  // 10%
+        } elseif ($tipoCliente === 'vip') {
+            return $monto * 0.20;  // 20%
+        }
+        // ❌ Para añadir 'gold', debes modificar esta clase
+        // elseif ($tipoCliente === 'gold') {
+        //     return $monto * 0.15;
+        // }
+        
+        return 0;
+    }
+}
+
+// Problema: Cada nuevo tipo requiere modificar el código existente
+$calc = new CalculadorDescuento();
+echo $calc->calcular('premium', 100);  // 10
+?&gt;</code></pre></div>
+
+        <h3>✅ Respetando OCP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// BIEN: Usa abstracción para permitir extensión sin modificación
+interface EstrategiaDescuento {
+    public function calcular(float $monto): float;
+    public function getNombre(): string;
+}
+
+class DescuentoRegular implements EstrategiaDescuento {
+    public function calcular(float $monto): float {
+        return $monto * 0.05;  // 5%
+    }
+    
+    public function getNombre(): string {
+        return 'Regular';
+    }
+}
+
+class DescuentoPremium implements EstrategiaDescuento {
+    public function calcular(float $monto): float {
+        return $monto * 0.10;  // 10%
+    }
+    
+    public function getNombre(): string {
+        return 'Premium';
+    }
+}
+
+class DescuentoVIP implements EstrategiaDescuento {
+    public function calcular(float $monto): float {
+        return $monto * 0.20;  // 20%
+    }
+    
+    public function getNombre(): string {
+        return 'VIP';
+    }
+}
+
+// ✅ Añadir nuevo tipo SIN modificar código existente
+class DescuentoGold implements EstrategiaDescuento {
+    public function calcular(float $monto): float {
+        return $monto * 0.15;  // 15%
+    }
+    
+    public function getNombre(): string {
+        return 'Gold';
+    }
+}
+
+class CalculadorDescuento {
+    public function __construct(
+        private EstrategiaDescuento $estrategia
+    ) {}
+    
+    public function calcular(float $monto): float {
+        return $this->estrategia->calcular($monto);
+    }
+}
+
+// Uso: Extensible sin modificar código existente
+$regular = new CalculadorDescuento(new DescuentoRegular());
+echo $regular->calcular(100);  // 5
+
+$gold = new CalculadorDescuento(new DescuentoGold());
+echo $gold->calcular(100);  // 15
+?&gt;</code></pre></div>
+
+        <h3>OCP con Clases Abstractas</h3>
+        <div class="code-block"><pre><code>&lt;?php
+abstract class Notificacion {
+    protected string $destinatario;
+    protected string $mensaje;
+    
+    public function __construct(string $destinatario, string $mensaje) {
+        $this->destinatario = $destinatario;
+        $this->mensaje = $mensaje;
+    }
+    
+    // Template method: cerrado para modificación
+    final public function enviar(): bool {
+        if (!$this->validar()) {
+            return false;
+        }
+        
+        $this->antesDeEnviar();
+        $resultado = $this->enviarMensaje();
+        $this->despuesDeEnviar($resultado);
+        
+        return $resultado;
+    }
+    
+    // Abierto para extensión: cada clase implementa su lógica
+    abstract protected function enviarMensaje(): bool;
+    
+    protected function validar(): bool {
+        return !empty($this->destinatario) && !empty($this->mensaje);
+    }
+    
+    protected function antesDeEnviar(): void {
+        // Hook opcional
+    }
+    
+    protected function despuesDeEnviar(bool $resultado): void {
+        // Hook opcional
+    }
+}
+
+class EmailNotificacion extends Notificacion {
+    protected function enviarMensaje(): bool {
+        echo "Enviando email a {$this->destinatario}: {$this->mensaje}\\n";
+        return true;
+    }
+    
+    protected function antesDeEnviar(): void {
+        echo "Preparando conexión SMTP...\\n";
+    }
+}
+
+class SMSNotificacion extends Notificacion {
+    protected function enviarMensaje(): bool {
+        echo "Enviando SMS a {$this->destinatario}: {$this->mensaje}\\n";
+        return true;
+    }
+}
+
+// ✅ Extensión: Nueva notificación sin modificar código existente
+class SlackNotificacion extends Notificacion {
+    protected function enviarMensaje(): bool {
+        echo "Enviando mensaje Slack a {$this->destinatario}: {$this->mensaje}\\n";
+        return true;
+    }
+    
+    protected function antesDeEnviar(): void {
+        echo "Conectando con API de Slack...\\n";
+    }
+}
+
+// Uso
+$email = new EmailNotificacion("user@example.com", "Hola");
+$email->enviar();
+
+$slack = new SlackNotificacion("@usuario", "Hola");
+$slack->enviar();
+?&gt;</code></pre></div>
+
+        <h3>OCP con Composición</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Filtro {
+    public function aplicar(array $items): array;
+}
+
+class FiltroActivos implements Filtro {
+    public function aplicar(array $items): array {
+        return array_filter($items, fn($item) => $item['activo'] === true);
+    }
+}
+
+class FiltroPorPrecio implements Filtro {
+    public function __construct(
+        private float $precioMinimo,
+        private float $precioMaximo
+    ) {}
+    
+    public function aplicar(array $items): array {
+        return array_filter($items, function($item) {
+            return $item['precio'] >= $this->precioMinimo 
+                && $item['precio'] <= $this->precioMaximo;
+        });
+    }
+}
+
+class FiltroPorCategoria implements Filtro {
+    public function __construct(private string $categoria) {}
+    
+    public function aplicar(array $items): array {
+        return array_filter($items, fn($item) => $item['categoria'] === $this->categoria);
+    }
+}
+
+// ✅ Extensión: Nuevo filtro sin modificar código existente
+class FiltroPorStock implements Filtro {
+    public function __construct(private int $stockMinimo) {}
+    
+    public function aplicar(array $items): array {
+        return array_filter($items, fn($item) => $item['stock'] >= $this->stockMinimo);
+    }
+}
+
+class BuscadorProductos {
+    private array $filtros = [];
+    
+    public function agregarFiltro(Filtro $filtro): self {
+        $this->filtros[] = $filtro;
+        return $this;
+    }
+    
+    public function buscar(array $productos): array {
+        $resultado = $productos;
+        
+        foreach ($this->filtros as $filtro) {
+            $resultado = $filtro->aplicar($resultado);
+        }
+        
+        return $resultado;
+    }
+}
+
+// Uso
+$productos = [
+    ['id' => 1, 'nombre' => 'Laptop', 'precio' => 1000, 'categoria' => 'tech', 'activo' => true, 'stock' => 5],
+    ['id' => 2, 'nombre' => 'Mouse', 'precio' => 25, 'categoria' => 'tech', 'activo' => true, 'stock' => 0],
+    ['id' => 3, 'nombre' => 'Silla', 'precio' => 150, 'categoria' => 'muebles', 'activo' => false, 'stock' => 10],
+    ['id' => 4, 'nombre' => 'Teclado', 'precio' => 75, 'categoria' => 'tech', 'activo' => true, 'stock' => 3],
+];
+
+$buscador = new BuscadorProductos();
+$resultado = $buscador
+    ->agregarFiltro(new FiltroActivos())
+    ->agregarFiltro(new FiltroPorCategoria('tech'))
+    ->agregarFiltro(new FiltroPorPrecio(50, 500))
+    ->agregarFiltro(new FiltroPorStock(1))
+    ->buscar($productos);
+
+print_r($resultado);  // Solo Teclado cumple todos los filtros
+?&gt;</code></pre></div>
+
+        <h3>OCP con Enums y Match (PHP 8.1+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface CalculadorImpuesto {
+    public function calcular(float $monto): float;
+}
+
+enum TipoImpuesto: string {
+    case IVA = 'iva';
+    case ISR = 'isr';
+    case IEPS = 'ieps';
+    case Exento = 'exento';
+    
+    public function getCalculador(): CalculadorImpuesto {
+        return match($this) {
+            self::IVA => new CalculadorIVA(),
+            self::ISR => new CalculadorISR(),
+            self::IEPS => new CalculadorIEPS(),
+            self::Exento => new CalculadorExento()
+        };
+    }
+}
+
+class CalculadorIVA implements CalculadorImpuesto {
+    public function calcular(float $monto): float {
+        return $monto * 0.16;  // 16%
+    }
+}
+
+class CalculadorISR implements CalculadorImpuesto {
+    public function calcular(float $monto): float {
+        return $monto * 0.30;  // 30%
+    }
+}
+
+class CalculadorIEPS implements CalculadorImpuesto {
+    public function calcular(float $monto): float {
+        return $monto * 0.08;  // 8%
+    }
+}
+
+class CalculadorExento implements CalculadorImpuesto {
+    public function calcular(float $monto): float {
+        return 0;
+    }
+}
+
+class Producto {
+    public function __construct(
+        public readonly string $nombre,
+        public readonly float $precio,
+        public readonly TipoImpuesto $tipoImpuesto
+    ) {}
+    
+    public function getPrecioConImpuesto(): float {
+        $calculador = $this->tipoImpuesto->getCalculador();
+        $impuesto = $calculador->calcular($this->precio);
+        return $this->precio + $impuesto;
+    }
+}
+
+// Uso
+$laptop = new Producto("Laptop", 1000, TipoImpuesto::IVA);
+echo $laptop->getPrecioConImpuesto();  // 1160
+
+$libro = new Producto("Libro", 100, TipoImpuesto::Exento);
+echo $libro->getPrecioConImpuesto();  // 100
+?&gt;</code></pre></div>
+
+        <h3>OCP con Decoradores</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Reporte {
+    public function generar(): string;
+}
+
+class ReporteBasico implements Reporte {
+    public function __construct(private array $datos) {}
+    
+    public function generar(): string {
+        return "Reporte: " . json_encode($this->datos);
+    }
+}
+
+// Decorador base
+abstract class DecoradorReporte implements Reporte {
+    public function __construct(protected Reporte $reporte) {}
+    
+    abstract public function generar(): string;
+}
+
+// ✅ Extensión: Añadir funcionalidad sin modificar código existente
+class ReporteConFecha extends DecoradorReporte {
+    public function generar(): string {
+        $fecha = date('Y-m-d H:i:s');
+        return "[{$fecha}] " . $this->reporte->generar();
+    }
+}
+
+class ReporteConEncabezado extends DecoradorReporte {
+    public function __construct(
+        Reporte $reporte,
+        private string $titulo
+    ) {
+        parent::__construct($reporte);
+    }
+    
+    public function generar(): string {
+        return "=== {$this->titulo} ===\\n" . $this->reporte->generar();
+    }
+}
+
+class ReporteConPie extends DecoradorReporte {
+    public function generar(): string {
+        return $this->reporte->generar() . "\\n--- Fin del reporte ---";
+    }
+}
+
+class ReporteHTML extends DecoradorReporte {
+    public function generar(): string {
+        $contenido = $this->reporte->generar();
+        return "<html><body><pre>{$contenido}</pre></body></html>";
+    }
+}
+
+// Uso: Combinar decoradores sin modificar código existente
+$datos = ['ventas' => 1000, 'gastos' => 500];
+$reporte = new ReporteBasico($datos);
+
+// Reporte simple
+echo $reporte->generar() . "\\n\\n";
+
+// Reporte decorado
+$reporteCompleto = new ReporteHTML(
+    new ReporteConPie(
+        new ReporteConFecha(
+            new ReporteConEncabezado($reporte, "Reporte Mensual")
+        )
+    )
+);
+
+echo $reporteCompleto->generar();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Pagos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface ProcesadorPago {
+    public function procesar(float $monto): bool;
+    public function getComision(): float;
+    public function getNombre(): string;
+}
+
+class PagoTarjeta implements ProcesadorPago {
+    public function procesar(float $monto): bool {
+        echo "Procesando pago con tarjeta: \${$monto}\\n";
+        return true;
+    }
+    
+    public function getComision(): float {
+        return 0.029;  // 2.9%
+    }
+    
+    public function getNombre(): string {
+        return 'Tarjeta de Crédito';
+    }
+}
+
+class PagoPayPal implements ProcesadorPago {
+    public function procesar(float $monto): bool {
+        echo "Procesando pago con PayPal: \${$monto}\\n";
+        return true;
+    }
+    
+    public function getComision(): float {
+        return 0.034;  // 3.4%
+    }
+    
+    public function getNombre(): string {
+        return 'PayPal';
+    }
+}
+
+// ✅ Extensión: Nuevos métodos de pago sin modificar código existente
+class PagoCripto implements ProcesadorPago {
+    public function __construct(private string $moneda = 'BTC') {}
+    
+    public function procesar(float $monto): bool {
+        echo "Procesando pago con {$this->moneda}: \${$monto}\\n";
+        return true;
+    }
+    
+    public function getComision(): float {
+        return 0.01;  // 1%
+    }
+    
+    public function getNombre(): string {
+        return "Criptomoneda ({$this->moneda})";
+    }
+}
+
+class PagoTransferencia implements ProcesadorPago {
+    public function procesar(float $monto): bool {
+        echo "Procesando transferencia bancaria: \${$monto}\\n";
+        return true;
+    }
+    
+    public function getComision(): float {
+        return 0.005;  // 0.5%
+    }
+    
+    public function getNombre(): string {
+        return 'Transferencia Bancaria';
+    }
+}
+
+// Clase cerrada para modificación, abierta para extensión
+class GestorPagos {
+    private array $historial = [];
+    
+    public function procesarPago(ProcesadorPago $procesador, float $monto): array {
+        $comision = $monto * $procesador->getComision();
+        $total = $monto + $comision;
+        
+        echo "Método: {$procesador->getNombre()}\\n";
+        echo "Monto: \${$monto}\\n";
+        echo "Comisión: \${$comision}\\n";
+        echo "Total: \${$total}\\n";
+        
+        $resultado = $procesador->procesar($total);
+        
+        $transaccion = [
+            'metodo' => $procesador->getNombre(),
+            'monto' => $monto,
+            'comision' => $comision,
+            'total' => $total,
+            'exitoso' => $resultado,
+            'fecha' => new DateTime()
+        ];
+        
+        $this->historial[] = $transaccion;
+        
+        return $transaccion;
+    }
+    
+    public function getHistorial(): array {
+        return $this->historial;
+    }
+    
+    public function getTotalProcesado(): float {
+        return array_reduce(
+            $this->historial,
+            fn($total, $t) => $total + ($t['exitoso'] ? $t['total'] : 0),
+            0
+        );
+    }
+}
+
+// Uso: Añadir nuevos métodos sin modificar GestorPagos
+$gestor = new GestorPagos();
+
+$gestor->procesarPago(new PagoTarjeta(), 100);
+echo "\\n";
+
+$gestor->procesarPago(new PagoPayPal(), 200);
+echo "\\n";
+
+$gestor->procesarPago(new PagoCripto('ETH'), 300);
+echo "\\n";
+
+$gestor->procesarPago(new PagoTransferencia(), 400);
+echo "\\n";
+
+echo "Total procesado: \$" . $gestor->getTotalProcesado();
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Cómo Aplicar OCP:</strong><br>
+            • <strong>Usa interfaces</strong>: Define contratos para comportamiento<br>
+            • <strong>Clases abstractas</strong>: Template methods para algoritmos comunes<br>
+            • <strong>Composición</strong>: Combina objetos en lugar de herencia<br>
+            • <strong>Strategy Pattern</strong>: Encapsula algoritmos intercambiables<br>
+            • <strong>Decorator Pattern</strong>: Añade funcionalidad dinámicamente<br>
+            • <strong>Dependency Injection</strong>: Inyecta dependencias abstractas<br>
+            • <strong>Evita if/switch</strong>: Usa polimorfismo en su lugar
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes:</strong><br>
+            • NO uses if/switch para determinar comportamiento<br>
+            • NO modifiques clases existentes para añadir funcionalidad<br>
+            • NO uses type checking (<code>instanceof</code>) para decidir lógica<br>
+            • EVITA clases con muchos métodos condicionales<br>
+            • NO sobre-ingenierices: aplica OCP cuando realmente lo necesites<br>
+            • REFACTORIZA código que viola OCP cuando añadas nueva funcionalidad
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Definición</strong>: Abierto para extensión, cerrado para modificación<br>
+            • <strong>Objetivo</strong>: Añadir funcionalidad sin cambiar código existente<br>
+            • <strong>Herramientas</strong>: Interfaces, clases abstractas, polimorfismo<br>
+            • <strong>Patrones</strong>: Strategy, Decorator, Template Method<br>
+            • <strong>Ventaja</strong>: Código más estable y mantenible<br>
+            • <strong>Señal de violación</strong>: Muchos if/switch basados en tipos<br>
+            • <strong>Solución</strong>: Reemplazar condicionales con polimorfismo
+        </div>
+    `,
+    'principio-lsp': `
+        <h1>Principio de Sustitución de Liskov (LSP)</h1>
+        
+        <p>El <strong>Principio de Sustitución de Liskov</strong> establece que los objetos de una clase derivada deben poder reemplazar objetos de la clase base sin alterar el comportamiento correcto del programa.</p>
+
+        <div class="info-box">
+            <strong>💡 Conceptos Clave:</strong><br>
+            • <strong>Sustituibilidad</strong>: Las subclases deben ser sustituibles por su clase base<br>
+            • <strong>Contratos</strong>: Las subclases deben respetar el contrato de la clase base<br>
+            • <strong>Precondiciones</strong>: No pueden ser más fuertes en subclases<br>
+            • <strong>Postcondiciones</strong>: No pueden ser más débiles en subclases<br>
+            • <strong>Invariantes</strong>: Deben mantenerse en toda la jerarquía
+        </div>
+
+        <h3>❌ Violando LSP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// MAL: La subclase no puede sustituir a la clase base
+class Rectangulo {
+    protected float $ancho;
+    protected float $alto;
+    
+    public function setAncho(float $ancho): void {
+        $this->ancho = $ancho;
+    }
+    
+    public function setAlto(float $alto): void {
+        $this->alto = $alto;
+    }
+    
+    public function getArea(): float {
+        return $this->ancho * $this->alto;
+    }
+}
+
+// ❌ Viola LSP: Un cuadrado no es un rectángulo en términos de comportamiento
+class Cuadrado extends Rectangulo {
+    public function setAncho(float $ancho): void {
+        $this->ancho = $ancho;
+        $this->alto = $ancho;  // ❌ Cambia el comportamiento esperado
+    }
+    
+    public function setAlto(float $alto): void {
+        $this->alto = $alto;
+        $this->ancho = $alto;  // ❌ Cambia el comportamiento esperado
+    }
+}
+
+// Problema: El código que funciona con Rectangulo falla con Cuadrado
+function probarRectangulo(Rectangulo $rect): void {
+    $rect->setAncho(5);
+    $rect->setAlto(4);
+    
+    // Esperamos área = 20, pero con Cuadrado será 16
+    echo "Área esperada: 20, Área real: " . $rect->getArea() . "\\n";
+}
+
+$rectangulo = new Rectangulo();
+probarRectangulo($rectangulo);  // ✅ OK: 20
+
+$cuadrado = new Cuadrado();
+probarRectangulo($cuadrado);  // ❌ FALLA: 16 (no 20)
+?&gt;</code></pre></div>
+
+        <h3>✅ Respetando LSP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// BIEN: Usa composición o interfaces separadas
+interface Forma {
+    public function getArea(): float;
+}
+
+class Rectangulo implements Forma {
+    public function __construct(
+        private float $ancho,
+        private float $alto
+    ) {}
+    
+    public function getArea(): float {
+        return $this->ancho * $this->alto;
+    }
+    
+    public function getAncho(): float {
+        return $this->ancho;
+    }
+    
+    public function getAlto(): float {
+        return $this->alto;
+    }
+}
+
+class Cuadrado implements Forma {
+    public function __construct(
+        private float $lado
+    ) {}
+    
+    public function getArea(): float {
+        return $this->lado * $this->lado;
+    }
+    
+    public function getLado(): float {
+        return $this->lado;
+    }
+}
+
+// Ahora funciona correctamente con cualquier Forma
+function calcularArea(Forma $forma): float {
+    return $forma->getArea();
+}
+
+$rectangulo = new Rectangulo(5, 4);
+echo calcularArea($rectangulo);  // 20
+
+$cuadrado = new Cuadrado(4);
+echo calcularArea($cuadrado);  // 16
+?&gt;</code></pre></div>
+
+        <h3>LSP con Excepciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ MAL: La subclase lanza excepciones que la clase base no lanza
+class CuentaBancaria {
+    protected float $saldo = 0;
+    
+    public function depositar(float $monto): void {
+        if ($monto <= 0) {
+            throw new InvalidArgumentException("Monto debe ser positivo");
+        }
+        $this->saldo += $monto;
+    }
+    
+    public function retirar(float $monto): void {
+        if ($monto <= 0) {
+            throw new InvalidArgumentException("Monto debe ser positivo");
+        }
+        if ($monto > $this->saldo) {
+            throw new RuntimeException("Saldo insuficiente");
+        }
+        $this->saldo -= $monto;
+    }
+    
+    public function getSaldo(): float {
+        return $this->saldo;
+    }
+}
+
+// ❌ Viola LSP: Añade restricciones que la clase base no tiene
+class CuentaAhorro extends CuentaBancaria {
+    private int $retirosHoy = 0;
+    private const MAX_RETIROS_DIA = 3;
+    
+    public function retirar(float $monto): void {
+        // ❌ Nueva excepción que la clase base no lanza
+        if ($this->retirosHoy >= self::MAX_RETIROS_DIA) {
+            throw new RuntimeException("Límite de retiros diarios alcanzado");
+        }
+        
+        parent::retirar($monto);
+        $this->retirosHoy++;
+    }
+}
+
+// ✅ BIEN: Usa composición o indica claramente las restricciones
+interface CuentaConLimites {
+    public function puedeRetirar(float $monto): bool;
+    public function getRetirosRestantes(): int;
+}
+
+class CuentaAhorroMejorada extends CuentaBancaria implements CuentaConLimites {
+    private int $retirosHoy = 0;
+    private const MAX_RETIROS_DIA = 3;
+    
+    public function puedeRetirar(float $monto): bool {
+        return $this->retirosHoy < self::MAX_RETIROS_DIA 
+            && $monto <= $this->getSaldo();
+    }
+    
+    public function getRetirosRestantes(): int {
+        return self::MAX_RETIROS_DIA - $this->retirosHoy;
+    }
+    
+    public function retirar(float $monto): void {
+        if (!$this->puedeRetirar($monto)) {
+            throw new RuntimeException("No se puede realizar el retiro");
+        }
+        
+        parent::retirar($monto);
+        $this->retirosHoy++;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>LSP con Precondiciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ MAL: La subclase fortalece las precondiciones
+abstract class Archivo {
+    abstract public function leer(string $ruta): string;
+}
+
+class ArchivoTexto extends Archivo {
+    public function leer(string $ruta): string {
+        return file_get_contents($ruta);
+    }
+}
+
+// ❌ Viola LSP: Requiere que la ruta termine en .txt
+class ArchivoTextoEstricto extends Archivo {
+    public function leer(string $ruta): string {
+        // ❌ Precondición más fuerte que la clase base
+        if (!str_ends_with($ruta, '.txt')) {
+            throw new InvalidArgumentException("Solo archivos .txt");
+        }
+        return file_get_contents($ruta);
+    }
+}
+
+// ✅ BIEN: Las subclases no fortalecen precondiciones
+abstract class ArchivoMejorado {
+    abstract public function leer(string $ruta): string;
+    abstract public function soporta(string $ruta): bool;
+}
+
+class ArchivoTextoMejorado extends ArchivoMejorado {
+    public function leer(string $ruta): string {
+        return file_get_contents($ruta);
+    }
+    
+    public function soporta(string $ruta): bool {
+        return str_ends_with($ruta, '.txt');
+    }
+}
+
+class ArchivoJSON extends ArchivoMejorado {
+    public function leer(string $ruta): string {
+        return file_get_contents($ruta);
+    }
+    
+    public function soporta(string $ruta): bool {
+        return str_ends_with($ruta, '.json');
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>LSP con Postcondiciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ BIEN: Las subclases respetan las postcondiciones
+interface Validador {
+    // Postcondición: debe retornar true si es válido, false si no
+    public function validar(string $valor): bool;
+}
+
+class ValidadorEmail implements Validador {
+    public function validar(string $valor): bool {
+        return filter_var($valor, FILTER_VALIDATE_EMAIL) !== false;
+    }
+}
+
+class ValidadorEmailEstricto implements Validador {
+    public function validar(string $valor): bool {
+        // ✅ Respeta la postcondición: retorna bool
+        if (!filter_var($valor, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+        
+        // Validación adicional pero mantiene el contrato
+        return !str_contains($valor, '+');
+    }
+}
+
+// ❌ MAL: Debilita la postcondición
+class ValidadorEmailRoto implements Validador {
+    public function validar(string $valor): bool {
+        // ❌ Puede lanzar excepción cuando no debería
+        if (empty($valor)) {
+            throw new InvalidArgumentException("Valor vacío");
+        }
+        return filter_var($valor, FILTER_VALIDATE_EMAIL) !== false;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>LSP con Invariantes</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ BIEN: Las subclases mantienen los invariantes
+abstract class Producto {
+    protected float $precio;
+    
+    public function __construct(float $precio) {
+        $this->setPrecio($precio);
+    }
+    
+    // Invariante: el precio siempre debe ser positivo
+    protected function setPrecio(float $precio): void {
+        if ($precio <= 0) {
+            throw new InvalidArgumentException("Precio debe ser positivo");
+        }
+        $this->precio = $precio;
+    }
+    
+    public function getPrecio(): float {
+        return $this->precio;
+    }
+    
+    abstract public function getPrecioFinal(): float;
+}
+
+class ProductoConDescuento extends Producto {
+    public function __construct(
+        float $precio,
+        private float $descuento = 0
+    ) {
+        parent::__construct($precio);
+        
+        if ($descuento < 0 || $descuento > 1) {
+            throw new InvalidArgumentException("Descuento debe estar entre 0 y 1");
+        }
+        $this->descuento = $descuento;
+    }
+    
+    public function getPrecioFinal(): float {
+        $precioFinal = $this->precio * (1 - $this->descuento);
+        // ✅ Mantiene el invariante: el precio final es positivo
+        return max($precioFinal, 0.01);
+    }
+}
+
+class ProductoConImpuesto extends Producto {
+    public function __construct(
+        float $precio,
+        private float $impuesto = 0.16
+    ) {
+        parent::__construct($precio);
+    }
+    
+    public function getPrecioFinal(): float {
+        // ✅ Mantiene el invariante: el precio final es positivo
+        return $this->precio * (1 + $this->impuesto);
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>LSP con Type Hints</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Notificacion {
+    public function enviar(string $mensaje): bool;
+}
+
+class EmailNotificacion implements Notificacion {
+    public function __construct(private string $email) {}
+    
+    public function enviar(string $mensaje): bool {
+        echo "Enviando email a {$this->email}: {$mensaje}\\n";
+        return true;
+    }
+}
+
+class SMSNotificacion implements Notificacion {
+    public function __construct(private string $telefono) {}
+    
+    public function enviar(string $mensaje): bool {
+        echo "Enviando SMS a {$this->telefono}: {$mensaje}\\n";
+        return true;
+    }
+}
+
+// ✅ Cualquier Notificacion puede usarse aquí (LSP)
+class NotificadorMasivo {
+    /** @var Notificacion[] */
+    private array $notificaciones = [];
+    
+    public function agregar(Notificacion $notificacion): void {
+        $this->notificaciones[] = $notificacion;
+    }
+    
+    public function enviarATodos(string $mensaje): int {
+        $enviados = 0;
+        
+        foreach ($this->notificaciones as $notificacion) {
+            // ✅ Todas las implementaciones respetan el contrato
+            if ($notificacion->enviar($mensaje)) {
+                $enviados++;
+            }
+        }
+        
+        return $enviados;
+    }
+}
+
+// Uso
+$notificador = new NotificadorMasivo();
+$notificador->agregar(new EmailNotificacion("user@example.com"));
+$notificador->agregar(new SMSNotificacion("+34123456789"));
+
+$enviados = $notificador->enviarATodos("Mensaje importante");
+echo "Enviados: {$enviados}\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Transporte</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Vehiculo {
+    public function arrancar(): bool;
+    public function detener(): bool;
+    public function getVelocidadMaxima(): int;
+}
+
+abstract class VehiculoBase implements Vehiculo {
+    protected bool $encendido = false;
+    protected int $velocidadActual = 0;
+    
+    public function arrancar(): bool {
+        if ($this->encendido) {
+            return false;
+        }
+        
+        $this->encendido = true;
+        echo get_class($this) . " arrancado\\n";
+        return true;
+    }
+    
+    public function detener(): bool {
+        if (!$this->encendido) {
+            return false;
+        }
+        
+        $this->velocidadActual = 0;
+        $this->encendido = false;
+        echo get_class($this) . " detenido\\n";
+        return true;
+    }
+    
+    public function estaEncendido(): bool {
+        return $this->encendido;
+    }
+    
+    public function getVelocidadActual(): int {
+        return $this->velocidadActual;
+    }
+    
+    abstract public function getVelocidadMaxima(): int;
+}
+
+class Coche extends VehiculoBase {
+    public function getVelocidadMaxima(): int {
+        return 180;  // km/h
+    }
+    
+    public function acelerar(int $incremento): void {
+        if (!$this->encendido) {
+            throw new RuntimeException("El coche debe estar encendido");
+        }
+        
+        $nuevaVelocidad = $this->velocidadActual + $incremento;
+        $this->velocidadActual = min($nuevaVelocidad, $this->getVelocidadMaxima());
+    }
+}
+
+class Bicicleta extends VehiculoBase {
+    public function getVelocidadMaxima(): int {
+        return 30;  // km/h
+    }
+    
+    // ✅ Respeta LSP: arrancar() funciona igual que en la clase base
+    public function arrancar(): bool {
+        // Las bicicletas no necesitan "arrancar" pero respetan el contrato
+        $this->encendido = true;
+        echo "Bicicleta lista para usar\\n";
+        return true;
+    }
+    
+    public function pedalear(int $intensidad): void {
+        if (!$this->encendido) {
+            throw new RuntimeException("La bicicleta debe estar lista");
+        }
+        
+        $incremento = $intensidad * 2;
+        $nuevaVelocidad = $this->velocidadActual + $incremento;
+        $this->velocidadActual = min($nuevaVelocidad, $this->getVelocidadMaxima());
+    }
+}
+
+class Moto extends VehiculoBase {
+    public function getVelocidadMaxima(): int {
+        return 200;  // km/h
+    }
+    
+    public function hacerCaballito(): bool {
+        if (!$this->encendido) {
+            return false;
+        }
+        
+        if ($this->velocidadActual < 30) {
+            return false;
+        }
+        
+        echo "¡Caballito!\\n";
+        return true;
+    }
+}
+
+// ✅ Función que respeta LSP: funciona con cualquier Vehiculo
+class SistemaTransporte {
+    public function iniciarViaje(Vehiculo $vehiculo): void {
+        echo "Iniciando viaje...\\n";
+        
+        if ($vehiculo->arrancar()) {
+            echo "Vehículo arrancado correctamente\\n";
+            echo "Velocidad máxima: {$vehiculo->getVelocidadMaxima()} km/h\\n";
+        }
+    }
+    
+    public function finalizarViaje(Vehiculo $vehiculo): void {
+        echo "Finalizando viaje...\\n";
+        
+        if ($vehiculo->detener()) {
+            echo "Vehículo detenido correctamente\\n";
+        }
+    }
+    
+    public function compararVehiculos(Vehiculo $v1, Vehiculo $v2): void {
+        echo "Comparando vehículos:\\n";
+        echo "Vehículo 1 - Velocidad máxima: {$v1->getVelocidadMaxima()} km/h\\n";
+        echo "Vehículo 2 - Velocidad máxima: {$v2->getVelocidadMaxima()} km/h\\n";
+        
+        if ($v1->getVelocidadMaxima() > $v2->getVelocidadMaxima()) {
+            echo "Vehículo 1 es más rápido\\n";
+        } else {
+            echo "Vehículo 2 es más rápido\\n";
+        }
+    }
+}
+
+// Uso: Todos los vehículos son sustituibles
+$sistema = new SistemaTransporte();
+
+$coche = new Coche();
+$sistema->iniciarViaje($coche);
+$sistema->finalizarViaje($coche);
+
+echo "\\n";
+
+$bici = new Bicicleta();
+$sistema->iniciarViaje($bici);
+$sistema->finalizarViaje($bici);
+
+echo "\\n";
+
+$moto = new Moto();
+$sistema->iniciarViaje($moto);
+$sistema->finalizarViaje($moto);
+
+echo "\\n";
+
+$sistema->compararVehiculos($coche, $moto);
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Cómo Aplicar LSP:</strong><br>
+            • <strong>Respeta contratos</strong>: Las subclases deben cumplir el contrato de la clase base<br>
+            • <strong>No fortalezcas precondiciones</strong>: No añadas restricciones en subclases<br>
+            • <strong>No debilites postcondiciones</strong>: Mantén las garantías de la clase base<br>
+            • <strong>Mantén invariantes</strong>: Las reglas de negocio deben mantenerse<br>
+            • <strong>Usa composición</strong>: Si no puedes sustituir, usa composición<br>
+            • <strong>Interfaces segregadas</strong>: Divide interfaces grandes en específicas<br>
+            • <strong>Piensa en comportamiento</strong>: No solo en estructura de datos
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Señales de Violación de LSP:</strong><br>
+            • Necesitas usar <code>instanceof</code> para verificar el tipo<br>
+            • Las subclases lanzan excepciones que la clase base no lanza<br>
+            • Las subclases tienen métodos vacíos o que lanzan NotImplementedException<br>
+            • Necesitas sobrescribir métodos para "desactivar" funcionalidad<br>
+            • El código cliente necesita conocer el tipo específico<br>
+            • Las pruebas fallan cuando usas subclases en lugar de la clase base
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Definición</strong>: Las subclases deben ser sustituibles por su clase base<br>
+            • <strong>Regla</strong>: Si S es subtipo de T, entonces T puede ser reemplazado por S<br>
+            • <strong>Precondiciones</strong>: No pueden ser más fuertes en subclases<br>
+            • <strong>Postcondiciones</strong>: No pueden ser más débiles en subclases<br>
+            • <strong>Invariantes</strong>: Deben mantenerse en toda la jerarquía<br>
+            • <strong>Beneficio</strong>: Código más robusto y predecible<br>
+            • <strong>Solución</strong>: Usa composición cuando la herencia no funciona
+        </div>
+    `,
+    'principio-isp': `
+        <h1>Principio de Segregación de Interfaces (ISP)</h1>
+        
+        <p>El <strong>Principio de Segregación de Interfaces</strong> establece que ningún cliente debe ser forzado a depender de métodos que no utiliza. Es mejor tener muchas interfaces específicas que una interfaz general.</p>
+
+        <div class="info-box">
+            <strong>💡 Conceptos Clave:</strong><br>
+            • <strong>Interfaces pequeñas</strong>: Cada interfaz debe tener un propósito específico<br>
+            • <strong>No forzar implementaciones</strong>: Los clientes solo implementan lo que necesitan<br>
+            • <strong>Cohesión</strong>: Métodos relacionados juntos en la misma interfaz<br>
+            • <strong>Composición</strong>: Combinar interfaces pequeñas según necesidad<br>
+            • <strong>Ventaja</strong>: Código más flexible y fácil de mantener
+        </div>
+
+        <h3>❌ Violando ISP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// MAL: Interfaz demasiado grande que fuerza implementaciones innecesarias
+interface Trabajador {
+    public function trabajar(): void;
+    public function comer(): void;
+    public function dormir(): void;
+    public function cobrarSalario(): void;
+    public function tomarVacaciones(): void;
+    public function asistirReunion(): void;
+}
+
+// ❌ Un robot no come, no duerme, no toma vacaciones
+class Robot implements Trabajador {
+    public function trabajar(): void {
+        echo "Robot trabajando\\n";
+    }
+    
+    // ❌ Implementaciones vacías o que lanzan excepciones
+    public function comer(): void {
+        throw new Exception("Los robots no comen");
+    }
+    
+    public function dormir(): void {
+        throw new Exception("Los robots no duermen");
+    }
+    
+    public function cobrarSalario(): void {
+        throw new Exception("Los robots no cobran salario");
+    }
+    
+    public function tomarVacaciones(): void {
+        throw new Exception("Los robots no toman vacaciones");
+    }
+    
+    public function asistirReunion(): void {
+        echo "Robot asistiendo a reunión\\n";
+    }
+}
+
+// ❌ Un empleado remoto no asiste a reuniones presenciales
+class EmpleadoRemoto implements Trabajador {
+    public function trabajar(): void {
+        echo "Trabajando remotamente\\n";
+    }
+    
+    public function comer(): void {
+        echo "Comiendo\\n";
+    }
+    
+    public function dormir(): void {
+        echo "Durmiendo\\n";
+    }
+    
+    public function cobrarSalario(): void {
+        echo "Cobrando salario\\n";
+    }
+    
+    public function tomarVacaciones(): void {
+        echo "De vacaciones\\n";
+    }
+    
+    // ❌ Implementación forzada
+    public function asistirReunion(): void {
+        throw new Exception("Empleado remoto no asiste presencialmente");
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>✅ Respetando ISP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// BIEN: Interfaces pequeñas y específicas
+interface Trabajable {
+    public function trabajar(): void;
+}
+
+interface Alimentable {
+    public function comer(): void;
+}
+
+interface Descansable {
+    public function dormir(): void;
+}
+
+interface Pagable {
+    public function cobrarSalario(): void;
+}
+
+interface Vacacionalable {
+    public function tomarVacaciones(): void;
+}
+
+interface AsistenteReuniones {
+    public function asistirReunion(): void;
+}
+
+// ✅ Robot solo implementa lo que necesita
+class Robot implements Trabajable, AsistenteReuniones {
+    public function trabajar(): void {
+        echo "Robot trabajando 24/7\\n";
+    }
+    
+    public function asistirReunion(): void {
+        echo "Robot asistiendo a reunión\\n";
+    }
+}
+
+// ✅ Empleado implementa lo que corresponde
+class Empleado implements Trabajable, Alimentable, Descansable, Pagable, Vacacionalable, AsistenteReuniones {
+    public function trabajar(): void {
+        echo "Empleado trabajando\\n";
+    }
+    
+    public function comer(): void {
+        echo "Empleado comiendo\\n";
+    }
+    
+    public function dormir(): void {
+        echo "Empleado durmiendo\\n";
+    }
+    
+    public function cobrarSalario(): void {
+        echo "Empleado cobrando salario\\n";
+    }
+    
+    public function tomarVacaciones(): void {
+        echo "Empleado de vacaciones\\n";
+    }
+    
+    public function asistirReunion(): void {
+        echo "Empleado en reunión\\n";
+    }
+}
+
+// ✅ Empleado remoto solo lo que necesita
+class EmpleadoRemoto implements Trabajable, Alimentable, Descansable, Pagable, Vacacionalable {
+    public function trabajar(): void {
+        echo "Trabajando remotamente\\n";
+    }
+    
+    public function comer(): void {
+        echo "Comiendo en casa\\n";
+    }
+    
+    public function dormir(): void {
+        echo "Durmiendo\\n";
+    }
+    
+    public function cobrarSalario(): void {
+        echo "Cobrando salario\\n";
+    }
+    
+    public function tomarVacaciones(): void {
+        echo "De vacaciones\\n";
+    }
+}
+
+// Uso flexible
+function iniciarTrabajo(Trabajable $trabajador): void {
+    $trabajador->trabajar();
+}
+
+function pagarSalario(Pagable $empleado): void {
+    $empleado->cobrarSalario();
+}
+
+$robot = new Robot();
+iniciarTrabajo($robot);  // ✅ OK
+
+$empleado = new Empleado();
+iniciarTrabajo($empleado);  // ✅ OK
+pagarSalario($empleado);    // ✅ OK
+
+// $robot no es Pagable, no se puede pasar a pagarSalario()
+?&gt;</code></pre></div>
+
+        <h3>ISP con Persistencia</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ MAL: Interfaz que obliga a implementar todo
+interface RepositorioCompleto {
+    public function crear(array $datos): int;
+    public function leer(int $id): ?array;
+    public function actualizar(int $id, array $datos): bool;
+    public function eliminar(int $id): bool;
+    public function buscar(array $criterios): array;
+    public function contar(): int;
+    public function paginar(int $pagina, int $porPagina): array;
+}
+
+// ✅ BIEN: Interfaces segregadas
+interface Creatable {
+    public function crear(array $datos): int;
+}
+
+interface Readable {
+    public function leer(int $id): ?array;
+}
+
+interface Updatable {
+    public function actualizar(int $id, array $datos): bool;
+}
+
+interface Deletable {
+    public function eliminar(int $id): bool;
+}
+
+interface Searchable {
+    public function buscar(array $criterios): array;
+}
+
+interface Countable {
+    public function contar(): int;
+}
+
+interface Paginable {
+    public function paginar(int $pagina, int $porPagina): array;
+}
+
+// ✅ Repositorio de solo lectura
+class RepositorioLectura implements Readable, Searchable, Countable {
+    public function leer(int $id): ?array {
+        echo "Leyendo registro {$id}\\n";
+        return ['id' => $id, 'nombre' => 'Ejemplo'];
+    }
+    
+    public function buscar(array $criterios): array {
+        echo "Buscando con criterios\\n";
+        return [];
+    }
+    
+    public function contar(): int {
+        return 100;
+    }
+}
+
+// ✅ Repositorio completo (CRUD)
+class RepositorioCRUD implements Creatable, Readable, Updatable, Deletable {
+    public function crear(array $datos): int {
+        echo "Creando registro\\n";
+        return 1;
+    }
+    
+    public function leer(int $id): ?array {
+        echo "Leyendo registro {$id}\\n";
+        return ['id' => $id];
+    }
+    
+    public function actualizar(int $id, array $datos): bool {
+        echo "Actualizando registro {$id}\\n";
+        return true;
+    }
+    
+    public function eliminar(int $id): bool {
+        echo "Eliminando registro {$id}\\n";
+        return true;
+    }
+}
+
+// ✅ Log de solo escritura
+class LogRepository implements Creatable {
+    public function crear(array $datos): int {
+        echo "Escribiendo log\\n";
+        return 1;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>ISP con Notificaciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ Interfaces específicas para cada capacidad
+interface Enviable {
+    public function enviar(string $destinatario, string $mensaje): bool;
+}
+
+interface Programable {
+    public function programar(string $destinatario, string $mensaje, DateTime $fecha): bool;
+}
+
+interface Masivo {
+    public function enviarMasivo(array $destinatarios, string $mensaje): int;
+}
+
+interface ConAdjuntos {
+    public function enviarConAdjunto(string $destinatario, string $mensaje, array $archivos): bool;
+}
+
+interface ConPlantillas {
+    public function enviarConPlantilla(string $destinatario, string $plantilla, array $datos): bool;
+}
+
+// ✅ Email soporta todo
+class EmailNotificacion implements Enviable, Programable, Masivo, ConAdjuntos, ConPlantillas {
+    public function enviar(string $destinatario, string $mensaje): bool {
+        echo "Enviando email a {$destinatario}\\n";
+        return true;
+    }
+    
+    public function programar(string $destinatario, string $mensaje, DateTime $fecha): bool {
+        echo "Programando email para {$fecha->format('Y-m-d H:i')}\\n";
+        return true;
+    }
+    
+    public function enviarMasivo(array $destinatarios, string $mensaje): int {
+        echo "Enviando a " . count($destinatarios) . " destinatarios\\n";
+        return count($destinatarios);
+    }
+    
+    public function enviarConAdjunto(string $destinatario, string $mensaje, array $archivos): bool {
+        echo "Enviando email con " . count($archivos) . " adjuntos\\n";
+        return true;
+    }
+    
+    public function enviarConPlantilla(string $destinatario, string $plantilla, array $datos): bool {
+        echo "Enviando email con plantilla {$plantilla}\\n";
+        return true;
+    }
+}
+
+// ✅ SMS solo soporta envío básico y masivo
+class SMSNotificacion implements Enviable, Masivo {
+    public function enviar(string $destinatario, string $mensaje): bool {
+        echo "Enviando SMS a {$destinatario}\\n";
+        return true;
+    }
+    
+    public function enviarMasivo(array $destinatarios, string $mensaje): int {
+        echo "Enviando SMS masivo\\n";
+        return count($destinatarios);
+    }
+}
+
+// ✅ Push solo envío básico
+class PushNotificacion implements Enviable {
+    public function enviar(string $destinatario, string $mensaje): bool {
+        echo "Enviando push a {$destinatario}\\n";
+        return true;
+    }
+}
+
+// Uso con type hints específicos
+function enviarNotificacion(Enviable $notificacion, string $dest, string $msg): void {
+    $notificacion->enviar($dest, $msg);
+}
+
+function programarNotificacion(Programable $notificacion, string $dest, string $msg, DateTime $fecha): void {
+    $notificacion->programar($dest, $msg, $fecha);
+}
+
+$email = new EmailNotificacion();
+$sms = new SMSNotificacion();
+$push = new PushNotificacion();
+
+enviarNotificacion($email, "user@example.com", "Hola");
+enviarNotificacion($sms, "+34123456789", "Hola");
+enviarNotificacion($push, "device-token", "Hola");
+
+programarNotificacion($email, "user@example.com", "Recordatorio", new DateTime('+1 day'));
+// programarNotificacion($sms, ...);  // ❌ Error: SMS no es Programable
+?&gt;</code></pre></div>
+
+        <h3>ISP con Documentos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+interface Imprimible {
+    public function imprimir(): string;
+}
+
+interface Exportable {
+    public function exportarPDF(): string;
+    public function exportarExcel(): string;
+}
+
+interface Firmable {
+    public function firmar(string $firma): bool;
+    public function verificarFirma(): bool;
+}
+
+interface Encriptable {
+    public function encriptar(string $clave): bool;
+    public function desencriptar(string $clave): string;
+}
+
+interface Versionable {
+    public function guardarVersion(): int;
+    public function restaurarVersion(int $version): bool;
+    public function getVersiones(): array;
+}
+
+// ✅ Documento simple: solo imprimible
+class DocumentoSimple implements Imprimible {
+    public function __construct(private string $contenido) {}
+    
+    public function imprimir(): string {
+        return "Imprimiendo: {$this->contenido}";
+    }
+}
+
+// ✅ Factura: imprimible y exportable
+class Factura implements Imprimible, Exportable {
+    public function __construct(
+        private float $total,
+        private string $cliente
+    ) {}
+    
+    public function imprimir(): string {
+        return "Factura para {$this->cliente}: \${$this->total}";
+    }
+    
+    public function exportarPDF(): string {
+        return "factura_{$this->cliente}.pdf";
+    }
+    
+    public function exportarExcel(): string {
+        return "factura_{$this->cliente}.xlsx";
+    }
+}
+
+// ✅ Contrato: todo
+class Contrato implements Imprimible, Exportable, Firmable, Encriptable, Versionable {
+    private array $versiones = [];
+    private ?string $firma = null;
+    private bool $encriptado = false;
+    
+    public function __construct(private string $contenido) {}
+    
+    public function imprimir(): string {
+        return "Contrato: {$this->contenido}";
+    }
+    
+    public function exportarPDF(): string {
+        return "contrato.pdf";
+    }
+    
+    public function exportarExcel(): string {
+        return "contrato.xlsx";
+    }
+    
+    public function firmar(string $firma): bool {
+        $this->firma = $firma;
+        return true;
+    }
+    
+    public function verificarFirma(): bool {
+        return $this->firma !== null;
+    }
+    
+    public function encriptar(string $clave): bool {
+        $this->encriptado = true;
+        return true;
+    }
+    
+    public function desencriptar(string $clave): string {
+        return $this->contenido;
+    }
+    
+    public function guardarVersion(): int {
+        $this->versiones[] = $this->contenido;
+        return count($this->versiones);
+    }
+    
+    public function restaurarVersion(int $version): bool {
+        if (isset($this->versiones[$version - 1])) {
+            $this->contenido = $this->versiones[$version - 1];
+            return true;
+        }
+        return false;
+    }
+    
+    public function getVersiones(): array {
+        return $this->versiones;
+    }
+}
+
+// Funciones que usan interfaces específicas
+function imprimirDocumento(Imprimible $doc): void {
+    echo $doc->imprimir() . "\\n";
+}
+
+function exportarDocumento(Exportable $doc): void {
+    echo "PDF: " . $doc->exportarPDF() . "\\n";
+    echo "Excel: " . $doc->exportarExcel() . "\\n";
+}
+
+function firmarDocumento(Firmable $doc, string $firma): void {
+    if ($doc->firmar($firma)) {
+        echo "Documento firmado\\n";
+    }
+}
+
+$simple = new DocumentoSimple("Texto simple");
+imprimirDocumento($simple);  // ✅ OK
+// exportarDocumento($simple);  // ❌ Error: no es Exportable
+
+$factura = new Factura(1000, "Juan");
+imprimirDocumento($factura);  // ✅ OK
+exportarDocumento($factura);  // ✅ OK
+// firmarDocumento($factura, "firma");  // ❌ Error: no es Firmable
+
+$contrato = new Contrato("Términos del contrato");
+imprimirDocumento($contrato);  // ✅ OK
+exportarDocumento($contrato);  // ✅ OK
+firmarDocumento($contrato, "Juan Pérez");  // ✅ OK
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de Medios</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Interfaces segregadas para diferentes capacidades
+interface Reproducible {
+    public function reproducir(): void;
+    public function pausar(): void;
+    public function detener(): void;
+}
+
+interface Descargable {
+    public function descargar(string $ruta): bool;
+}
+
+interface Compartible {
+    public function compartir(string $plataforma): string;
+}
+
+interface ConSubtitulos {
+    public function activarSubtitulos(string $idioma): bool;
+    public function desactivarSubtitulos(): bool;
+}
+
+interface ConCalidad {
+    public function cambiarCalidad(string $calidad): bool;
+    public function getCalidadesDisponibles(): array;
+}
+
+interface ConLista {
+    public function agregarALista(string $lista): bool;
+    public function quitarDeLista(string $lista): bool;
+}
+
+// ✅ Audio: reproducible, descargable, compartible
+class Audio implements Reproducible, Descargable, Compartible, ConLista {
+    public function __construct(private string $titulo) {}
+    
+    public function reproducir(): void {
+        echo "Reproduciendo audio: {$this->titulo}\\n";
+    }
+    
+    public function pausar(): void {
+        echo "Audio pausado\\n";
+    }
+    
+    public function detener(): void {
+        echo "Audio detenido\\n";
+    }
+    
+    public function descargar(string $ruta): bool {
+        echo "Descargando audio a {$ruta}\\n";
+        return true;
+    }
+    
+    public function compartir(string $plataforma): string {
+        return "https://{$plataforma}/audio/{$this->titulo}";
+    }
+    
+    public function agregarALista(string $lista): bool {
+        echo "Añadido a lista: {$lista}\\n";
+        return true;
+    }
+    
+    public function quitarDeLista(string $lista): bool {
+        echo "Quitado de lista: {$lista}\\n";
+        return true;
+    }
+}
+
+// ✅ Video: todas las capacidades
+class Video implements Reproducible, Descargable, Compartible, ConSubtitulos, ConCalidad, ConLista {
+    public function __construct(private string $titulo) {}
+    
+    public function reproducir(): void {
+        echo "Reproduciendo video: {$this->titulo}\\n";
+    }
+    
+    public function pausar(): void {
+        echo "Video pausado\\n";
+    }
+    
+    public function detener(): void {
+        echo "Video detenido\\n";
+    }
+    
+    public function descargar(string $ruta): bool {
+        echo "Descargando video a {$ruta}\\n";
+        return true;
+    }
+    
+    public function compartir(string $plataforma): string {
+        return "https://{$plataforma}/video/{$this->titulo}";
+    }
+    
+    public function activarSubtitulos(string $idioma): bool {
+        echo "Subtítulos activados: {$idioma}\\n";
+        return true;
+    }
+    
+    public function desactivarSubtitulos(): bool {
+        echo "Subtítulos desactivados\\n";
+        return true;
+    }
+    
+    public function cambiarCalidad(string $calidad): bool {
+        echo "Calidad cambiada a: {$calidad}\\n";
+        return true;
+    }
+    
+    public function getCalidadesDisponibles(): array {
+        return ['360p', '480p', '720p', '1080p', '4K'];
+    }
+    
+    public function agregarALista(string $lista): bool {
+        echo "Video añadido a lista: {$lista}\\n";
+        return true;
+    }
+    
+    public function quitarDeLista(string $lista): bool {
+        echo "Video quitado de lista: {$lista}\\n";
+        return true;
+    }
+}
+
+// ✅ Streaming en vivo: solo reproducible y con calidad
+class StreamingEnVivo implements Reproducible, ConCalidad, Compartible {
+    public function __construct(private string $canal) {}
+    
+    public function reproducir(): void {
+        echo "Viendo stream en vivo: {$this->canal}\\n";
+    }
+    
+    public function pausar(): void {
+        echo "No se puede pausar un stream en vivo\\n";
+    }
+    
+    public function detener(): void {
+        echo "Stream detenido\\n";
+    }
+    
+    public function cambiarCalidad(string $calidad): bool {
+        echo "Calidad del stream: {$calidad}\\n";
+        return true;
+    }
+    
+    public function getCalidadesDisponibles(): array {
+        return ['480p', '720p', '1080p'];
+    }
+    
+    public function compartir(string $plataforma): string {
+        return "https://{$plataforma}/live/{$this->canal}";
+    }
+}
+
+// Reproductor que usa interfaces específicas
+class ReproductorMultimedia {
+    public function reproducir(Reproducible $medio): void {
+        echo "=== Iniciando reproducción ===\\n";
+        $medio->reproducir();
+    }
+    
+    public function descargar(Descargable $medio, string $ruta): void {
+        echo "=== Iniciando descarga ===\\n";
+        $medio->descargar($ruta);
+    }
+    
+    public function configurarSubtitulos(ConSubtitulos $medio, string $idioma): void {
+        $medio->activarSubtitulos($idioma);
+    }
+    
+    public function compartirEnRedes(Compartible $medio): void {
+        echo "Facebook: " . $medio->compartir('facebook') . "\\n";
+        echo "Twitter: " . $medio->compartir('twitter') . "\\n";
+    }
+}
+
+// Uso
+$reproductor = new ReproductorMultimedia();
+
+$audio = new Audio("Canción.mp3");
+$reproductor->reproducir($audio);
+$reproductor->descargar($audio, "/descargas/");
+$reproductor->compartirEnRedes($audio);
+
+echo "\\n";
+
+$video = new Video("Película.mp4");
+$reproductor->reproducir($video);
+$reproductor->configurarSubtitulos($video, "es");
+$reproductor->descargar($video, "/descargas/");
+
+echo "\\n";
+
+$stream = new StreamingEnVivo("Canal Deportes");
+$reproductor->reproducir($stream);
+$reproductor->compartirEnRedes($stream);
+// $reproductor->descargar($stream, "/descargas/");  // ❌ Error: no es Descargable
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Cómo Aplicar ISP:</strong><br>
+            • <strong>Interfaces pequeñas</strong>: Una responsabilidad por interfaz<br>
+            • <strong>Composición</strong>: Combina múltiples interfaces según necesidad<br>
+            • <strong>Nombres descriptivos</strong>: El nombre debe indicar la capacidad<br>
+            • <strong>Cohesión</strong>: Métodos relacionados en la misma interfaz<br>
+            • <strong>Evita métodos vacíos</strong>: Si no implementas, no deberías tener la interfaz<br>
+            • <strong>Piensa en clientes</strong>: Diseña interfaces desde el punto de vista del usuario<br>
+            • <strong>Refactoriza</strong>: Divide interfaces grandes en específicas
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Señales de Violación de ISP:</strong><br>
+            • Métodos que lanzan <code>NotImplementedException</code><br>
+            • Implementaciones vacías o con comentarios "no aplicable"<br>
+            • Clases que implementan interfaces pero no usan todos los métodos<br>
+            • Interfaces con muchos métodos no relacionados<br>
+            • Necesitas implementar métodos que no tienen sentido para tu clase<br>
+            • Cambios en la interfaz afectan a clases que no usan esos métodos
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Definición</strong>: No forzar a depender de métodos no utilizados<br>
+            • <strong>Regla</strong>: Muchas interfaces específicas > Una interfaz general<br>
+            • <strong>Beneficio</strong>: Clases más simples y desacopladas<br>
+            • <strong>Técnica</strong>: Segregar interfaces por capacidades/roles<br>
+            • <strong>Composición</strong>: Una clase puede implementar múltiples interfaces<br>
+            • <strong>Type hints</strong>: Usa la interfaz más específica posible<br>
+            • <strong>Complementa OCP</strong>: Facilita extensión sin modificación
+        </div>
+    `,
+    'principio-dip': `
+        <h1>Principio de Inversión de Dependencias (DIP)</h1>
+        
+        <p>El <strong>Principio de Inversión de Dependencias</strong> establece que los módulos de alto nivel no deben depender de módulos de bajo nivel. Ambos deben depender de abstracciones. Las abstracciones no deben depender de detalles, los detalles deben depender de abstracciones.</p>
+
+        <div class="info-box">
+            <strong>💡 Conceptos Clave:</strong><br>
+            • <strong>Alto nivel</strong>: Lógica de negocio, casos de uso<br>
+            • <strong>Bajo nivel</strong>: Detalles de implementación (BD, APIs, archivos)<br>
+            • <strong>Abstracciones</strong>: Interfaces y clases abstractas<br>
+            • <strong>Inversión</strong>: Los detalles dependen de abstracciones, no al revés<br>
+            • <strong>Ventaja</strong>: Código desacoplado, testeable y flexible
+        </div>
+
+        <h3>❌ Violando DIP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// MAL: Clase de alto nivel depende directamente de implementaciones concretas
+class MySQLConnection {
+    public function connect(): void {
+        echo "Conectando a MySQL\\n";
+    }
+    
+    public function query(string $sql): array {
+        echo "Ejecutando query MySQL: {$sql}\\n";
+        return [];
+    }
+}
+
+// ❌ UsuarioService depende de MySQLConnection (detalle de implementación)
+class UsuarioService {
+    private MySQLConnection $db;
+    
+    public function __construct() {
+        // ❌ Acoplamiento fuerte: instancia directa
+        $this->db = new MySQLConnection();
+    }
+    
+    public function obtenerUsuario(int $id): array {
+        $this->db->connect();
+        return $this->db->query("SELECT * FROM usuarios WHERE id = {$id}");
+    }
+}
+
+// Problemas:
+// 1. No puedes cambiar a PostgreSQL sin modificar UsuarioService
+// 2. No puedes testear sin una BD real
+// 3. UsuarioService está acoplado a MySQL
+// 4. Difícil de extender o mantener
+
+$service = new UsuarioService();
+$usuario = $service->obtenerUsuario(1);
+?&gt;</code></pre></div>
+
+        <h3>✅ Respetando DIP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// BIEN: Definir abstracción (interfaz)
+interface DatabaseConnection {
+    public function connect(): void;
+    public function query(string $sql): array;
+}
+
+// Implementaciones concretas dependen de la abstracción
+class MySQLConnection implements DatabaseConnection {
+    public function connect(): void {
+        echo "Conectando a MySQL\\n";
+    }
+    
+    public function query(string $sql): array {
+        echo "Ejecutando query MySQL: {$sql}\\n";
+        return [];
+    }
+}
+
+class PostgreSQLConnection implements DatabaseConnection {
+    public function connect(): void {
+        echo "Conectando a PostgreSQL\\n";
+    }
+    
+    public function query(string $sql): array {
+        echo "Ejecutando query PostgreSQL: {$sql}\\n";
+        return [];
+    }
+}
+
+// ✅ Clase de alto nivel depende de abstracción
+class UsuarioService {
+    // Inyección de dependencia: recibe la abstracción
+    public function __construct(
+        private DatabaseConnection $db
+    ) {}
+    
+    public function obtenerUsuario(int $id): array {
+        $this->db->connect();
+        return $this->db->query("SELECT * FROM usuarios WHERE id = {$id}");
+    }
+}
+
+// Uso: Inyectamos la implementación concreta
+$mysqlDb = new MySQLConnection();
+$service1 = new UsuarioService($mysqlDb);
+$service1->obtenerUsuario(1);
+
+// Fácil cambiar a PostgreSQL
+$postgresDb = new PostgreSQLConnection();
+$service2 = new UsuarioService($postgresDb);
+$service2->obtenerUsuario(1);
+
+// Fácil testear con mock
+class MockConnection implements DatabaseConnection {
+    public function connect(): void {}
+    public function query(string $sql): array {
+        return ['id' => 1, 'nombre' => 'Test'];
+    }
+}
+
+$mockDb = new MockConnection();
+$serviceTest = new UsuarioService($mockDb);
+?&gt;</code></pre></div>
+
+        <h3>DIP con Repositorios</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Abstracción de repositorio
+interface UsuarioRepository {
+    public function buscarPorId(int $id): ?array;
+    public function guardar(array $datos): int;
+    public function eliminar(int $id): bool;
+}
+
+// Implementación con MySQL
+class MySQLUsuarioRepository implements UsuarioRepository {
+    public function __construct(
+        private DatabaseConnection $db
+    ) {}
+    
+    public function buscarPorId(int $id): ?array {
+        $resultado = $this->db->query("SELECT * FROM usuarios WHERE id = {$id}");
+        return $resultado[0] ?? null;
+    }
+    
+    public function guardar(array $datos): int {
+        echo "Guardando en MySQL\\n";
+        return 1;
+    }
+    
+    public function eliminar(int $id): bool {
+        echo "Eliminando de MySQL\\n";
+        return true;
+    }
+}
+
+// Implementación con API REST
+class APIUsuarioRepository implements UsuarioRepository {
+    public function __construct(
+        private string $apiUrl
+    ) {}
+    
+    public function buscarPorId(int $id): ?array {
+        echo "GET {$this->apiUrl}/usuarios/{$id}\\n";
+        return ['id' => $id, 'nombre' => 'Usuario API'];
+    }
+    
+    public function guardar(array $datos): int {
+        echo "POST {$this->apiUrl}/usuarios\\n";
+        return 1;
+    }
+    
+    public function eliminar(int $id): bool {
+        echo "DELETE {$this->apiUrl}/usuarios/{$id}\\n";
+        return true;
+    }
+}
+
+// Implementación en memoria (para tests)
+class InMemoryUsuarioRepository implements UsuarioRepository {
+    private array $usuarios = [];
+    private int $nextId = 1;
+    
+    public function buscarPorId(int $id): ?array {
+        return $this->usuarios[$id] ?? null;
+    }
+    
+    public function guardar(array $datos): int {
+        $id = $this->nextId++;
+        $this->usuarios[$id] = array_merge(['id' => $id], $datos);
+        return $id;
+    }
+    
+    public function eliminar(int $id): bool {
+        if (isset($this->usuarios[$id])) {
+            unset($this->usuarios[$id]);
+            return true;
+        }
+        return false;
+    }
+}
+
+// ✅ Caso de uso depende de abstracción
+class CrearUsuarioUseCase {
+    public function __construct(
+        private UsuarioRepository $repository
+    ) {}
+    
+    public function ejecutar(string $nombre, string $email): int {
+        $datos = ['nombre' => $nombre, 'email' => $email];
+        return $this->repository->guardar($datos);
+    }
+}
+
+// Uso flexible
+$mysqlRepo = new MySQLUsuarioRepository(new MySQLConnection());
+$useCase1 = new CrearUsuarioUseCase($mysqlRepo);
+$useCase1->ejecutar("Juan", "juan@example.com");
+
+$apiRepo = new APIUsuarioRepository("https://api.example.com");
+$useCase2 = new CrearUsuarioUseCase($apiRepo);
+$useCase2->ejecutar("Ana", "ana@example.com");
+
+$memoryRepo = new InMemoryUsuarioRepository();
+$useCase3 = new CrearUsuarioUseCase($memoryRepo);
+$useCase3->ejecutar("Test", "test@example.com");
+?&gt;</code></pre></div>
+
+        <h3>DIP con Servicios Externos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Abstracción para envío de emails
+interface EmailSender {
+    public function enviar(string $destinatario, string $asunto, string $cuerpo): bool;
+}
+
+// Implementación con SMTP
+class SMTPEmailSender implements EmailSender {
+    public function __construct(
+        private string $host,
+        private int $port,
+        private string $usuario,
+        private string $password
+    ) {}
+    
+    public function enviar(string $destinatario, string $asunto, string $cuerpo): bool {
+        echo "Enviando email vía SMTP ({$this->host}:{$this->port})\\n";
+        echo "Para: {$destinatario}\\n";
+        echo "Asunto: {$asunto}\\n";
+        return true;
+    }
+}
+
+// Implementación con API (SendGrid, Mailgun, etc.)
+class APIEmailSender implements EmailSender {
+    public function __construct(
+        private string $apiKey,
+        private string $apiUrl
+    ) {}
+    
+    public function enviar(string $destinatario, string $asunto, string $cuerpo): bool {
+        echo "Enviando email vía API ({$this->apiUrl})\\n";
+        echo "Para: {$destinatario}\\n";
+        echo "Asunto: {$asunto}\\n";
+        return true;
+    }
+}
+
+// Implementación para desarrollo/testing
+class LogEmailSender implements EmailSender {
+    public function enviar(string $destinatario, string $asunto, string $cuerpo): bool {
+        echo "[LOG] Email para {$destinatario}: {$asunto}\\n";
+        return true;
+    }
+}
+
+// ✅ Servicio de notificaciones depende de abstracción
+class NotificacionService {
+    public function __construct(
+        private EmailSender $emailSender
+    ) {}
+    
+    public function notificarRegistro(string $email, string $nombre): void {
+        $asunto = "Bienvenido {$nombre}";
+        $cuerpo = "Gracias por registrarte en nuestra plataforma.";
+        $this->emailSender->enviar($email, $asunto, $cuerpo);
+    }
+    
+    public function notificarCompra(string $email, float $total): void {
+        $asunto = "Confirmación de compra";
+        $cuerpo = "Tu compra de \${$total} ha sido procesada.";
+        $this->emailSender->enviar($email, $asunto, $cuerpo);
+    }
+}
+
+// Uso en producción
+$smtpSender = new SMTPEmailSender("smtp.example.com", 587, "user", "pass");
+$notificaciones = new NotificacionService($smtpSender);
+$notificaciones->notificarRegistro("user@example.com", "Juan");
+
+// Uso en desarrollo
+$logSender = new LogEmailSender();
+$notificacionesDev = new NotificacionService($logSender);
+$notificacionesDev->notificarCompra("test@example.com", 100);
+?&gt;</code></pre></div>
+
+        <h3>DIP con Logging</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Abstracción para logging
+interface Logger {
+    public function info(string $mensaje): void;
+    public function error(string $mensaje): void;
+    public function debug(string $mensaje): void;
+}
+
+// Implementación con archivos
+class FileLogger implements Logger {
+    public function __construct(private string $rutaArchivo) {}
+    
+    public function info(string $mensaje): void {
+        $this->escribir("INFO", $mensaje);
+    }
+    
+    public function error(string $mensaje): void {
+        $this->escribir("ERROR", $mensaje);
+    }
+    
+    public function debug(string $mensaje): void {
+        $this->escribir("DEBUG", $mensaje);
+    }
+    
+    private function escribir(string $nivel, string $mensaje): void {
+        $timestamp = date('Y-m-d H:i:s');
+        echo "[{$timestamp}] [{$nivel}] {$mensaje} -> {$this->rutaArchivo}\\n";
+    }
+}
+
+// Implementación con base de datos
+class DatabaseLogger implements Logger {
+    public function __construct(private DatabaseConnection $db) {}
+    
+    public function info(string $mensaje): void {
+        $this->log("INFO", $mensaje);
+    }
+    
+    public function error(string $mensaje): void {
+        $this->log("ERROR", $mensaje);
+    }
+    
+    public function debug(string $mensaje): void {
+        $this->log("DEBUG", $mensaje);
+    }
+    
+    private function log(string $nivel, string $mensaje): void {
+        echo "INSERT INTO logs (nivel, mensaje) VALUES ('{$nivel}', '{$mensaje}')\\n";
+    }
+}
+
+// Implementación múltiple (composite)
+class MultiLogger implements Logger {
+    /** @var Logger[] */
+    private array $loggers = [];
+    
+    public function agregar(Logger $logger): void {
+        $this->loggers[] = $logger;
+    }
+    
+    public function info(string $mensaje): void {
+        foreach ($this->loggers as $logger) {
+            $logger->info($mensaje);
+        }
+    }
+    
+    public function error(string $mensaje): void {
+        foreach ($this->loggers as $logger) {
+            $logger->error($mensaje);
+        }
+    }
+    
+    public function debug(string $mensaje): void {
+        foreach ($this->loggers as $logger) {
+            $logger->debug($mensaje);
+        }
+    }
+}
+
+// ✅ Aplicación depende de abstracción
+class ProcesadorPagos {
+    public function __construct(
+        private Logger $logger
+    ) {}
+    
+    public function procesar(float $monto): bool {
+        $this->logger->info("Iniciando procesamiento de pago: \${$monto}");
+        
+        try {
+            // Lógica de procesamiento
+            $this->logger->debug("Validando datos de pago");
+            
+            // Simular procesamiento
+            if ($monto > 0) {
+                $this->logger->info("Pago procesado exitosamente");
+                return true;
+            }
+            
+            $this->logger->error("Monto inválido");
+            return false;
+        } catch (Exception $e) {
+            $this->logger->error("Error al procesar pago: " . $e->getMessage());
+            return false;
+        }
+    }
+}
+
+// Uso con diferentes loggers
+$fileLogger = new FileLogger("/var/log/app.log");
+$procesador1 = new ProcesadorPagos($fileLogger);
+$procesador1->procesar(100);
+
+// Uso con múltiples loggers
+$multiLogger = new MultiLogger();
+$multiLogger->agregar(new FileLogger("/var/log/app.log"));
+$multiLogger->agregar(new DatabaseLogger(new MySQLConnection()));
+
+$procesador2 = new ProcesadorPagos($multiLogger);
+$procesador2->procesar(200);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Sistema de E-commerce</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ========== ABSTRACCIONES ==========
+
+interface ProductoRepository {
+    public function buscarPorId(int $id): ?array;
+    public function buscarTodos(): array;
+}
+
+interface CarritoRepository {
+    public function obtener(int $usuarioId): array;
+    public function agregar(int $usuarioId, int $productoId, int $cantidad): bool;
+}
+
+interface ProcesadorPago {
+    public function procesar(float $monto, array $datosPago): bool;
+}
+
+interface NotificadorPedido {
+    public function notificar(int $pedidoId, string $email): void;
+}
+
+interface Logger {
+    public function info(string $mensaje): void;
+    public function error(string $mensaje): void;
+}
+
+// ========== IMPLEMENTACIONES ==========
+
+class MySQLProductoRepository implements ProductoRepository {
+    public function __construct(private DatabaseConnection $db) {}
+    
+    public function buscarPorId(int $id): ?array {
+        echo "Buscando producto {$id} en MySQL\\n";
+        return ['id' => $id, 'nombre' => 'Producto', 'precio' => 100];
+    }
+    
+    public function buscarTodos(): array {
+        echo "Obteniendo todos los productos de MySQL\\n";
+        return [];
+    }
+}
+
+class RedisCarritoRepository implements CarritoRepository {
+    public function obtener(int $usuarioId): array {
+        echo "Obteniendo carrito de Redis para usuario {$usuarioId}\\n";
+        return [
+            ['producto_id' => 1, 'cantidad' => 2],
+            ['producto_id' => 2, 'cantidad' => 1]
+        ];
+    }
+    
+    public function agregar(int $usuarioId, int $productoId, int $cantidad): bool {
+        echo "Agregando al carrito en Redis\\n";
+        return true;
+    }
+}
+
+class StripeProcesadorPago implements ProcesadorPago {
+    public function __construct(private string $apiKey) {}
+    
+    public function procesar(float $monto, array $datosPago): bool {
+        echo "Procesando \${$monto} con Stripe\\n";
+        return true;
+    }
+}
+
+class EmailNotificadorPedido implements NotificadorPedido {
+    public function __construct(private EmailSender $emailSender) {}
+    
+    public function notificar(int $pedidoId, string $email): void {
+        $asunto = "Pedido #{$pedidoId} confirmado";
+        $cuerpo = "Tu pedido ha sido procesado exitosamente.";
+        $this->emailSender->enviar($email, $asunto, $cuerpo);
+    }
+}
+
+// ========== CASO DE USO (ALTO NIVEL) ==========
+
+class ProcesarPedidoUseCase {
+    public function __construct(
+        private ProductoRepository $productoRepo,
+        private CarritoRepository $carritoRepo,
+        private ProcesadorPago $procesadorPago,
+        private NotificadorPedido $notificador,
+        private Logger $logger
+    ) {}
+    
+    public function ejecutar(int $usuarioId, string $email, array $datosPago): bool {
+        $this->logger->info("Iniciando procesamiento de pedido para usuario {$usuarioId}");
+        
+        try {
+            // 1. Obtener carrito
+            $items = $this->carritoRepo->obtener($usuarioId);
+            if (empty($items)) {
+                $this->logger->error("Carrito vacío");
+                return false;
+            }
+            
+            // 2. Calcular total
+            $total = 0;
+            foreach ($items as $item) {
+                $producto = $this->productoRepo->buscarPorId($item['producto_id']);
+                if ($producto) {
+                    $total += $producto['precio'] * $item['cantidad'];
+                }
+            }
+            
+            $this->logger->info("Total del pedido: \${$total}");
+            
+            // 3. Procesar pago
+            if (!$this->procesadorPago->procesar($total, $datosPago)) {
+                $this->logger->error("Error al procesar pago");
+                return false;
+            }
+            
+            // 4. Notificar
+            $pedidoId = rand(1000, 9999);
+            $this->notificador->notificar($pedidoId, $email);
+            
+            $this->logger->info("Pedido #{$pedidoId} procesado exitosamente");
+            return true;
+            
+        } catch (Exception $e) {
+            $this->logger->error("Error: " . $e->getMessage());
+            return false;
+        }
+    }
+}
+
+// ========== CONFIGURACIÓN Y USO ==========
+
+// Configurar dependencias (normalmente en un contenedor DI)
+$db = new MySQLConnection();
+$productoRepo = new MySQLProductoRepository($db);
+$carritoRepo = new RedisCarritoRepository();
+$procesadorPago = new StripeProcesadorPago("sk_test_123");
+$emailSender = new SMTPEmailSender("smtp.example.com", 587, "user", "pass");
+$notificador = new EmailNotificadorPedido($emailSender);
+$logger = new FileLogger("/var/log/pedidos.log");
+
+// Crear caso de uso con todas las dependencias
+$procesarPedido = new ProcesarPedidoUseCase(
+    $productoRepo,
+    $carritoRepo,
+    $procesadorPago,
+    $notificador,
+    $logger
+);
+
+// Ejecutar
+$resultado = $procesarPedido->ejecutar(
+    usuarioId: 1,
+    email: "cliente@example.com",
+    datosPago: ['token' => 'tok_123']
+);
+
+echo $resultado ? "✅ Pedido procesado" : "❌ Error al procesar";
+
+// ========== VENTAJAS ==========
+// 1. Fácil cambiar MySQL por PostgreSQL
+// 2. Fácil cambiar Stripe por PayPal
+// 3. Fácil cambiar Redis por Memcached
+// 4. Fácil testear con mocks
+// 5. Cada componente es independiente
+// 6. Código desacoplado y mantenible
+?&gt;</code></pre></div>
+
+        <h3>DIP con Contenedor de Dependencias</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Contenedor DI simple
+class Container {
+    private array $bindings = [];
+    private array $instances = [];
+    
+    public function bind(string $abstract, callable $concrete): void {
+        $this->bindings[$abstract] = $concrete;
+    }
+    
+    public function singleton(string $abstract, callable $concrete): void {
+        $this->bind($abstract, function() use ($abstract, $concrete) {
+            if (!isset($this->instances[$abstract])) {
+                $this->instances[$abstract] = $concrete($this);
+            }
+            return $this->instances[$abstract];
+        });
+    }
+    
+    public function make(string $abstract): mixed {
+        if (isset($this->bindings[$abstract])) {
+            return $this->bindings[$abstract]($this);
+        }
+        
+        throw new Exception("No se encontró binding para {$abstract}");
+    }
+}
+
+// Configurar contenedor
+$container = new Container();
+
+// Registrar dependencias
+$container->singleton(DatabaseConnection::class, function() {
+    return new MySQLConnection();
+});
+
+$container->bind(UsuarioRepository::class, function($c) {
+    return new MySQLUsuarioRepository($c->make(DatabaseConnection::class));
+});
+
+$container->bind(EmailSender::class, function() {
+    return new SMTPEmailSender("smtp.example.com", 587, "user", "pass");
+});
+
+$container->bind(Logger::class, function() {
+    return new FileLogger("/var/log/app.log");
+});
+
+// Resolver dependencias automáticamente
+$repository = $container->make(UsuarioRepository::class);
+$emailSender = $container->make(EmailSender::class);
+$logger = $container->make(Logger::class);
+
+// Crear servicio con dependencias resueltas
+$service = new NotificacionService($emailSender);
+$service->notificarRegistro("user@example.com", "Juan");
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Cómo Aplicar DIP:</strong><br>
+            • <strong>Define abstracciones</strong>: Interfaces para todos los servicios externos<br>
+            • <strong>Inyección de dependencias</strong>: Pasa dependencias por constructor<br>
+            • <strong>Depende de interfaces</strong>: No de implementaciones concretas<br>
+            • <strong>Invierte el control</strong>: Las implementaciones dependen de abstracciones<br>
+            • <strong>Usa contenedores DI</strong>: Para gestionar dependencias complejas<br>
+            • <strong>Testea con mocks</strong>: Fácil crear implementaciones de prueba<br>
+            • <strong>Configuración externa</strong>: Decide implementaciones fuera del código
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Señales de Violación de DIP:</strong><br>
+            • Uso de <code>new</code> para crear dependencias dentro de clases<br>
+            • Clases que dependen de implementaciones concretas<br>
+            • Imposible testear sin dependencias reales<br>
+            • Difícil cambiar implementaciones (BD, APIs, etc.)<br>
+            • Código acoplado a detalles de infraestructura<br>
+            • No puedes reutilizar lógica de negocio con diferentes implementaciones
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen:</strong><br>
+            • <strong>Definición</strong>: Depende de abstracciones, no de implementaciones<br>
+            • <strong>Regla 1</strong>: Módulos de alto nivel no dependen de bajo nivel<br>
+            • <strong>Regla 2</strong>: Ambos dependen de abstracciones<br>
+            • <strong>Inversión</strong>: Los detalles dependen de abstracciones<br>
+            • <strong>Técnica</strong>: Inyección de dependencias por constructor<br>
+            • <strong>Beneficio</strong>: Código desacoplado, testeable y flexible<br>
+            • <strong>Complementa</strong>: Funciona con todos los demás principios SOLID
+        </div>
+    `,
+    'aplicacion-solid': `
+        <h1>Aplicación de SOLID en PHP</h1>
+        
+        <p>Veamos cómo aplicar <strong>todos los principios SOLID</strong> juntos en un sistema real de gestión de pedidos. Este ejemplo integra SRP, OCP, LSP, ISP y DIP en una arquitectura cohesiva.</p>
+
+        <div class="info-box">
+            <strong>💡 Sistema de Ejemplo:</strong><br>
+            • <strong>Dominio</strong>: Gestión de pedidos en e-commerce<br>
+            • <strong>Funcionalidades</strong>: Crear pedido, procesar pago, enviar notificación<br>
+            • <strong>Principios</strong>: Todos los SOLID aplicados<br>
+            • <strong>Arquitectura</strong>: Hexagonal (Ports & Adapters)<br>
+            • <strong>Patrones</strong>: Repository, Strategy, Dependency Injection
+        </div>
+
+        <h3>1. Definir Abstracciones (DIP + ISP)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ========== INTERFACES SEGREGADAS (ISP) ==========
+
+// Repositorio de productos
+interface ProductoRepository {
+    public function buscarPorId(int $id): ?Producto;
+    public function buscarDisponibles(): array;
+}
+
+// Repositorio de pedidos
+interface PedidoRepository {
+    public function guardar(Pedido $pedido): int;
+    public function buscarPorId(int $id): ?Pedido;
+}
+
+// Procesador de pagos (Strategy Pattern)
+interface ProcesadorPago {
+    public function procesar(float $monto, array $datosPago): ResultadoPago;
+    public function soporta(string $metodo): bool;
+}
+
+// Calculador de descuentos (Strategy Pattern)
+interface CalculadorDescuento {
+    public function calcular(Pedido $pedido): float;
+    public function aplicable(Cliente $cliente): bool;
+}
+
+// Notificador
+interface Notificador {
+    public function notificar(Pedido $pedido, Cliente $cliente): void;
+}
+
+// Logger
+interface Logger {
+    public function info(string $mensaje, array $contexto = []): void;
+    public function error(string $mensaje, array $contexto = []): void;
+}
+
+// Validador
+interface ValidadorPedido {
+    public function validar(Pedido $pedido): ResultadoValidacion;
+}
+?&gt;</code></pre></div>
+
+        <h3>2. Entidades de Dominio (SRP)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ========== ENTIDADES CON RESPONSABILIDAD ÚNICA (SRP) ==========
+
+// Cada clase tiene UNA responsabilidad clara
+
+class Producto {
+    public function __construct(
+        private int $id,
+        private string $nombre,
+        private float $precio,
+        private int $stock
+    ) {}
+    
+    public function getId(): int {
+        return $this->id;
+    }
+    
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    public function getPrecio(): float {
+        return $this->precio;
+    }
+    
+    public function hayStock(int $cantidad): bool {
+        return $this->stock >= $cantidad;
+    }
+    
+    public function reducirStock(int $cantidad): void {
+        if (!$this->hayStock($cantidad)) {
+            throw new DomainException("Stock insuficiente");
+        }
+        $this->stock -= $cantidad;
+    }
+}
+
+class ItemPedido {
+    public function __construct(
+        private Producto $producto,
+        private int $cantidad
+    ) {
+        if ($cantidad <= 0) {
+            throw new InvalidArgumentException("Cantidad debe ser positiva");
+        }
+    }
+    
+    public function getProducto(): Producto {
+        return $this->producto;
+    }
+    
+    public function getCantidad(): int {
+        return $this->cantidad;
+    }
+    
+    public function getSubtotal(): float {
+        return $this->producto->getPrecio() * $this->cantidad;
+    }
+}
+
+class Cliente {
+    public function __construct(
+        private int $id,
+        private string $nombre,
+        private string $email,
+        private string $tipo  // 'regular', 'premium', 'vip'
+    ) {}
+    
+    public function getId(): int {
+        return $this->id;
+    }
+    
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    public function getEmail(): string {
+        return $this->email;
+    }
+    
+    public function getTipo(): string {
+        return $this->tipo;
+    }
+    
+    public function esPremium(): bool {
+        return in_array($this->tipo, ['premium', 'vip']);
+    }
+}
+
+enum EstadoPedido: string {
+    case PENDIENTE = 'pendiente';
+    case PAGADO = 'pagado';
+    case ENVIADO = 'enviado';
+    case CANCELADO = 'cancelado';
+}
+
+class Pedido {
+    private array $items = [];
+    private EstadoPedido $estado;
+    private float $descuento = 0;
+    private ?int $id = null;
+    
+    public function __construct(
+        private Cliente $cliente,
+        private DateTime $fecha
+    ) {
+        $this->estado = EstadoPedido::PENDIENTE;
+    }
+    
+    public function agregarItem(ItemPedido $item): void {
+        $this->items[] = $item;
+    }
+    
+    public function getItems(): array {
+        return $this->items;
+    }
+    
+    public function getCliente(): Cliente {
+        return $this->cliente;
+    }
+    
+    public function getFecha(): DateTime {
+        return $this->fecha;
+    }
+    
+    public function getEstado(): EstadoPedido {
+        return $this->estado;
+    }
+    
+    public function marcarComoPagado(): void {
+        if ($this->estado !== EstadoPedido::PENDIENTE) {
+            throw new DomainException("Solo pedidos pendientes pueden marcarse como pagados");
+        }
+        $this->estado = EstadoPedido::PAGADO;
+    }
+    
+    public function getSubtotal(): float {
+        return array_reduce(
+            $this->items,
+            fn($total, $item) => $total + $item->getSubtotal(),
+            0
+        );
+    }
+    
+    public function aplicarDescuento(float $descuento): void {
+        if ($descuento < 0 || $descuento > $this->getSubtotal()) {
+            throw new InvalidArgumentException("Descuento inválido");
+        }
+        $this->descuento = $descuento;
+    }
+    
+    public function getDescuento(): float {
+        return $this->descuento;
+    }
+    
+    public function getTotal(): float {
+        return $this->getSubtotal() - $this->descuento;
+    }
+    
+    public function setId(int $id): void {
+        $this->id = $id;
+    }
+    
+    public function getId(): ?int {
+        return $this->id;
+    }
+}
+
+class ResultadoPago {
+    public function __construct(
+        private bool $exitoso,
+        private string $transaccionId,
+        private ?string $mensaje = null
+    ) {}
+    
+    public function esExitoso(): bool {
+        return $this->exitoso;
+    }
+    
+    public function getTransaccionId(): string {
+        return $this->transaccionId;
+    }
+    
+    public function getMensaje(): ?string {
+        return $this->mensaje;
+    }
+}
+
+class ResultadoValidacion {
+    private array $errores = [];
+    
+    public function agregarError(string $error): void {
+        $this->errores[] = $error;
+    }
+    
+    public function esValido(): bool {
+        return empty($this->errores);
+    }
+    
+    public function getErrores(): array {
+        return $this->errores;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>3. Implementaciones Concretas (LSP + OCP)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ========== ESTRATEGIAS DE DESCUENTO (OCP + LSP) ==========
+
+// Abierto para extensión, cerrado para modificación
+class DescuentoRegular implements CalculadorDescuento {
+    public function calcular(Pedido $pedido): float {
+        return $pedido->getSubtotal() * 0.05;  // 5%
+    }
+    
+    public function aplicable(Cliente $cliente): bool {
+        return $cliente->getTipo() === 'regular';
+    }
+}
+
+class DescuentoPremium implements CalculadorDescuento {
+    public function calcular(Pedido $pedido): float {
+        return $pedido->getSubtotal() * 0.10;  // 10%
+    }
+    
+    public function aplicable(Cliente $cliente): bool {
+        return $cliente->getTipo() === 'premium';
+    }
+}
+
+class DescuentoVIP implements CalculadorDescuento {
+    public function calcular(Pedido $pedido): float {
+        $descuento = $pedido->getSubtotal() * 0.15;  // 15%
+        
+        // VIP: descuento adicional si compra > $500
+        if ($pedido->getSubtotal() > 500) {
+            $descuento += 50;
+        }
+        
+        return $descuento;
+    }
+    
+    public function aplicable(Cliente $cliente): bool {
+        return $cliente->getTipo() === 'vip';
+    }
+}
+
+// ========== PROCESADORES DE PAGO (OCP + LSP) ==========
+
+class ProcesadorTarjeta implements ProcesadorPago {
+    public function procesar(float $monto, array $datosPago): ResultadoPago {
+        // Simular procesamiento
+        $transaccionId = 'TXN_' . uniqid();
+        
+        if (isset($datosPago['numero']) && strlen($datosPago['numero']) === 16) {
+            return new ResultadoPago(true, $transaccionId, "Pago con tarjeta exitoso");
+        }
+        
+        return new ResultadoPago(false, $transaccionId, "Datos de tarjeta inválidos");
+    }
+    
+    public function soporta(string $metodo): bool {
+        return $metodo === 'tarjeta';
+    }
+}
+
+class ProcesadorPayPal implements ProcesadorPago {
+    public function procesar(float $monto, array $datosPago): ResultadoPago {
+        $transaccionId = 'PAYPAL_' . uniqid();
+        
+        if (isset($datosPago['email'])) {
+            return new ResultadoPago(true, $transaccionId, "Pago con PayPal exitoso");
+        }
+        
+        return new ResultadoPago(false, $transaccionId, "Email de PayPal inválido");
+    }
+    
+    public function soporta(string $metodo): bool {
+        return $metodo === 'paypal';
+    }
+}
+
+// ========== NOTIFICADORES (OCP + LSP) ==========
+
+class NotificadorEmail implements Notificador {
+    public function __construct(
+        private string $remitente
+    ) {}
+    
+    public function notificar(Pedido $pedido, Cliente $cliente): void {
+        echo "📧 Email enviado a {$cliente->getEmail()}\\n";
+        echo "   Pedido #{$pedido->getId()} - Total: \${$pedido->getTotal()}\\n";
+    }
+}
+
+class NotificadorSMS implements Notificador {
+    public function notificar(Pedido $pedido, Cliente $cliente): void {
+        echo "📱 SMS enviado al cliente {$cliente->getNombre()}\\n";
+        echo "   Pedido #{$pedido->getId()} confirmado\\n";
+    }
+}
+
+class NotificadorMultiple implements Notificador {
+    private array $notificadores = [];
+    
+    public function agregar(Notificador $notificador): void {
+        $this->notificadores[] = $notificador;
+    }
+    
+    public function notificar(Pedido $pedido, Cliente $cliente): void {
+        foreach ($this->notificadores as $notificador) {
+            $notificador->notificar($pedido, $cliente);
+        }
+    }
+}
+
+// ========== VALIDADORES (SRP) ==========
+
+class ValidadorStockPedido implements ValidadorPedido {
+    public function validar(Pedido $pedido): ResultadoValidacion {
+        $resultado = new ResultadoValidacion();
+        
+        foreach ($pedido->getItems() as $item) {
+            if (!$item->getProducto()->hayStock($item->getCantidad())) {
+                $resultado->agregarError(
+                    "Stock insuficiente para: {$item->getProducto()->getNombre()}"
+                );
+            }
+        }
+        
+        return $resultado;
+    }
+}
+
+class ValidadorMontoPedido implements ValidadorPedido {
+    public function __construct(
+        private float $montoMinimo = 10
+    ) {}
+    
+    public function validar(Pedido $pedido): ResultadoValidacion {
+        $resultado = new ResultadoValidacion();
+        
+        if ($pedido->getTotal() < $this->montoMinimo) {
+            $resultado->agregarError(
+                "El monto mínimo es \${$this->montoMinimo}"
+            );
+        }
+        
+        return $resultado;
+    }
+}
+
+// ========== LOGGER SIMPLE ==========
+
+class FileLogger implements Logger {
+    public function __construct(private string $archivo) {}
+    
+    public function info(string $mensaje, array $contexto = []): void {
+        $this->log('INFO', $mensaje, $contexto);
+    }
+    
+    public function error(string $mensaje, array $contexto = []): void {
+        $this->log('ERROR', $mensaje, $contexto);
+    }
+    
+    private function log(string $nivel, string $mensaje, array $contexto): void {
+        $timestamp = date('Y-m-d H:i:s');
+        $contextoStr = !empty($contexto) ? json_encode($contexto) : '';
+        echo "[{$timestamp}] [{$nivel}] {$mensaje} {$contextoStr}\\n";
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>4. Caso de Uso (SRP + DIP)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ========== CASO DE USO: PROCESAR PEDIDO ==========
+// Aplica SRP: Una sola responsabilidad (procesar pedido)
+// Aplica DIP: Depende de abstracciones, no de implementaciones
+
+class ProcesarPedidoUseCase {
+    public function __construct(
+        private PedidoRepository $pedidoRepo,
+        private ProductoRepository $productoRepo,
+        private array $calculadoresDescuento,  // CalculadorDescuento[]
+        private ProcesadorPago $procesadorPago,
+        private Notificador $notificador,
+        private array $validadores,  // ValidadorPedido[]
+        private Logger $logger
+    ) {}
+    
+    public function ejecutar(
+        Cliente $cliente,
+        array $itemsData,  // [['producto_id' => int, 'cantidad' => int]]
+        string $metodoPago,
+        array $datosPago
+    ): ResultadoPedido {
+        $this->logger->info("Iniciando procesamiento de pedido", [
+            'cliente_id' => $cliente->getId(),
+            'metodo_pago' => $metodoPago
+        ]);
+        
+        try {
+            // 1. Crear pedido
+            $pedido = new Pedido($cliente, new DateTime());
+            
+            // 2. Agregar items
+            foreach ($itemsData as $itemData) {
+                $producto = $this->productoRepo->buscarPorId($itemData['producto_id']);
+                
+                if (!$producto) {
+                    throw new DomainException("Producto no encontrado: {$itemData['producto_id']}");
+                }
+                
+                $item = new ItemPedido($producto, $itemData['cantidad']);
+                $pedido->agregarItem($item);
+            }
+            
+            // 3. Aplicar descuento (OCP: fácil agregar nuevos descuentos)
+            foreach ($this->calculadoresDescuento as $calculador) {
+                if ($calculador->aplicable($cliente)) {
+                    $descuento = $calculador->calcular($pedido);
+                    $pedido->aplicarDescuento($descuento);
+                    $this->logger->info("Descuento aplicado", [
+                        'tipo' => get_class($calculador),
+                        'monto' => $descuento
+                    ]);
+                    break;
+                }
+            }
+            
+            // 4. Validar pedido (SRP: cada validador una responsabilidad)
+            foreach ($this->validadores as $validador) {
+                $resultado = $validador->validar($pedido);
+                if (!$resultado->esValido()) {
+                    $errores = implode(', ', $resultado->getErrores());
+                    $this->logger->error("Validación fallida", ['errores' => $errores]);
+                    return new ResultadoPedido(false, null, $errores);
+                }
+            }
+            
+            // 5. Procesar pago (LSP: cualquier procesador funciona)
+            if (!$this->procesadorPago->soporta($metodoPago)) {
+                throw new InvalidArgumentException("Método de pago no soportado: {$metodoPago}");
+            }
+            
+            $resultadoPago = $this->procesadorPago->procesar(
+                $pedido->getTotal(),
+                $datosPago
+            );
+            
+            if (!$resultadoPago->esExitoso()) {
+                $this->logger->error("Pago fallido", [
+                    'mensaje' => $resultadoPago->getMensaje()
+                ]);
+                return new ResultadoPedido(false, null, $resultadoPago->getMensaje());
+            }
+            
+            // 6. Actualizar estado y guardar
+            $pedido->marcarComoPagado();
+            $pedidoId = $this->pedidoRepo->guardar($pedido);
+            $pedido->setId($pedidoId);
+            
+            // 7. Reducir stock
+            foreach ($pedido->getItems() as $item) {
+                $item->getProducto()->reducirStock($item->getCantidad());
+            }
+            
+            // 8. Notificar (ISP: solo usa lo que necesita)
+            $this->notificador->notificar($pedido, $cliente);
+            
+            $this->logger->info("Pedido procesado exitosamente", [
+                'pedido_id' => $pedidoId,
+                'total' => $pedido->getTotal()
+            ]);
+            
+            return new ResultadoPedido(true, $pedido, "Pedido procesado exitosamente");
+            
+        } catch (Exception $e) {
+            $this->logger->error("Error al procesar pedido", [
+                'error' => $e->getMessage()
+            ]);
+            return new ResultadoPedido(false, null, $e->getMessage());
+        }
+    }
+}
+
+class ResultadoPedido {
+    public function __construct(
+        private bool $exitoso,
+        private ?Pedido $pedido,
+        private ?string $mensaje
+    ) {}
+    
+    public function esExitoso(): bool {
+        return $this->exitoso;
+    }
+    
+    public function getPedido(): ?Pedido {
+        return $this->pedido;
+    }
+    
+    public function getMensaje(): ?string {
+        return $this->mensaje;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>5. Repositorios (Implementación)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ========== REPOSITORIOS (DIP) ==========
+
+class InMemoryProductoRepository implements ProductoRepository {
+    private array $productos = [];
+    
+    public function __construct() {
+        // Datos de ejemplo
+        $this->productos[1] = new Producto(1, "Laptop", 1000, 10);
+        $this->productos[2] = new Producto(2, "Mouse", 25, 50);
+        $this->productos[3] = new Producto(3, "Teclado", 75, 30);
+    }
+    
+    public function buscarPorId(int $id): ?Producto {
+        return $this->productos[$id] ?? null;
+    }
+    
+    public function buscarDisponibles(): array {
+        return array_values($this->productos);
+    }
+}
+
+class InMemoryPedidoRepository implements PedidoRepository {
+    private array $pedidos = [];
+    private int $nextId = 1;
+    
+    public function guardar(Pedido $pedido): int {
+        $id = $this->nextId++;
+        $pedido->setId($id);
+        $this->pedidos[$id] = $pedido;
+        return $id;
+    }
+    
+    public function buscarPorId(int $id): ?Pedido {
+        return $this->pedidos[$id] ?? null;
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>6. Configuración y Uso (Dependency Injection)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ========== CONFIGURACIÓN DEL SISTEMA ==========
+
+// Crear dependencias (normalmente en un contenedor DI)
+$logger = new FileLogger('/var/log/pedidos.log');
+
+$productoRepo = new InMemoryProductoRepository();
+$pedidoRepo = new InMemoryPedidoRepository();
+
+// Configurar calculadores de descuento (OCP: fácil agregar más)
+$calculadoresDescuento = [
+    new DescuentoRegular(),
+    new DescuentoPremium(),
+    new DescuentoVIP()
+];
+
+// Configurar procesador de pago (LSP: cualquiera funciona)
+$procesadorPago = new ProcesadorTarjeta();
+// $procesadorPago = new ProcesadorPayPal();  // Fácil cambiar
+
+// Configurar notificadores (ISP: combinar múltiples)
+$notificador = new NotificadorMultiple();
+$notificador->agregar(new NotificadorEmail('noreply@tienda.com'));
+$notificador->agregar(new NotificadorSMS());
+
+// Configurar validadores (SRP: cada uno valida una cosa)
+$validadores = [
+    new ValidadorStockPedido(),
+    new ValidadorMontoPedido(10)
+];
+
+// Crear caso de uso con todas las dependencias (DIP)
+$procesarPedido = new ProcesarPedidoUseCase(
+    $pedidoRepo,
+    $productoRepo,
+    $calculadoresDescuento,
+    $procesadorPago,
+    $notificador,
+    $validadores,
+    $logger
+);
+
+// ========== EJECUTAR ==========
+
+// Cliente VIP
+$cliente = new Cliente(1, "Juan Pérez", "juan@example.com", "vip");
+
+// Items del pedido
+$items = [
+    ['producto_id' => 1, 'cantidad' => 1],  // Laptop
+    ['producto_id' => 2, 'cantidad' => 2]   // 2 Mouse
+];
+
+// Procesar pedido
+$resultado = $procesarPedido->ejecutar(
+    $cliente,
+    $items,
+    'tarjeta',
+    ['numero' => '1234567890123456', 'cvv' => '123']
+);
+
+if ($resultado->esExitoso()) {
+    $pedido = $resultado->getPedido();
+    echo "\\n✅ PEDIDO PROCESADO EXITOSAMENTE\\n";
+    echo "   ID: #{$pedido->getId()}\\n";
+    echo "   Cliente: {$cliente->getNombre()}\\n";
+    echo "   Subtotal: \${$pedido->getSubtotal()}\\n";
+    echo "   Descuento: \${$pedido->getDescuento()}\\n";
+    echo "   Total: \${$pedido->getTotal()}\\n";
+    echo "   Estado: {$pedido->getEstado()->value}\\n";
+} else {
+    echo "\\n❌ ERROR: {$resultado->getMensaje()}\\n";
+}
+
+// ========== VENTAJAS DE APLICAR SOLID ==========
+echo "\\n📋 VENTAJAS DE ESTA ARQUITECTURA:\\n";
+echo "1. SRP: Cada clase tiene una responsabilidad clara\\n";
+echo "2. OCP: Fácil agregar nuevos descuentos, pagos, notificadores\\n";
+echo "3. LSP: Cualquier implementación es intercambiable\\n";
+echo "4. ISP: Interfaces pequeñas y específicas\\n";
+echo "5. DIP: Fácil testear con mocks, cambiar implementaciones\\n";
+echo "6. Código mantenible, escalable y testeable\\n";
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Principios SOLID Aplicados:</strong><br>
+            • <strong>SRP</strong>: Cada clase tiene una responsabilidad (Producto, Pedido, Validadores)<br>
+            • <strong>OCP</strong>: Fácil agregar descuentos, pagos sin modificar código existente<br>
+            • <strong>LSP</strong>: Todos los procesadores/notificadores son intercambiables<br>
+            • <strong>ISP</strong>: Interfaces pequeñas y específicas por funcionalidad<br>
+            • <strong>DIP</strong>: Caso de uso depende de abstracciones, no implementaciones<br>
+            • <strong>Resultado</strong>: Sistema flexible, testeable y mantenible
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Errores Comunes al Aplicar SOLID:</strong><br>
+            • <strong>Over-engineering</strong>: No crear abstracciones innecesarias<br>
+            • <strong>Interfaces vacías</strong>: Cada interfaz debe tener propósito claro<br>
+            • <strong>Acoplamiento oculto</strong>: Evitar dependencias implícitas<br>
+            • <strong>Demasiadas capas</strong>: Balance entre flexibilidad y simplicidad<br>
+            • <strong>Ignorar el contexto</strong>: SOLID es una guía, no una ley absoluta<br>
+            • <strong>Abstraer demasiado pronto</strong>: Espera a ver patrones antes de abstraer
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Resumen de la Aplicación:</strong><br>
+            • <strong>Arquitectura</strong>: Hexagonal con casos de uso<br>
+            • <strong>Dominio</strong>: Entidades ricas con lógica de negocio<br>
+            • <strong>Abstracciones</strong>: Interfaces para todos los servicios<br>
+            • <strong>Implementaciones</strong>: Múltiples estrategias intercambiables<br>
+            • <strong>Inyección</strong>: Dependencias inyectadas por constructor<br>
+            • <strong>Testeable</strong>: Fácil crear mocks para testing<br>
+            • <strong>Extensible</strong>: Agregar funcionalidad sin modificar existente
+        </div>
+    `,
+    'refactoring-solid': `
+        <h1>Refactoring Basado en SOLID</h1>
+        
+        <p>El <strong>refactoring basado en SOLID</strong> consiste en mejorar código existente aplicando los principios SOLID para hacerlo más mantenible, testeable y extensible. Veamos ejemplos prácticos de transformación paso a paso.</p>
+
+        <div class="info-box">
+            <strong>💡 Proceso de Refactoring:</strong><br>
+            • <strong>Identificar</strong>: Detectar violaciones de SOLID<br>
+            • <strong>Analizar</strong>: Entender el impacto del cambio<br>
+            • <strong>Refactorizar</strong>: Aplicar principios uno a uno<br>
+            • <strong>Testear</strong>: Verificar que funciona igual<br>
+            • <strong>Iterar</strong>: Mejorar continuamente
+        </div>
+
+        <h3>Ejemplo 1: Refactoring con SRP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ ANTES: Clase con múltiples responsabilidades
+class Usuario {
+    private string $nombre;
+    private string $email;
+    private string $password;
+    
+    public function __construct(string $nombre, string $email, string $password) {
+        $this->nombre = $nombre;
+        $this->email = $email;
+        $this->password = $password;
+    }
+    
+    // Responsabilidad 1: Validación
+    public function validar(): bool {
+        if (empty($this->nombre)) {
+            return false;
+        }
+        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+        if (strlen($this->password) < 8) {
+            return false;
+        }
+        return true;
+    }
+    
+    // Responsabilidad 2: Persistencia
+    public function guardar(): bool {
+        $sql = "INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)";
+        // Lógica de base de datos...
+        return true;
+    }
+    
+    // Responsabilidad 3: Envío de emails
+    public function enviarEmailBienvenida(): void {
+        $asunto = "Bienvenido {$this->nombre}";
+        $mensaje = "Gracias por registrarte";
+        mail($this->email, $asunto, $mensaje);
+    }
+    
+    // Responsabilidad 4: Generación de reportes
+    public function generarReporte(): string {
+        return "Usuario: {$this->nombre}\\nEmail: {$this->email}";
+    }
+}
+
+// Uso problemático
+$usuario = new Usuario("Juan", "juan@example.com", "password123");
+if ($usuario->validar()) {
+    $usuario->guardar();
+    $usuario->enviarEmailBienvenida();
+}
+?&gt;</code></pre></div>
+
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ DESPUÉS: Aplicando SRP - Cada clase una responsabilidad
+
+// Clase de dominio: Solo datos y lógica de negocio
+class Usuario {
+    public function __construct(
+        private string $nombre,
+        private string $email,
+        private string $password
+    ) {}
+    
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+    
+    public function getEmail(): string {
+        return $this->email;
+    }
+    
+    public function getPassword(): string {
+        return $this->password;
+    }
+}
+
+// Responsabilidad 1: Validación
+class ValidadorUsuario {
+    public function validar(Usuario $usuario): array {
+        $errores = [];
+        
+        if (empty($usuario->getNombre())) {
+            $errores[] = "El nombre es requerido";
+        }
+        
+        if (!filter_var($usuario->getEmail(), FILTER_VALIDATE_EMAIL)) {
+            $errores[] = "Email inválido";
+        }
+        
+        if (strlen($usuario->getPassword()) < 8) {
+            $errores[] = "La contraseña debe tener al menos 8 caracteres";
+        }
+        
+        return $errores;
+    }
+}
+
+// Responsabilidad 2: Persistencia
+class UsuarioRepository {
+    public function guardar(Usuario $usuario): bool {
+        $sql = "INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)";
+        // Lógica de base de datos...
+        return true;
+    }
+}
+
+// Responsabilidad 3: Notificaciones
+class NotificadorUsuario {
+    public function enviarBienvenida(Usuario $usuario): void {
+        $asunto = "Bienvenido {$usuario->getNombre()}";
+        $mensaje = "Gracias por registrarte";
+        mail($usuario->getEmail(), $asunto, $mensaje);
+    }
+}
+
+// Responsabilidad 4: Reportes
+class GeneradorReporteUsuario {
+    public function generar(Usuario $usuario): string {
+        return "Usuario: {$usuario->getNombre()}\\nEmail: {$usuario->getEmail()}";
+    }
+}
+
+// Uso mejorado
+$usuario = new Usuario("Juan", "juan@example.com", "password123");
+
+$validador = new ValidadorUsuario();
+$errores = $validador->validar($usuario);
+
+if (empty($errores)) {
+    $repository = new UsuarioRepository();
+    $repository->guardar($usuario);
+    
+    $notificador = new NotificadorUsuario();
+    $notificador->enviarBienvenida($usuario);
+}
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo 2: Refactoring con OCP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ ANTES: Código cerrado para extensión
+class CalculadorPrecio {
+    public function calcular(string $tipoProducto, float $precio): float {
+        if ($tipoProducto === 'libro') {
+            return $precio * 0.9;  // 10% descuento
+        } elseif ($tipoProducto === 'electronico') {
+            return $precio * 0.95;  // 5% descuento
+        } elseif ($tipoProducto === 'ropa') {
+            return $precio * 0.85;  // 15% descuento
+        }
+        
+        return $precio;
+    }
+}
+
+// Problema: Para agregar un nuevo tipo, debes modificar la clase
+$calculador = new CalculadorPrecio();
+$precioFinal = $calculador->calcular('libro', 100);
+?&gt;</code></pre></div>
+
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ DESPUÉS: Aplicando OCP - Abierto para extensión
+
+interface EstrategiaPrecio {
+    public function calcular(float $precio): float;
+}
+
+class PrecioLibro implements EstrategiaPrecio {
+    public function calcular(float $precio): float {
+        return $precio * 0.9;  // 10% descuento
+    }
+}
+
+class PrecioElectronico implements EstrategiaPrecio {
+    public function calcular(float $precio): float {
+        return $precio * 0.95;  // 5% descuento
+    }
+}
+
+class PrecioRopa implements EstrategiaPrecio {
+    public function calcular(float $precio): float {
+        return $precio * 0.85;  // 15% descuento
+    }
+}
+
+// Nueva estrategia sin modificar código existente
+class PrecioAlimento implements EstrategiaPrecio {
+    public function calcular(float $precio): float {
+        return $precio * 0.92;  // 8% descuento
+    }
+}
+
+class CalculadorPrecio {
+    public function calcular(EstrategiaPrecio $estrategia, float $precio): float {
+        return $estrategia->calcular($precio);
+    }
+}
+
+// Uso extensible
+$calculador = new CalculadorPrecio();
+$precioFinal = $calculador->calcular(new PrecioLibro(), 100);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo 3: Refactoring con LSP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ ANTES: Violando LSP
+class Ave {
+    public function volar(): void {
+        echo "Volando...\\n";
+    }
+}
+
+class Aguila extends Ave {
+    public function volar(): void {
+        echo "El águila vuela alto\\n";
+    }
+}
+
+class Pinguino extends Ave {
+    public function volar(): void {
+        // ❌ Los pingüinos no vuelan
+        throw new Exception("Los pingüinos no pueden volar");
+    }
+}
+
+// Problema: No puedes sustituir Ave por Pinguino
+function hacerVolar(Ave $ave): void {
+    $ave->volar();  // Falla con Pinguino
+}
+
+$aguila = new Aguila();
+hacerVolar($aguila);  // ✅ OK
+
+$pinguino = new Pinguino();
+hacerVolar($pinguino);  // ❌ Exception
+?&gt;</code></pre></div>
+
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ DESPUÉS: Aplicando LSP - Interfaces segregadas
+
+interface Ave {
+    public function comer(): void;
+    public function dormir(): void;
+}
+
+interface AveVoladora extends Ave {
+    public function volar(): void;
+}
+
+class Aguila implements AveVoladora {
+    public function comer(): void {
+        echo "Águila comiendo\\n";
+    }
+    
+    public function dormir(): void {
+        echo "Águila durmiendo\\n";
+    }
+    
+    public function volar(): void {
+        echo "El águila vuela alto\\n";
+    }
+}
+
+class Pinguino implements Ave {
+    public function comer(): void {
+        echo "Pingüino comiendo\\n";
+    }
+    
+    public function dormir(): void {
+        echo "Pingüino durmiendo\\n";
+    }
+    
+    public function nadar(): void {
+        echo "Pingüino nadando\\n";
+    }
+}
+
+// Ahora funciona correctamente
+function hacerVolar(AveVoladora $ave): void {
+    $ave->volar();
+}
+
+function alimentar(Ave $ave): void {
+    $ave->comer();
+}
+
+$aguila = new Aguila();
+hacerVolar($aguila);  // ✅ OK
+alimentar($aguila);   // ✅ OK
+
+$pinguino = new Pinguino();
+// hacerVolar($pinguino);  // ❌ Error de compilación (correcto)
+alimentar($pinguino);  // ✅ OK
+$pinguino->nadar();    // ✅ OK
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo 4: Refactoring con ISP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ ANTES: Interfaz gorda que fuerza implementaciones innecesarias
+interface Impresora {
+    public function imprimir(string $documento): void;
+    public function escanear(string $documento): void;
+    public function fax(string $documento): void;
+    public function email(string $documento): void;
+}
+
+class ImpresoraMultifuncion implements Impresora {
+    public function imprimir(string $documento): void {
+        echo "Imprimiendo: {$documento}\\n";
+    }
+    
+    public function escanear(string $documento): void {
+        echo "Escaneando: {$documento}\\n";
+    }
+    
+    public function fax(string $documento): void {
+        echo "Enviando fax: {$documento}\\n";
+    }
+    
+    public function email(string $documento): void {
+        echo "Enviando email: {$documento}\\n";
+    }
+}
+
+class ImpresoraSimple implements Impresora {
+    public function imprimir(string $documento): void {
+        echo "Imprimiendo: {$documento}\\n";
+    }
+    
+    // ❌ Forzado a implementar métodos que no usa
+    public function escanear(string $documento): void {
+        throw new Exception("No soportado");
+    }
+    
+    public function fax(string $documento): void {
+        throw new Exception("No soportado");
+    }
+    
+    public function email(string $documento): void {
+        throw new Exception("No soportado");
+    }
+}
+?&gt;</code></pre></div>
+
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ DESPUÉS: Aplicando ISP - Interfaces segregadas
+
+interface Imprimible {
+    public function imprimir(string $documento): void;
+}
+
+interface Escaneable {
+    public function escanear(string $documento): void;
+}
+
+interface EnviadorFax {
+    public function fax(string $documento): void;
+}
+
+interface EnviadorEmail {
+    public function email(string $documento): void;
+}
+
+// Impresora multifunción implementa todas las interfaces
+class ImpresoraMultifuncion implements Imprimible, Escaneable, EnviadorFax, EnviadorEmail {
+    public function imprimir(string $documento): void {
+        echo "Imprimiendo: {$documento}\\n";
+    }
+    
+    public function escanear(string $documento): void {
+        echo "Escaneando: {$documento}\\n";
+    }
+    
+    public function fax(string $documento): void {
+        echo "Enviando fax: {$documento}\\n";
+    }
+    
+    public function email(string $documento): void {
+        echo "Enviando email: {$documento}\\n";
+    }
+}
+
+// Impresora simple solo implementa lo que necesita
+class ImpresoraSimple implements Imprimible {
+    public function imprimir(string $documento): void {
+        echo "Imprimiendo: {$documento}\\n";
+    }
+}
+
+// Escáner solo implementa escaneo
+class Escaner implements Escaneable {
+    public function escanear(string $documento): void {
+        echo "Escaneando: {$documento}\\n";
+    }
+}
+
+// Uso con interfaces específicas
+function procesarImpresion(Imprimible $dispositivo, string $doc): void {
+    $dispositivo->imprimir($doc);
+}
+
+function procesarEscaneo(Escaneable $dispositivo, string $doc): void {
+    $dispositivo->escanear($doc);
+}
+
+$multifuncion = new ImpresoraMultifuncion();
+procesarImpresion($multifuncion, "documento.pdf");
+procesarEscaneo($multifuncion, "foto.jpg");
+
+$simple = new ImpresoraSimple();
+procesarImpresion($simple, "documento.pdf");
+// procesarEscaneo($simple, "foto.jpg");  // ❌ Error de compilación (correcto)
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo 5: Refactoring con DIP</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ ANTES: Alto acoplamiento con implementaciones concretas
+class EmailService {
+    public function enviar(string $destinatario, string $mensaje): void {
+        echo "Enviando email a {$destinatario}: {$mensaje}\\n";
+    }
+}
+
+class UsuarioController {
+    private EmailService $emailService;
+    
+    public function __construct() {
+        // ❌ Acoplamiento fuerte: instancia directa
+        $this->emailService = new EmailService();
+    }
+    
+    public function registrar(string $nombre, string $email): void {
+        // Lógica de registro...
+        
+        // Enviar notificación
+        $this->emailService->enviar($email, "Bienvenido {$nombre}");
+    }
+}
+
+// Problemas:
+// 1. No puedes cambiar a SMS sin modificar UsuarioController
+// 2. No puedes testear sin enviar emails reales
+// 3. Acoplamiento fuerte a EmailService
+
+$controller = new UsuarioController();
+$controller->registrar("Juan", "juan@example.com");
+?&gt;</code></pre></div>
+
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ DESPUÉS: Aplicando DIP - Depender de abstracciones
+
+// Abstracción
+interface NotificacionService {
+    public function enviar(string $destinatario, string $mensaje): void;
+}
+
+// Implementaciones concretas
+class EmailService implements NotificacionService {
+    public function enviar(string $destinatario, string $mensaje): void {
+        echo "Enviando email a {$destinatario}: {$mensaje}\\n";
+    }
+}
+
+class SMSService implements NotificacionService {
+    public function enviar(string $destinatario, string $mensaje): void {
+        echo "Enviando SMS a {$destinatario}: {$mensaje}\\n";
+    }
+}
+
+class LogService implements NotificacionService {
+    public function enviar(string $destinatario, string $mensaje): void {
+        echo "[LOG] Notificación para {$destinatario}: {$mensaje}\\n";
+    }
+}
+
+// Controlador depende de abstracción
+class UsuarioController {
+    public function __construct(
+        private NotificacionService $notificacionService
+    ) {}
+    
+    public function registrar(string $nombre, string $email): void {
+        // Lógica de registro...
+        
+        // Enviar notificación (cualquier implementación funciona)
+        $this->notificacionService->enviar($email, "Bienvenido {$nombre}");
+    }
+}
+
+// Uso flexible
+$emailService = new EmailService();
+$controller1 = new UsuarioController($emailService);
+$controller1->registrar("Juan", "juan@example.com");
+
+// Fácil cambiar a SMS
+$smsService = new SMSService();
+$controller2 = new UsuarioController($smsService);
+$controller2->registrar("Ana", "+34123456789");
+
+// Fácil testear con mock
+$logService = new LogService();
+$controller3 = new UsuarioController($logService);
+$controller3->registrar("Test", "test@example.com");
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Completo: Refactoring de Sistema Legacy</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ ANTES: Código legacy con múltiples violaciones SOLID
+class GestorPedidos {
+    public function procesarPedido(array $datos): void {
+        // Validación mezclada con lógica
+        if (empty($datos['cliente'])) {
+            die("Cliente requerido");
+        }
+        if (empty($datos['productos'])) {
+            die("Productos requeridos");
+        }
+        
+        // Cálculo de precio con if/else
+        $total = 0;
+        foreach ($datos['productos'] as $producto) {
+            if ($producto['tipo'] === 'normal') {
+                $total += $producto['precio'];
+            } elseif ($producto['tipo'] === 'premium') {
+                $total += $producto['precio'] * 0.9;
+            }
+        }
+        
+        // Persistencia directa
+        $sql = "INSERT INTO pedidos (cliente, total) VALUES (?, ?)";
+        // Ejecutar SQL...
+        
+        // Envío de email directo
+        mail($datos['cliente']['email'], "Pedido confirmado", "Total: \${$total}");
+        
+        // Logging mezclado
+        file_put_contents('log.txt', "Pedido procesado\\n", FILE_APPEND);
+    }
+}
+?&gt;</code></pre></div>
+
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ DESPUÉS: Aplicando todos los principios SOLID
+
+// SRP: Entidades de dominio
+class Pedido {
+    public function __construct(
+        private Cliente $cliente,
+        private array $items,
+        private float $total
+    ) {}
+    
+    public function getCliente(): Cliente {
+        return $this->cliente;
+    }
+    
+    public function getTotal(): float {
+        return $this->total;
+    }
+}
+
+class Cliente {
+    public function __construct(
+        private string $nombre,
+        private string $email
+    ) {}
+    
+    public function getEmail(): string {
+        return $this->email;
+    }
+}
+
+// ISP: Interfaces segregadas
+interface ValidadorPedido {
+    public function validar(array $datos): array;
+}
+
+interface CalculadorPrecio {
+    public function calcular(array $productos): float;
+}
+
+interface RepositorioPedidos {
+    public function guardar(Pedido $pedido): int;
+}
+
+interface NotificadorPedidos {
+    public function notificar(Pedido $pedido): void;
+}
+
+interface Logger {
+    public function log(string $mensaje): void;
+}
+
+// SRP: Implementaciones con responsabilidad única
+class ValidadorPedidoSimple implements ValidadorPedido {
+    public function validar(array $datos): array {
+        $errores = [];
+        
+        if (empty($datos['cliente'])) {
+            $errores[] = "Cliente requerido";
+        }
+        if (empty($datos['productos'])) {
+            $errores[] = "Productos requeridos";
+        }
+        
+        return $errores;
+    }
+}
+
+// OCP: Estrategias de precio extensibles
+class CalculadorPrecioConDescuento implements CalculadorPrecio {
+    public function calcular(array $productos): float {
+        $total = 0;
+        foreach ($productos as $producto) {
+            $precio = $producto['precio'];
+            
+            if ($producto['tipo'] === 'premium') {
+                $precio *= 0.9;  // 10% descuento
+            }
+            
+            $total += $precio;
+        }
+        return $total;
+    }
+}
+
+class RepositorioPedidosMySQL implements RepositorioPedidos {
+    public function guardar(Pedido $pedido): int {
+        $sql = "INSERT INTO pedidos (cliente, total) VALUES (?, ?)";
+        // Ejecutar SQL...
+        return 1;  // ID del pedido
+    }
+}
+
+class NotificadorEmail implements NotificadorPedidos {
+    public function notificar(Pedido $pedido): void {
+        $email = $pedido->getCliente()->getEmail();
+        $total = $pedido->getTotal();
+        mail($email, "Pedido confirmado", "Total: \${$total}");
+    }
+}
+
+class FileLogger implements Logger {
+    public function log(string $mensaje): void {
+        file_put_contents('log.txt', $mensaje . "\\n", FILE_APPEND);
+    }
+}
+
+// DIP: Caso de uso depende de abstracciones
+class ProcesarPedidoUseCase {
+    public function __construct(
+        private ValidadorPedido $validador,
+        private CalculadorPrecio $calculador,
+        private RepositorioPedidos $repositorio,
+        private NotificadorPedidos $notificador,
+        private Logger $logger
+    ) {}
+    
+    public function ejecutar(array $datos): bool {
+        // 1. Validar
+        $errores = $this->validador->validar($datos);
+        if (!empty($errores)) {
+            $this->logger->log("Validación fallida: " . implode(', ', $errores));
+            return false;
+        }
+        
+        // 2. Calcular precio
+        $total = $this->calculador->calcular($datos['productos']);
+        
+        // 3. Crear pedido
+        $cliente = new Cliente($datos['cliente']['nombre'], $datos['cliente']['email']);
+        $pedido = new Pedido($cliente, $datos['productos'], $total);
+        
+        // 4. Guardar
+        $id = $this->repositorio->guardar($pedido);
+        
+        // 5. Notificar
+        $this->notificador->notificar($pedido);
+        
+        // 6. Log
+        $this->logger->log("Pedido #{$id} procesado exitosamente");
+        
+        return true;
+    }
+}
+
+// Configuración (Dependency Injection)
+$useCase = new ProcesarPedidoUseCase(
+    new ValidadorPedidoSimple(),
+    new CalculadorPrecioConDescuento(),
+    new RepositorioPedidosMySQL(),
+    new NotificadorEmail(),
+    new FileLogger()
+);
+
+// Uso
+$datos = [
+    'cliente' => ['nombre' => 'Juan', 'email' => 'juan@example.com'],
+    'productos' => [
+        ['tipo' => 'normal', 'precio' => 100],
+        ['tipo' => 'premium', 'precio' => 200]
+    ]
+];
+
+$resultado = $useCase->ejecutar($datos);
+echo $resultado ? "✅ Pedido procesado" : "❌ Error";
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Beneficios del Refactoring SOLID:</strong><br>
+            • <strong>Mantenibilidad</strong>: Código más fácil de entender y modificar<br>
+            • <strong>Testabilidad</strong>: Fácil crear tests unitarios con mocks<br>
+            • <strong>Extensibilidad</strong>: Agregar funcionalidad sin modificar existente<br>
+            • <strong>Reusabilidad</strong>: Componentes independientes reutilizables<br>
+            • <strong>Flexibilidad</strong>: Cambiar implementaciones sin afectar el resto<br>
+            • <strong>Escalabilidad</strong>: Sistema preparado para crecer
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Consideraciones al Refactorizar:</strong><br>
+            • <strong>Tests primero</strong>: Asegura que tienes tests antes de refactorizar<br>
+            • <strong>Pasos pequeños</strong>: Refactoriza incrementalmente, no todo a la vez<br>
+            • <strong>Un principio a la vez</strong>: Aplica un principio SOLID por iteración<br>
+            • <strong>Verifica funcionamiento</strong>: Ejecuta tests después de cada cambio<br>
+            • <strong>No sobre-ingenierizar</strong>: Balance entre flexibilidad y simplicidad<br>
+            • <strong>Documenta cambios</strong>: Explica por qué refactorizaste
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Checklist de Refactoring SOLID:</strong><br>
+            • <strong>SRP</strong>: ¿Cada clase tiene una sola razón para cambiar?<br>
+            • <strong>OCP</strong>: ¿Puedes agregar funcionalidad sin modificar código?<br>
+            • <strong>LSP</strong>: ¿Las subclases son intercambiables con la clase base?<br>
+            • <strong>ISP</strong>: ¿Las interfaces son pequeñas y específicas?<br>
+            • <strong>DIP</strong>: ¿Dependes de abstracciones en lugar de implementaciones?<br>
+            • <strong>Tests</strong>: ¿El código refactorizado pasa todos los tests?<br>
+            • <strong>Simplicidad</strong>: ¿El código es más simple que antes?
+        </div>
+    `,
+    'patron-singleton': `
+        <h1>Patrón Singleton</h1>
+        
+        <p>El <strong>patrón Singleton</strong> es un patrón de diseño creacional que garantiza que una clase tenga <strong>una única instancia</strong> en toda la aplicación y proporciona un punto de acceso global a esa instancia.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es Singleton?</strong><br>
+            • <strong>Propósito</strong>: Asegurar que solo exista una instancia de una clase<br>
+            • <strong>Acceso global</strong>: Proporcionar un punto de acceso único<br>
+            • <strong>Control</strong>: La clase controla su propia instanciación<br>
+            • <strong>Lazy loading</strong>: La instancia se crea solo cuando se necesita<br>
+            • <strong>Uso común</strong>: Conexiones BD, configuración, loggers, caches
+        </div>
+
+        <h3>¿Por Qué Usar Singleton?</h3>
+        <p>Imagina que tienes una conexión a base de datos. No quieres crear múltiples conexiones porque:</p>
+        <ul>
+            <li>Consume recursos innecesarios (memoria, conexiones)</li>
+            <li>Puede causar problemas de sincronización</li>
+            <li>Es ineficiente y costoso</li>
+        </ul>
+        <p>El patrón Singleton garantiza que solo haya UNA conexión compartida por toda la aplicación.</p>
+
+        <h3>Implementación Básica</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Database {
+    // 1. Propiedad estática privada para guardar la única instancia
+    private static ?Database $instance = null;
+    
+    // 2. Constructor privado: impide crear instancias con 'new'
+    private function __construct() {
+        echo "Conexión a base de datos creada\\n";
+    }
+    
+    // 3. Método estático público para obtener la instancia
+    public static function getInstance(): Database {
+        // Si no existe instancia, créala
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        
+        // Siempre retorna la misma instancia
+        return self::$instance;
+    }
+    
+    // 4. Prevenir clonación
+    private function __clone() {}
+    
+    // 5. Prevenir deserialización
+    public function __wakeup() {
+        throw new Exception("No se puede deserializar un Singleton");
+    }
+    
+    // Métodos de negocio
+    public function query(string $sql): array {
+        echo "Ejecutando: {$sql}\\n";
+        return [];
+    }
+}
+
+// ❌ No puedes hacer esto (constructor privado)
+// $db = new Database();  // Error: Call to private constructor
+
+// ✅ Forma correcta de obtener la instancia
+$db1 = Database::getInstance();  // Crea la conexión
+$db2 = Database::getInstance();  // Retorna la misma instancia
+$db3 = Database::getInstance();  // Retorna la misma instancia
+
+// Verificar que es la misma instancia
+var_dump($db1 === $db2);  // bool(true)
+var_dump($db2 === $db3);  // bool(true)
+
+$db1->query("SELECT * FROM usuarios");
+?&gt;</code></pre></div>
+
+        <h3>Explicación Paso a Paso</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Logger {
+    // PASO 1: Variable estática privada para guardar la instancia
+    // 'static' = pertenece a la clase, no a objetos individuales
+    // 'private' = solo accesible desde dentro de la clase
+    private static ?Logger $instance = null;
+    
+    private array $logs = [];
+    
+    // PASO 2: Constructor privado
+    // Esto impide que alguien haga: new Logger()
+    private function __construct() {
+        echo "Logger inicializado\\n";
+    }
+    
+    // PASO 3: Método público estático para obtener la instancia
+    public static function getInstance(): Logger {
+        // Si aún no existe instancia
+        if (self::$instance === null) {
+            echo "Creando nueva instancia de Logger\\n";
+            self::$instance = new self();  // 'self' = esta clase
+        } else {
+            echo "Retornando instancia existente\\n";
+        }
+        
+        return self::$instance;
+    }
+    
+    // PASO 4: Prevenir clonación
+    // Sin esto, alguien podría hacer: $logger2 = clone $logger1;
+    private function __clone() {
+        // Constructor vacío = no se puede clonar
+    }
+    
+    // PASO 5: Prevenir deserialización
+    // Sin esto, alguien podría deserializar y crear otra instancia
+    public function __wakeup() {
+        throw new Exception("No se puede deserializar un Singleton");
+    }
+    
+    // Métodos de negocio
+    public function log(string $mensaje): void {
+        $timestamp = date('Y-m-d H:i:s');
+        $this->logs[] = "[{$timestamp}] {$mensaje}";
+        echo "[LOG] {$mensaje}\\n";
+    }
+    
+    public function getLogs(): array {
+        return $this->logs;
+    }
+}
+
+// Uso del Logger
+echo "=== Primera llamada ===\\n";
+$logger1 = Logger::getInstance();  // Crea la instancia
+$logger1->log("Usuario inició sesión");
+
+echo "\\n=== Segunda llamada ===\\n";
+$logger2 = Logger::getInstance();  // Retorna la misma instancia
+$logger2->log("Usuario hizo una compra");
+
+echo "\\n=== Tercera llamada ===\\n";
+$logger3 = Logger::getInstance();  // Retorna la misma instancia
+$logger3->log("Usuario cerró sesión");
+
+// Todos son la misma instancia
+echo "\\n=== Verificación ===\\n";
+echo "¿logger1 === logger2? " . ($logger1 === $logger2 ? "SÍ" : "NO") . "\\n";
+echo "¿logger2 === logger3? " . ($logger2 === $logger3 ? "SÍ" : "NO") . "\\n";
+
+// Todos comparten los mismos logs
+echo "\\n=== Logs compartidos ===\\n";
+print_r($logger1->getLogs());  // Muestra los 3 logs
+print_r($logger2->getLogs());  // Muestra los 3 logs (misma instancia)
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Configuración de Aplicación</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Config {
+    private static ?Config $instance = null;
+    private array $settings = [];
+    
+    private function __construct() {
+        // Cargar configuración desde archivo
+        $this->settings = [
+            'app_name' => 'Mi Aplicación',
+            'version' => '1.0.0',
+            'debug' => true,
+            'database' => [
+                'host' => 'localhost',
+                'port' => 3306,
+                'name' => 'mi_db'
+            ],
+            'api_keys' => [
+                'stripe' => 'sk_test_123',
+                'sendgrid' => 'SG.abc123'
+            ]
+        ];
+        
+        echo "Configuración cargada\\n";
+    }
+    
+    public static function getInstance(): Config {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __clone() {}
+    
+    public function get(string $key, mixed $default = null): mixed {
+        // Soporta notación de punto: 'database.host'
+        $keys = explode('.', $key);
+        $value = $this->settings;
+        
+        foreach ($keys as $k) {
+            if (!isset($value[$k])) {
+                return $default;
+            }
+            $value = $value[$k];
+        }
+        
+        return $value;
+    }
+    
+    public function set(string $key, mixed $value): void {
+        $keys = explode('.', $key);
+        $settings = &$this->settings;
+        
+        foreach ($keys as $k) {
+            if (!isset($settings[$k])) {
+                $settings[$k] = [];
+            }
+            $settings = &$settings[$k];
+        }
+        
+        $settings = $value;
+    }
+    
+    public function all(): array {
+        return $this->settings;
+    }
+}
+
+// Uso en diferentes partes de la aplicación
+echo "=== En el controlador ===\\n";
+$config = Config::getInstance();
+echo "App: " . $config->get('app_name') . "\\n";
+echo "Debug: " . ($config->get('debug') ? 'ON' : 'OFF') . "\\n";
+
+echo "\\n=== En el servicio de base de datos ===\\n";
+$config = Config::getInstance();  // Misma instancia
+$host = $config->get('database.host');
+$port = $config->get('database.port');
+echo "Conectando a {$host}:{$port}\\n";
+
+echo "\\n=== En el servicio de pagos ===\\n";
+$config = Config::getInstance();  // Misma instancia
+$stripeKey = $config->get('api_keys.stripe');
+echo "Usando Stripe key: {$stripeKey}\\n";
+
+// Modificar configuración (afecta a toda la app)
+$config->set('debug', false);
+
+echo "\\n=== Verificar cambio ===\\n";
+$config2 = Config::getInstance();
+echo "Debug ahora: " . ($config2->get('debug') ? 'ON' : 'OFF') . "\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Conexión a Base de Datos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class DatabaseConnection {
+    private static ?DatabaseConnection $instance = null;
+    private ?PDO $connection = null;
+    
+    private function __construct() {
+        try {
+            $this->connection = new PDO(
+                'mysql:host=localhost;dbname=mi_db',
+                'usuario',
+                'password',
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                ]
+            );
+            echo "✅ Conexión a base de datos establecida\\n";
+        } catch (PDOException $e) {
+            die("❌ Error de conexión: " . $e->getMessage());
+        }
+    }
+    
+    public static function getInstance(): DatabaseConnection {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __clone() {}
+    
+    public function getConnection(): PDO {
+        return $this->connection;
+    }
+    
+    public function query(string $sql, array $params = []): array {
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+    
+    public function execute(string $sql, array $params = []): int {
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->rowCount();
+    }
+}
+
+// Uso en diferentes partes de la aplicación
+echo "=== Repositorio de Usuarios ===\\n";
+$db = DatabaseConnection::getInstance();
+$usuarios = $db->query("SELECT * FROM usuarios WHERE activo = ?", [1]);
+echo "Usuarios encontrados: " . count($usuarios) . "\\n";
+
+echo "\\n=== Repositorio de Productos ===\\n";
+$db = DatabaseConnection::getInstance();  // Misma conexión
+$productos = $db->query("SELECT * FROM productos WHERE stock > ?", [0]);
+echo "Productos encontrados: " . count($productos) . "\\n";
+
+echo "\\n=== Servicio de Pedidos ===\\n";
+$db = DatabaseConnection::getInstance();  // Misma conexión
+$affected = $db->execute(
+    "UPDATE pedidos SET estado = ? WHERE id = ?",
+    ['enviado', 123]
+);
+echo "Pedidos actualizados: {$affected}\\n";
+
+// Solo hay UNA conexión a la base de datos
+// Esto ahorra recursos y evita problemas
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Cache Manager</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class CacheManager {
+    private static ?CacheManager $instance = null;
+    private array $cache = [];
+    private array $stats = ['hits' => 0, 'misses' => 0];
+    
+    private function __construct() {
+        echo "Cache Manager inicializado\\n";
+    }
+    
+    public static function getInstance(): CacheManager {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __clone() {}
+    
+    public function set(string $key, mixed $value, int $ttl = 3600): void {
+        $this->cache[$key] = [
+            'value' => $value,
+            'expires' => time() + $ttl
+        ];
+        echo "✅ Cache guardado: {$key}\\n";
+    }
+    
+    public function get(string $key): mixed {
+        if (!isset($this->cache[$key])) {
+            $this->stats['misses']++;
+            echo "❌ Cache miss: {$key}\\n";
+            return null;
+        }
+        
+        $item = $this->cache[$key];
+        
+        // Verificar si expiró
+        if ($item['expires'] < time()) {
+            unset($this->cache[$key]);
+            $this->stats['misses']++;
+            echo "⏰ Cache expirado: {$key}\\n";
+            return null;
+        }
+        
+        $this->stats['hits']++;
+        echo "✅ Cache hit: {$key}\\n";
+        return $item['value'];
+    }
+    
+    public function has(string $key): bool {
+        return $this->get($key) !== null;
+    }
+    
+    public function delete(string $key): void {
+        unset($this->cache[$key]);
+        echo "🗑️ Cache eliminado: {$key}\\n";
+    }
+    
+    public function clear(): void {
+        $this->cache = [];
+        echo "🧹 Cache limpiado completamente\\n";
+    }
+    
+    public function getStats(): array {
+        return $this->stats;
+    }
+}
+
+// Uso en diferentes servicios
+echo "=== Servicio de Usuarios ===\\n";
+$cache = CacheManager::getInstance();
+
+// Guardar en cache
+$usuarios = ['Juan', 'Ana', 'Pedro'];
+$cache->set('usuarios_activos', $usuarios, 60);
+
+echo "\\n=== Servicio de Productos ===\\n";
+$cache = CacheManager::getInstance();  // Misma instancia
+
+// Intentar obtener del cache
+$usuariosCache = $cache->get('usuarios_activos');
+if ($usuariosCache) {
+    echo "Usuarios desde cache: " . implode(', ', $usuariosCache) . "\\n";
+}
+
+// Guardar productos
+$cache->set('productos_destacados', ['Laptop', 'Mouse', 'Teclado'], 120);
+
+echo "\\n=== Servicio de Reportes ===\\n";
+$cache = CacheManager::getInstance();  // Misma instancia
+
+// Obtener estadísticas
+$stats = $cache->getStats();
+echo "Cache hits: {$stats['hits']}\\n";
+echo "Cache misses: {$stats['misses']}\\n";
+
+// Intentar obtener algo que no existe
+$cache->get('clave_inexistente');
+
+// Estadísticas actualizadas
+$stats = $cache->getStats();
+echo "\\nEstadísticas finales:\\n";
+echo "Cache hits: {$stats['hits']}\\n";
+echo "Cache misses: {$stats['misses']}\\n";
+?&gt;</code></pre></div>
+
+        <h3>Singleton con Parámetros de Configuración</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class Logger {
+    private static ?Logger $instance = null;
+    private string $logFile;
+    private string $level;
+    
+    // Constructor acepta parámetros
+    private function __construct(string $logFile = 'app.log', string $level = 'INFO') {
+        $this->logFile = $logFile;
+        $this->level = $level;
+        echo "Logger configurado: {$logFile} (nivel: {$level})\\n";
+    }
+    
+    // getInstance acepta parámetros solo en la primera llamada
+    public static function getInstance(
+        string $logFile = 'app.log',
+        string $level = 'INFO'
+    ): Logger {
+        if (self::$instance === null) {
+            self::$instance = new self($logFile, $level);
+        }
+        // Las siguientes llamadas ignoran los parámetros
+        return self::$instance;
+    }
+    
+    private function __clone() {}
+    
+    public function log(string $mensaje): void {
+        $timestamp = date('Y-m-d H:i:s');
+        $entry = "[{$timestamp}] [{$this->level}] {$mensaje}\\n";
+        file_put_contents($this->logFile, $entry, FILE_APPEND);
+        echo $entry;
+    }
+    
+    public function getConfig(): array {
+        return [
+            'file' => $this->logFile,
+            'level' => $this->level
+        ];
+    }
+}
+
+// Primera llamada: configura el logger
+$logger1 = Logger::getInstance('custom.log', 'DEBUG');
+$logger1->log("Aplicación iniciada");
+
+// Segunda llamada: ignora los parámetros (usa la instancia existente)
+$logger2 = Logger::getInstance('otro.log', 'ERROR');  // Parámetros ignorados
+$logger2->log("Usuario autenticado");
+
+// Verificar configuración
+print_r($logger2->getConfig());  // Muestra 'custom.log' y 'DEBUG'
+?&gt;</code></pre></div>
+
+        <h3>Singleton Thread-Safe (PHP 8+)</h3>
+        <div class="code-block"><pre><code>&lt;?php
+class ThreadSafeLogger {
+    private static ?ThreadSafeLogger $instance = null;
+    private static $lock = false;
+    
+    private function __construct() {
+        echo "Logger inicializado\\n";
+    }
+    
+    public static function getInstance(): ThreadSafeLogger {
+        // Double-checked locking para thread safety
+        if (self::$instance === null) {
+            // Simular lock (en producción usarías mutex real)
+            while (self::$lock) {
+                usleep(100);  // Esperar 100 microsegundos
+            }
+            
+            self::$lock = true;
+            
+            // Verificar nuevamente después del lock
+            if (self::$instance === null) {
+                self::$instance = new self();
+            }
+            
+            self::$lock = false;
+        }
+        
+        return self::$instance;
+    }
+    
+    private function __clone() {}
+    
+    public function log(string $mensaje): void {
+        echo "[LOG] {$mensaje}\\n";
+    }
+}
+?&gt;</code></pre></div>
+
+        <h3>Cuándo NO Usar Singleton</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ MAL: Usar Singleton para algo que debería tener múltiples instancias
+class Usuario {
+    private static ?Usuario $instance = null;
+    private string $nombre;
+    
+    private function __construct(string $nombre) {
+        $this->nombre = $nombre;
+    }
+    
+    public static function getInstance(string $nombre): Usuario {
+        if (self::$instance === null) {
+            self::$instance = new self($nombre);
+        }
+        return self::$instance;
+    }
+}
+
+// Problema: Solo puedes tener UN usuario
+$juan = Usuario::getInstance("Juan");
+$ana = Usuario::getInstance("Ana");  // Sigue siendo Juan!
+
+// ✅ BIEN: Usar clases normales para múltiples instancias
+class Usuario {
+    public function __construct(
+        private string $nombre
+    ) {}
+    
+    public function getNombre(): string {
+        return $this->nombre;
+    }
+}
+
+$juan = new Usuario("Juan");
+$ana = new Usuario("Ana");  // Instancia diferente
+?&gt;</code></pre></div>
+
+        <h3>Alternativas Modernas al Singleton</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Alternativa 1: Inyección de Dependencias
+class Logger {
+    public function log(string $mensaje): void {
+        echo "[LOG] {$mensaje}\\n";
+    }
+}
+
+class UsuarioService {
+    public function __construct(
+        private Logger $logger  // Inyectado, no Singleton
+    ) {}
+    
+    public function crear(string $nombre): void {
+        $this->logger->log("Usuario creado: {$nombre}");
+    }
+}
+
+// Crear UNA instancia de Logger
+$logger = new Logger();
+
+// Inyectarla en todos los servicios que la necesiten
+$usuarioService = new UsuarioService($logger);
+$productoService = new ProductoService($logger);
+
+// Alternativa 2: Contenedor de Dependencias
+class Container {
+    private array $instances = [];
+    
+    public function singleton(string $class, callable $factory): void {
+        $this->instances[$class] = null;
+        $this->factories[$class] = $factory;
+    }
+    
+    public function get(string $class): mixed {
+        if (!isset($this->instances[$class])) {
+            $this->instances[$class] = $this->factories[$class]();
+        }
+        return $this->instances[$class];
+    }
+}
+
+$container = new Container();
+$container->singleton(Logger::class, fn() => new Logger());
+
+// Obtener la misma instancia
+$logger1 = $container->get(Logger::class);
+$logger2 = $container->get(Logger::class);  // Misma instancia
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Singleton:</strong><br>
+            • <strong>Control de instancia</strong>: Garantiza una única instancia<br>
+            • <strong>Acceso global</strong>: Disponible desde cualquier parte<br>
+            • <strong>Lazy initialization</strong>: Se crea solo cuando se necesita<br>
+            • <strong>Ahorro de recursos</strong>: No duplica objetos costosos<br>
+            • <strong>Estado compartido</strong>: Todos acceden al mismo estado<br>
+            • <strong>Punto de control</strong>: Centraliza la lógica de creación
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas del Singleton:</strong><br>
+            • <strong>Estado global</strong>: Puede causar acoplamiento fuerte<br>
+            • <strong>Difícil de testear</strong>: Complica los tests unitarios<br>
+            • <strong>Viola SRP</strong>: Controla su creación y su lógica<br>
+            • <strong>Oculta dependencias</strong>: No es claro quién lo usa<br>
+            • <strong>Thread safety</strong>: Puede tener problemas en concurrencia<br>
+            • <strong>Anti-patrón</strong>: Considerado anti-patrón por muchos desarrolladores
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar Singleton:</strong><br>
+            • <strong>Conexiones BD</strong>: Pool de conexiones compartido<br>
+            • <strong>Configuración</strong>: Settings globales de la aplicación<br>
+            • <strong>Logger</strong>: Sistema de logging centralizado<br>
+            • <strong>Cache</strong>: Gestión de cache en memoria<br>
+            • <strong>Registro</strong>: Registry pattern para objetos globales<br>
+            • <strong>Factory</strong>: Fábricas de objetos compartidas<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Cuando necesitas múltiples instancias<br>
+            • Cuando puedes usar inyección de dependencias<br>
+            • En tests unitarios (mejor usar mocks)<br>
+            • Cuando el estado debe ser independiente
+        </div>
+    `,
+    'patron-factory': `
+        <h1>Patrón Factory Method</h1>
+        
+        <p>El <strong>patrón Factory Method</strong> es un patrón de diseño creacional que proporciona una interfaz para crear objetos, pero permite que las subclases decidan qué clase instanciar. En lugar de llamar directamente al constructor con <code>new</code>, delegas la creación de objetos a un método factory.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es Factory Method?</strong><br>
+            • <strong>Propósito</strong>: Delegar la creación de objetos a métodos especializados<br>
+            • <strong>Problema</strong>: Evitar acoplamiento con clases concretas<br>
+            • <strong>Solución</strong>: Usar un método que retorna objetos de una interfaz común<br>
+            • <strong>Ventaja</strong>: El código cliente no necesita conocer las clases concretas<br>
+            • <strong>Uso común</strong>: Crear objetos de diferentes tipos según condiciones
+        </div>
+
+        <h3>¿Por Qué Usar Factory Method?</h3>
+        <p>Imagina que tienes una aplicación que procesa diferentes tipos de documentos (PDF, Word, Excel). Sin Factory Method:</p>
+        <ul>
+            <li>Tendrías que usar <code>new</code> con clases concretas en muchos lugares</li>
+            <li>Si agregas un nuevo tipo, debes modificar todo el código</li>
+            <li>El código está acoplado a implementaciones específicas</li>
+        </ul>
+        <p>Con Factory Method, centralizas la lógica de creación y el código cliente solo trabaja con interfaces.</p>
+
+        <h3>Problema Sin Factory Method</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ SIN Factory Method: Código acoplado y difícil de mantener
+
+class PDFDocument {
+    public function open(): void {
+        echo "Abriendo documento PDF\\n";
+    }
+}
+
+class WordDocument {
+    public function open(): void {
+        echo "Abriendo documento Word\\n";
+    }
+}
+
+class ExcelDocument {
+    public function open(): void {
+        echo "Abriendo documento Excel\\n";
+    }
+}
+
+// Código cliente acoplado a clases concretas
+function procesarDocumento(string $tipo): void {
+    // ❌ Muchos if/switch basados en tipos
+    if ($tipo === 'pdf') {
+        $doc = new PDFDocument();  // Acoplamiento directo
+    } elseif ($tipo === 'word') {
+        $doc = new WordDocument();  // Acoplamiento directo
+    } elseif ($tipo === 'excel') {
+        $doc = new ExcelDocument();  // Acoplamiento directo
+    } else {
+        throw new Exception("Tipo no soportado");
+    }
+    
+    $doc->open();
+}
+
+// Problemas:
+// 1. Código duplicado en múltiples lugares
+// 2. Difícil agregar nuevos tipos
+// 3. Acoplamiento fuerte con clases concretas
+// 4. Viola el principio Open/Closed
+
+procesarDocumento('pdf');
+?&gt;</code></pre></div>
+
+        <h3>Solución Con Factory Method</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ CON Factory Method: Código desacoplado y extensible
+
+// 1. Definir interfaz común
+interface Document {
+    public function open(): void;
+    public function save(): void;
+    public function close(): void;
+}
+
+// 2. Implementaciones concretas
+class PDFDocument implements Document {
+    public function open(): void {
+        echo "📄 Abriendo documento PDF\\n";
+    }
+    
+    public function save(): void {
+        echo "💾 Guardando PDF\\n";
+    }
+    
+    public function close(): void {
+        echo "❌ Cerrando PDF\\n";
+    }
+}
+
+class WordDocument implements Document {
+    public function open(): void {
+        echo "📝 Abriendo documento Word\\n";
+    }
+    
+    public function save(): void {
+        echo "💾 Guardando Word\\n";
+    }
+    
+    public function close(): void {
+        echo "❌ Cerrando Word\\n";
+    }
+}
+
+class ExcelDocument implements Document {
+    public function open(): void {
+        echo "📊 Abriendo documento Excel\\n";
+    }
+    
+    public function save(): void {
+        echo "💾 Guardando Excel\\n";
+    }
+    
+    public function close(): void {
+        echo "❌ Cerrando Excel\\n";
+    }
+}
+
+// 3. Factory Method: Centraliza la creación
+class DocumentFactory {
+    public static function create(string $tipo): Document {
+        return match($tipo) {
+            'pdf' => new PDFDocument(),
+            'word' => new WordDocument(),
+            'excel' => new ExcelDocument(),
+            default => throw new InvalidArgumentException("Tipo no soportado: {$tipo}")
+        };
+    }
+}
+
+// 4. Código cliente desacoplado
+function procesarDocumento(string $tipo): void {
+    // ✅ Solo conoce la interfaz Document
+    $doc = DocumentFactory::create($tipo);
+    
+    $doc->open();
+    $doc->save();
+    $doc->close();
+}
+
+// Uso simple y limpio
+procesarDocumento('pdf');
+procesarDocumento('word');
+procesarDocumento('excel');
+
+// Ventajas:
+// 1. Código cliente desacoplado
+// 2. Fácil agregar nuevos tipos
+// 3. Lógica de creación centralizada
+// 4. Respeta Open/Closed Principle
+?&gt;</code></pre></div>
+
+        <h3>Factory Method con Clase Abstracta</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Patrón Factory Method clásico con herencia
+
+// 1. Producto abstracto
+interface Transporte {
+    public function entregar(): void;
+}
+
+// 2. Productos concretos
+class Camion implements Transporte {
+    public function entregar(): void {
+        echo "🚚 Entrega por tierra en camión\\n";
+    }
+}
+
+class Barco implements Transporte {
+    public function entregar(): void {
+        echo "🚢 Entrega por mar en barco\\n";
+    }
+}
+
+class Avion implements Transporte {
+    public function entregar(): void {
+        echo "✈️ Entrega por aire en avión\\n";
+    }
+}
+
+// 3. Creador abstracto con Factory Method
+abstract class Logistica {
+    // Factory Method abstracto: las subclases deciden qué crear
+    abstract protected function crearTransporte(): Transporte;
+    
+    // Método que usa el Factory Method
+    public function planificarEntrega(): void {
+        echo "Planificando entrega...\\n";
+        
+        // Llama al Factory Method (implementado por subclases)
+        $transporte = $this->crearTransporte();
+        
+        // Usa el objeto creado
+        $transporte->entregar();
+        
+        echo "Entrega completada\\n\\n";
+    }
+}
+
+// 4. Creadores concretos: implementan el Factory Method
+class LogisticaTerrestre extends Logistica {
+    protected function crearTransporte(): Transporte {
+        return new Camion();
+    }
+}
+
+class LogisticaMaritima extends Logistica {
+    protected function crearTransporte(): Transporte {
+        return new Barco();
+    }
+}
+
+class LogisticaAerea extends Logistica {
+    protected function crearTransporte(): Transporte {
+        return new Avion();
+    }
+}
+
+// Uso: El cliente trabaja con la clase base
+function procesarLogistica(Logistica $logistica): void {
+    $logistica->planificarEntrega();
+}
+
+// Cada tipo de logística crea su propio transporte
+$terrestre = new LogisticaTerrestre();
+procesarLogistica($terrestre);
+
+$maritima = new LogisticaMaritima();
+procesarLogistica($maritima);
+
+$aerea = new LogisticaAerea();
+procesarLogistica($aerea);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Notificaciones</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de notificaciones con Factory Method
+
+// 1. Interfaz de notificación
+interface Notificacion {
+    public function enviar(string $destinatario, string $mensaje): bool;
+    public function getTipo(): string;
+}
+
+// 2. Implementaciones concretas
+class EmailNotificacion implements Notificacion {
+    public function enviar(string $destinatario, string $mensaje): bool {
+        echo "📧 Enviando email a {$destinatario}\\n";
+        echo "   Mensaje: {$mensaje}\\n";
+        return true;
+    }
+    
+    public function getTipo(): string {
+        return 'email';
+    }
+}
+
+class SMSNotificacion implements Notificacion {
+    public function enviar(string $destinatario, string $mensaje): bool {
+        echo "📱 Enviando SMS a {$destinatario}\\n";
+        echo "   Mensaje: {$mensaje}\\n";
+        return true;
+    }
+    
+    public function getTipo(): string {
+        return 'sms';
+    }
+}
+
+class PushNotificacion implements Notificacion {
+    public function enviar(string $destinatario, string $mensaje): bool {
+        echo "🔔 Enviando push a {$destinatario}\\n";
+        echo "   Mensaje: {$mensaje}\\n";
+        return true;
+    }
+    
+    public function getTipo(): string {
+        return 'push';
+    }
+}
+
+class SlackNotificacion implements Notificacion {
+    public function enviar(string $destinatario, string $mensaje): bool {
+        echo "💬 Enviando mensaje Slack a {$destinatario}\\n";
+        echo "   Mensaje: {$mensaje}\\n";
+        return true;
+    }
+    
+    public function getTipo(): string {
+        return 'slack';
+    }
+}
+
+// 3. Factory con lógica de creación
+class NotificacionFactory {
+    public static function create(string $tipo): Notificacion {
+        return match(strtolower($tipo)) {
+            'email', 'correo' => new EmailNotificacion(),
+            'sms', 'texto' => new SMSNotificacion(),
+            'push', 'notificacion' => new PushNotificacion(),
+            'slack', 'chat' => new SlackNotificacion(),
+            default => throw new InvalidArgumentException(
+                "Tipo de notificación no soportado: {$tipo}"
+            )
+        };
+    }
+    
+    // Factory Method con configuración
+    public static function createFromConfig(array $config): Notificacion {
+        $tipo = $config['tipo'] ?? 'email';
+        return self::create($tipo);
+    }
+    
+    // Factory Method para múltiples notificaciones
+    public static function createMultiple(array $tipos): array {
+        return array_map(
+            fn($tipo) => self::create($tipo),
+            $tipos
+        );
+    }
+}
+
+// 4. Servicio que usa el Factory
+class NotificadorService {
+    public function notificarUsuario(
+        string $tipoNotificacion,
+        string $destinatario,
+        string $mensaje
+    ): void {
+        // Crear notificación usando Factory
+        $notificacion = NotificacionFactory::create($tipoNotificacion);
+        
+        echo "Usando notificación tipo: {$notificacion->getTipo()}\\n";
+        $notificacion->enviar($destinatario, $mensaje);
+        echo "\\n";
+    }
+    
+    public function notificarMultiple(
+        array $tiposNotificacion,
+        string $destinatario,
+        string $mensaje
+    ): void {
+        $notificaciones = NotificacionFactory::createMultiple($tiposNotificacion);
+        
+        foreach ($notificaciones as $notificacion) {
+            $notificacion->enviar($destinatario, $mensaje);
+        }
+    }
+}
+
+// Uso del servicio
+$servicio = new NotificadorService();
+
+echo "=== Notificación simple ===\\n";
+$servicio->notificarUsuario('email', 'user@example.com', 'Bienvenido!');
+
+echo "=== Notificación por SMS ===\\n";
+$servicio->notificarUsuario('sms', '+34123456789', 'Código: 1234');
+
+echo "=== Notificaciones múltiples ===\\n";
+$servicio->notificarMultiple(
+    ['email', 'push', 'slack'],
+    'usuario',
+    'Tienes un nuevo mensaje'
+);
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Sistema de Pagos</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Sistema de procesamiento de pagos
+
+// 1. Interfaz de procesador de pagos
+interface ProcesadorPago {
+    public function procesarPago(float $monto, array $datos): bool;
+    public function reembolsar(string $transaccionId): bool;
+    public function getNombre(): string;
+}
+
+// 2. Implementaciones concretas
+class ProcesadorTarjeta implements ProcesadorPago {
+    public function procesarPago(float $monto, array $datos): bool {
+        echo "💳 Procesando pago con tarjeta\\n";
+        echo "   Monto: \${$monto}\\n";
+        echo "   Tarjeta: ****{$datos['ultimos4']}\\n";
+        return true;
+    }
+    
+    public function reembolsar(string $transaccionId): bool {
+        echo "↩️ Reembolsando transacción: {$transaccionId}\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return 'Tarjeta de Crédito';
+    }
+}
+
+class ProcesadorPayPal implements ProcesadorPago {
+    public function procesarPago(float $monto, array $datos): bool {
+        echo "🅿️ Procesando pago con PayPal\\n";
+        echo "   Monto: \${$monto}\\n";
+        echo "   Email: {$datos['email']}\\n";
+        return true;
+    }
+    
+    public function reembolsar(string $transaccionId): bool {
+        echo "↩️ Reembolsando vía PayPal: {$transaccionId}\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return 'PayPal';
+    }
+}
+
+class ProcesadorCripto implements ProcesadorPago {
+    public function procesarPago(float $monto, array $datos): bool {
+        echo "₿ Procesando pago con criptomoneda\\n";
+        echo "   Monto: \${$monto}\\n";
+        echo "   Wallet: {$datos['wallet']}\\n";
+        echo "   Moneda: {$datos['moneda']}\\n";
+        return true;
+    }
+    
+    public function reembolsar(string $transaccionId): bool {
+        echo "↩️ Reembolsando cripto: {$transaccionId}\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return 'Criptomoneda';
+    }
+}
+
+class ProcesadorTransferencia implements ProcesadorPago {
+    public function procesarPago(float $monto, array $datos): bool {
+        echo "🏦 Procesando transferencia bancaria\\n";
+        echo "   Monto: \${$monto}\\n";
+        echo "   Banco: {$datos['banco']}\\n";
+        echo "   Cuenta: ****{$datos['cuenta']}\\n";
+        return true;
+    }
+    
+    public function reembolsar(string $transaccionId): bool {
+        echo "↩️ Reembolsando transferencia: {$transaccionId}\\n";
+        return true;
+    }
+    
+    public function getNombre(): string {
+        return 'Transferencia Bancaria';
+    }
+}
+
+// 3. Factory con validación y lógica compleja
+class ProcesadorPagoFactory {
+    private static array $procesadores = [
+        'tarjeta' => ProcesadorTarjeta::class,
+        'paypal' => ProcesadorPayPal::class,
+        'cripto' => ProcesadorCripto::class,
+        'transferencia' => ProcesadorTransferencia::class,
+    ];
+    
+    public static function create(string $metodo): ProcesadorPago {
+        $metodo = strtolower($metodo);
+        
+        if (!isset(self::$procesadores[$metodo])) {
+            throw new InvalidArgumentException(
+                "Método de pago no soportado: {$metodo}"
+            );
+        }
+        
+        $clase = self::$procesadores[$metodo];
+        return new $clase();
+    }
+    
+    // Factory Method con detección automática
+    public static function createFromDatos(array $datos): ProcesadorPago {
+        if (isset($datos['numero_tarjeta'])) {
+            return new ProcesadorTarjeta();
+        }
+        
+        if (isset($datos['email_paypal'])) {
+            return new ProcesadorPayPal();
+        }
+        
+        if (isset($datos['wallet'])) {
+            return new ProcesadorCripto();
+        }
+        
+        if (isset($datos['cuenta_bancaria'])) {
+            return new ProcesadorTransferencia();
+        }
+        
+        throw new InvalidArgumentException("No se pudo determinar el método de pago");
+    }
+    
+    // Registrar nuevos procesadores dinámicamente
+    public static function registrar(string $nombre, string $clase): void {
+        if (!is_subclass_of($clase, ProcesadorPago::class)) {
+            throw new InvalidArgumentException(
+                "La clase debe implementar ProcesadorPago"
+            );
+        }
+        
+        self::$procesadores[$nombre] = $clase;
+    }
+    
+    public static function getMetodosDisponibles(): array {
+        return array_keys(self::$procesadores);
+    }
+}
+
+// 4. Servicio de pagos
+class ServicioPagos {
+    public function procesarPedido(
+        float $monto,
+        string $metodoPago,
+        array $datosPago
+    ): bool {
+        echo "=== Procesando pedido ===\\n";
+        echo "Monto total: \${$monto}\\n";
+        
+        // Crear procesador usando Factory
+        $procesador = ProcesadorPagoFactory::create($metodoPago);
+        
+        echo "Método seleccionado: {$procesador->getNombre()}\\n\\n";
+        
+        // Procesar pago
+        $resultado = $procesador->procesarPago($monto, $datosPago);
+        
+        if ($resultado) {
+            echo "\\n✅ Pago procesado exitosamente\\n";
+        } else {
+            echo "\\n❌ Error al procesar pago\\n";
+        }
+        
+        return $resultado;
+    }
+}
+
+// Uso del servicio
+$servicio = new ServicioPagos();
+
+echo "=== Pago 1: Tarjeta ===\\n";
+$servicio->procesarPedido(
+    150.00,
+    'tarjeta',
+    ['ultimos4' => '1234', 'cvv' => '123']
+);
+
+echo "\\n=== Pago 2: PayPal ===\\n";
+$servicio->procesarPedido(
+    75.50,
+    'paypal',
+    ['email' => 'user@example.com']
+);
+
+echo "\\n=== Pago 3: Cripto ===\\n";
+$servicio->procesarPedido(
+    200.00,
+    'cripto',
+    ['wallet' => '1A2B3C...', 'moneda' => 'BTC']
+);
+
+echo "\\n=== Métodos disponibles ===\\n";
+$metodos = ProcesadorPagoFactory::getMetodosDisponibles();
+echo "Métodos: " . implode(', ', $metodos) . "\\n";
+?&gt;</code></pre></div>
+
+        <h3>Factory Method con Parámetros</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Factory que acepta parámetros de configuración
+
+interface Reporte {
+    public function generar(array $datos): string;
+}
+
+class ReportePDF implements Reporte {
+    public function __construct(
+        private string $orientacion = 'portrait',
+        private string $tamano = 'A4'
+    ) {}
+    
+    public function generar(array $datos): string {
+        return "Reporte PDF ({$this->orientacion}, {$this->tamano})";
+    }
+}
+
+class ReporteExcel implements Reporte {
+    public function __construct(
+        private bool $incluirGraficos = true
+    ) {}
+    
+    public function generar(array $datos): string {
+        $graficos = $this->incluirGraficos ? 'con gráficos' : 'sin gráficos';
+        return "Reporte Excel ({$graficos})";
+    }
+}
+
+class ReporteHTML implements Reporte {
+    public function __construct(
+        private string $tema = 'light'
+    ) {}
+    
+    public function generar(array $datos): string {
+        return "Reporte HTML (tema: {$this->tema})";
+    }
+}
+
+class ReporteFactory {
+    public static function create(
+        string $tipo,
+        array $opciones = []
+    ): Reporte {
+        return match($tipo) {
+            'pdf' => new ReportePDF(
+                $opciones['orientacion'] ?? 'portrait',
+                $opciones['tamano'] ?? 'A4'
+            ),
+            'excel' => new ReporteExcel(
+                $opciones['graficos'] ?? true
+            ),
+            'html' => new ReporteHTML(
+                $opciones['tema'] ?? 'light'
+            ),
+            default => throw new InvalidArgumentException("Tipo no soportado")
+        };
+    }
+}
+
+// Uso con diferentes configuraciones
+$pdfVertical = ReporteFactory::create('pdf', [
+    'orientacion' => 'portrait',
+    'tamano' => 'A4'
+]);
+
+$pdfHorizontal = ReporteFactory::create('pdf', [
+    'orientacion' => 'landscape',
+    'tamano' => 'Letter'
+]);
+
+$excelSimple = ReporteFactory::create('excel', [
+    'graficos' => false
+]);
+
+$htmlOscuro = ReporteFactory::create('html', [
+    'tema' => 'dark'
+]);
+
+echo $pdfVertical->generar([]) . "\\n";
+echo $pdfHorizontal->generar([]) . "\\n";
+echo $excelSimple->generar([]) . "\\n";
+echo $htmlOscuro->generar([]) . "\\n";
+?&gt;</code></pre></div>
+
+        <h3>Factory Method con Registro Dinámico</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Factory extensible que permite registrar nuevos tipos
+
+interface Exportador {
+    public function exportar(array $datos): string;
+}
+
+class ExportadorJSON implements Exportador {
+    public function exportar(array $datos): string {
+        return json_encode($datos);
+    }
+}
+
+class ExportadorXML implements Exportador {
+    public function exportar(array $datos): string {
+        return "&lt;datos&gt;" . print_r($datos, true) . "&lt;/datos&gt;";
+    }
+}
+
+class ExportadorCSV implements Exportador {
+    public function exportar(array $datos): string {
+        return implode(',', $datos);
+    }
+}
+
+class ExportadorFactory {
+    private static array $exportadores = [];
+    
+    // Registrar exportadores en tiempo de ejecución
+    public static function registrar(string $tipo, string $clase): void {
+        if (!is_subclass_of($clase, Exportador::class)) {
+            throw new InvalidArgumentException(
+                "La clase debe implementar Exportador"
+            );
+        }
+        
+        self::$exportadores[$tipo] = $clase;
+    }
+    
+    public static function create(string $tipo): Exportador {
+        if (!isset(self::$exportadores[$tipo])) {
+            throw new InvalidArgumentException(
+                "Exportador no registrado: {$tipo}"
+            );
+        }
+        
+        $clase = self::$exportadores[$tipo];
+        return new $clase();
+    }
+    
+    public static function getTiposDisponibles(): array {
+        return array_keys(self::$exportadores);
+    }
+}
+
+// Registrar exportadores
+ExportadorFactory::registrar('json', ExportadorJSON::class);
+ExportadorFactory::registrar('xml', ExportadorXML::class);
+ExportadorFactory::registrar('csv', ExportadorCSV::class);
+
+// Usar exportadores
+$datos = ['nombre' => 'Juan', 'edad' => 30];
+
+$json = ExportadorFactory::create('json');
+echo "JSON: " . $json->exportar($datos) . "\\n";
+
+$xml = ExportadorFactory::create('xml');
+echo "XML: " . $xml->exportar($datos) . "\\n";
+
+// Agregar nuevo exportador en tiempo de ejecución
+class ExportadorYAML implements Exportador {
+    public function exportar(array $datos): string {
+        return "nombre: Juan\\nedad: 30";
+    }
+}
+
+ExportadorFactory::registrar('yaml', ExportadorYAML::class);
+
+$yaml = ExportadorFactory::create('yaml');
+echo "YAML: " . $yaml->exportar($datos) . "\\n";
+
+echo "\\nTipos disponibles: " . implode(', ', ExportadorFactory::getTiposDisponibles());
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Factory Method:</strong><br>
+            • <strong>Desacoplamiento</strong>: El código cliente no conoce clases concretas<br>
+            • <strong>Extensibilidad</strong>: Fácil agregar nuevos tipos sin modificar código existente<br>
+            • <strong>Centralización</strong>: Lógica de creación en un solo lugar<br>
+            • <strong>Flexibilidad</strong>: Puedes cambiar qué objetos se crean sin afectar clientes<br>
+            • <strong>Open/Closed</strong>: Abierto para extensión, cerrado para modificación<br>
+            • <strong>Testeable</strong>: Fácil crear mocks y stubs para testing
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas del Factory Method:</strong><br>
+            • <strong>Complejidad</strong>: Añade clases y abstracciones adicionales<br>
+            • <strong>Over-engineering</strong>: Puede ser excesivo para casos simples<br>
+            • <strong>Indirección</strong>: Un nivel más de indirección en el código<br>
+            • <strong>Mantenimiento</strong>: Más código que mantener<br>
+            • <strong>Curva de aprendizaje</strong>: Puede ser confuso para principiantes
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar Factory Method:</strong><br>
+            • <strong>Múltiples tipos</strong>: Cuando tienes varias implementaciones de una interfaz<br>
+            • <strong>Lógica compleja</strong>: La creación requiere lógica condicional<br>
+            • <strong>Desacoplamiento</strong>: Quieres separar creación de uso<br>
+            • <strong>Extensibilidad</strong>: Necesitas agregar tipos frecuentemente<br>
+            • <strong>Configuración</strong>: La creación depende de configuración externa<br>
+            • <strong>Testing</strong>: Necesitas intercambiar implementaciones fácilmente<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Solo tienes una implementación<br>
+            • La creación es trivial (solo <code>new</code>)<br>
+            • El código es simple y no cambiará<br>
+            • Añade complejidad innecesaria
+        </div>
+    `,
+    'patron-abstract-factory': `
+        <h1>Patrón Abstract Factory</h1>
+        
+        <p>El <strong>patrón Abstract Factory</strong> es un patrón de diseño creacional que proporciona una interfaz para crear <strong>familias de objetos relacionados</strong> sin especificar sus clases concretas. Es como un "factory de factories" que crea grupos de objetos que están diseñados para trabajar juntos.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es Abstract Factory?</strong><br>
+            • <strong>Propósito</strong>: Crear familias completas de objetos relacionados<br>
+            • <strong>Diferencia con Factory Method</strong>: Crea múltiples productos relacionados, no solo uno<br>
+            • <strong>Problema</strong>: Garantizar que objetos de una familia sean compatibles entre sí<br>
+            • <strong>Solución</strong>: Una interfaz factory que crea todos los productos de una familia<br>
+            • <strong>Uso común</strong>: Temas UI, sistemas multiplataforma, familias de productos
+        </div>
+
+        <h3>Factory Method vs Abstract Factory</h3>
+        <p><strong>Factory Method</strong> crea UN tipo de objeto. <strong>Abstract Factory</strong> crea FAMILIAS de objetos relacionados que trabajan juntos.</p>
+
+        <h3>¿Por Qué Usar Abstract Factory?</h3>
+        <p>Imagina que estás creando una aplicación con diferentes temas visuales (Claro, Oscuro). Cada tema necesita botones, inputs y checkboxes con estilo específico. Abstract Factory garantiza que todos los componentes de un tema sean compatibles entre sí.</p>
+
+        <h3>Solución Con Abstract Factory</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// 1. Interfaces de productos
+interface Boton {
+    public function render(): void;
+}
+
+interface Input {
+    public function render(): void;
+}
+
+// 2. Productos concretos - Tema Claro
+class BotonClaro implements Boton {
+    public function render(): void {
+        echo "🔘 Botón claro (fondo blanco)\\n";
+    }
+}
+
+class InputClaro implements Input {
+    public function render(): void {
+        echo "📝 Input claro (borde gris)\\n";
+    }
+}
+
+// 3. Productos concretos - Tema Oscuro
+class BotonOscuro implements Boton {
+    public function render(): void {
+        echo "🔘 Botón oscuro (fondo negro)\\n";
+    }
+}
+
+class InputOscuro implements Input {
+    public function render(): void {
+        echo "📝 Input oscuro (borde gris oscuro)\\n";
+    }
+}
+
+// 4. Abstract Factory
+interface UIFactory {
+    public function crearBoton(): Boton;
+    public function crearInput(): Input;
+}
+
+// 5. Factories concretas
+class TemaClaro implements UIFactory {
+    public function crearBoton(): Boton {
+        return new BotonClaro();
+    }
+    
+    public function crearInput(): Input {
+        return new InputClaro();
+    }
+}
+
+class TemaOscuro implements UIFactory {
+    public function crearBoton(): Boton {
+        return new BotonOscuro();
+    }
+    
+    public function crearInput(): Input {
+        return new InputOscuro();
+    }
+}
+
+// 6. Cliente
+class Formulario {
+    public function __construct(private UIFactory $factory) {}
+    
+    public function render(): void {
+        $boton = $this->factory->crearBoton();
+        $input = $this->factory->crearInput();
+        
+        $boton->render();
+        $input->render();
+    }
+}
+
+// Uso
+$formularioClaro = new Formulario(new TemaClaro());
+$formularioClaro->render();
+
+$formularioOscuro = new Formulario(new TemaOscuro());
+$formularioOscuro->render();
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Abstract Factory:</strong><br>
+            • <strong>Consistencia</strong>: Garantiza que productos sean compatibles<br>
+            • <strong>Aislamiento</strong>: Separa código de implementaciones concretas<br>
+            • <strong>Intercambiabilidad</strong>: Fácil cambiar familias completas<br>
+            • <strong>Open/Closed</strong>: Agregar familias sin modificar código<br>
+            • <strong>Testeable</strong>: Fácil crear familias mock
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas:</strong><br>
+            • <strong>Complejidad</strong>: Muchas interfaces y clases<br>
+            • <strong>Rigidez</strong>: Agregar producto requiere modificar todas las factories<br>
+            • <strong>Over-engineering</strong>: Puede ser excesivo para casos simples
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar:</strong><br>
+            • Familias de productos que deben ser compatibles<br>
+            • UI con diferentes temas visuales<br>
+            • Aplicaciones multiplataforma<br>
+            • Diferentes implementaciones de una API<br>
+            • Necesitas garantizar consistencia entre objetos
+        </div>
+    `,
+    'patron-builder': `
+        <h1>Patrón Builder</h1>
+        
+        <p>El <strong>patrón Builder</strong> es un patrón de diseño creacional que permite construir objetos complejos paso a paso. Separa la construcción de un objeto de su representación, permitiendo crear diferentes representaciones usando el mismo proceso de construcción.</p>
+
+        <div class="info-box">
+            <strong>💡 ¿Qué es Builder?</strong><br>
+            • <strong>Propósito</strong>: Construir objetos complejos paso a paso<br>
+            • <strong>Problema</strong>: Evitar constructores con muchos parámetros<br>
+            • <strong>Solución</strong>: Clase builder que construye el objeto gradualmente<br>
+            • <strong>Ventaja</strong>: Código más legible y flexible<br>
+            • <strong>Uso común</strong>: Objetos con muchas propiedades opcionales
+        </div>
+
+        <h3>¿Por Qué Usar Builder?</h3>
+        <p>Imagina que tienes una clase con 10+ parámetros opcionales. Sin Builder:</p>
+        <ul>
+            <li>Constructor con muchos parámetros (difícil de leer)</li>
+            <li>Múltiples constructores sobrecargados</li>
+            <li>No sabes qué representa cada parámetro</li>
+            <li>Difícil agregar nuevas opciones</li>
+        </ul>
+        <p>Con Builder, construyes el objeto paso a paso con métodos descriptivos.</p>
+
+        <h3>Problema Sin Builder</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ❌ SIN Builder: Constructor con muchos parámetros
+
+class Pizza {
+    public function __construct(
+        private string $masa,
+        private string $salsa,
+        private string $queso,
+        private bool $pepperoni = false,
+        private bool $jamon = false,
+        private bool $champinones = false,
+        private bool $aceitunas = false,
+        private bool $pimiento = false,
+        private bool $cebolla = false,
+        private string $tamano = 'mediana',
+        private bool $bordRelleno = false,
+        private string $coccion = 'normal'
+    ) {}
+}
+
+// ❌ Difícil de leer y entender
+$pizza = new Pizza(
+    'delgada',
+    'tomate',
+    'mozzarella',
+    true,   // ¿Qué es esto?
+    false,  // ¿Y esto?
+    true,   // ¿Y esto?
+    false,
+    true,
+    false,
+    'grande',
+    true,
+    'extra'
+);
+
+// Problemas:
+// 1. No sabes qué representa cada parámetro
+// 2. Debes pasar todos los parámetros en orden
+// 3. Difícil agregar nuevas opciones
+// 4. Código poco legible
+?&gt;</code></pre></div>
+
+        <h3>Solución Con Builder</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// ✅ CON Builder: Construcción paso a paso y legible
+
+class Pizza {
+    private string $masa;
+    private string $salsa;
+    private string $queso;
+    private array $ingredientes = [];
+    private string $tamano = 'mediana';
+    private bool $bordRelleno = false;
+    private string $coccion = 'normal';
+    
+    // Constructor privado: solo el builder puede crear pizzas
+    private function __construct() {}
+    
+    public function describir(): string {
+        $desc = "Pizza {$this->tamano} con masa {$this->masa}, ";
+        $desc .= "salsa {$this->salsa}, queso {$this->queso}";
+        
+        if (!empty($this->ingredientes)) {
+            $desc .= ", ingredientes: " . implode(', ', $this->ingredientes);
+        }
+        
+        if ($this->bordRelleno) {
+            $desc .= ", borde relleno";
+        }
+        
+        $desc .= ", cocción {$this->coccion}";
+        
+        return $desc;
+    }
+}
+
+// Builder: Construye pizzas paso a paso
+class PizzaBuilder {
+    private Pizza $pizza;
+    
+    public function __construct() {
+        $this->reset();
+    }
+    
+    public function reset(): self {
+        $this->pizza = new Pizza();
+        return $this;
+    }
+    
+    public function setMasa(string $tipo): self {
+        $this->pizza->masa = $tipo;
+        return $this;
+    }
+    
+    public function setSalsa(string $tipo): self {
+        $this->pizza->salsa = $tipo;
+        return $this;
+    }
+    
+    public function setQueso(string $tipo): self {
+        $this->pizza->queso = $tipo;
+        return $this;
+    }
+    
+    public function agregarPepperoni(): self {
+        $this->pizza->ingredientes[] = 'pepperoni';
+        return $this;
+    }
+    
+    public function agregarJamon(): self {
+        $this->pizza->ingredientes[] = 'jamón';
+        return $this;
+    }
+    
+    public function agregarChampinones(): self {
+        $this->pizza->ingredientes[] = 'champiñones';
+        return $this;
+    }
+    
+    public function agregarAceitunas(): self {
+        $this->pizza->ingredientes[] = 'aceitunas';
+        return $this;
+    }
+    
+    public function setTamano(string $tamano): self {
+        $this->pizza->tamano = $tamano;
+        return $this;
+    }
+    
+    public function conBordRelleno(): self {
+        $this->pizza->bordRelleno = true;
+        return $this;
+    }
+    
+    public function setCoccion(string $tipo): self {
+        $this->pizza->coccion = $tipo;
+        return $this;
+    }
+    
+    public function build(): Pizza {
+        $resultado = $this->pizza;
+        $this->reset(); // Preparar para la siguiente pizza
+        return $resultado;
+    }
+}
+
+// ✅ Uso: Código legible y descriptivo
+$builder = new PizzaBuilder();
+
+$pizzaMargarita = $builder
+    ->setMasa('delgada')
+    ->setSalsa('tomate')
+    ->setQueso('mozzarella')
+    ->setTamano('mediana')
+    ->build();
+
+echo $pizzaMargarita->describir() . "\\n\\n";
+
+$pizzaSuprema = $builder
+    ->setMasa('gruesa')
+    ->setSalsa('tomate')
+    ->setQueso('mozzarella')
+    ->agregarPepperoni()
+    ->agregarJamon()
+    ->agregarChampinones()
+    ->agregarAceitunas()
+    ->setTamano('grande')
+    ->conBordRelleno()
+    ->setCoccion('extra')
+    ->build();
+
+echo $pizzaSuprema->describir() . "\\n";
+
+// Ventajas:
+// 1. Código muy legible
+// 2. Solo especificas lo que necesitas
+// 3. Fácil agregar nuevas opciones
+// 4. Construcción paso a paso
+?&gt;</code></pre></div>
+
+        <h3>Builder con Director</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Director: Encapsula recetas comunes de construcción
+
+class PizzaDirector {
+    public function __construct(private PizzaBuilder $builder) {}
+    
+    public function construirMargarita(): Pizza {
+        return $this->builder
+            ->setMasa('delgada')
+            ->setSalsa('tomate')
+            ->setQueso('mozzarella')
+            ->setTamano('mediana')
+            ->build();
+    }
+    
+    public function construirPepperoni(): Pizza {
+        return $this->builder
+            ->setMasa('normal')
+            ->setSalsa('tomate')
+            ->setQueso('mozzarella')
+            ->agregarPepperoni()
+            ->setTamano('grande')
+            ->build();
+    }
+    
+    public function construirVegetariana(): Pizza {
+        return $this->builder
+            ->setMasa('integral')
+            ->setSalsa('tomate')
+            ->setQueso('mozzarella')
+            ->agregarChampinones()
+            ->agregarAceitunas()
+            ->setTamano('mediana')
+            ->build();
+    }
+    
+    public function construirSuprema(): Pizza {
+        return $this->builder
+            ->setMasa('gruesa')
+            ->setSalsa('tomate')
+            ->setQueso('mozzarella')
+            ->agregarPepperoni()
+            ->agregarJamon()
+            ->agregarChampinones()
+            ->agregarAceitunas()
+            ->setTamano('grande')
+            ->conBordRelleno()
+            ->setCoccion('extra')
+            ->build();
+    }
+}
+
+// Uso del Director
+$builder = new PizzaBuilder();
+$director = new PizzaDirector($builder);
+
+echo "=== Pizzas predefinidas ===\\n";
+$margarita = $director->construirMargarita();
+echo "Margarita: " . $margarita->describir() . "\\n\\n";
+
+$pepperoni = $director->construirPepperoni();
+echo "Pepperoni: " . $pepperoni->describir() . "\\n\\n";
+
+$vegetariana = $director->construirVegetariana();
+echo "Vegetariana: " . $vegetariana->describir() . "\\n\\n";
+
+$suprema = $director->construirSuprema();
+echo "Suprema: " . $suprema->describir() . "\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Constructor de Consultas SQL</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Builder para construir consultas SQL de forma segura
+
+class Query {
+    private string $select = '*';
+    private string $from = '';
+    private array $joins = [];
+    private array $where = [];
+    private array $orderBy = [];
+    private ?int $limit = null;
+    private ?int $offset = null;
+    
+    public function toSQL(): string {
+        $sql = "SELECT {$this->select} FROM {$this->from}";
+        
+        foreach ($this->joins as $join) {
+            $sql .= " {$join}";
+        }
+        
+        if (!empty($this->where)) {
+            $sql .= " WHERE " . implode(' AND ', $this->where);
+        }
+        
+        if (!empty($this->orderBy)) {
+            $sql .= " ORDER BY " . implode(', ', $this->orderBy);
+        }
+        
+        if ($this->limit !== null) {
+            $sql .= " LIMIT {$this->limit}";
+        }
+        
+        if ($this->offset !== null) {
+            $sql .= " OFFSET {$this->offset}";
+        }
+        
+        return $sql;
+    }
+}
+
+class QueryBuilder {
+    private Query $query;
+    
+    public function __construct() {
+        $this->reset();
+    }
+    
+    public function reset(): self {
+        $this->query = new Query();
+        return $this;
+    }
+    
+    public function select(string ...$columns): self {
+        $this->query->select = implode(', ', $columns);
+        return $this;
+    }
+    
+    public function from(string $table): self {
+        $this->query->from = $table;
+        return $this;
+    }
+    
+    public function join(string $table, string $on): self {
+        $this->query->joins[] = "JOIN {$table} ON {$on}";
+        return $this;
+    }
+    
+    public function leftJoin(string $table, string $on): self {
+        $this->query->joins[] = "LEFT JOIN {$table} ON {$on}";
+        return $this;
+    }
+    
+    public function where(string $condition): self {
+        $this->query->where[] = $condition;
+        return $this;
+    }
+    
+    public function orderBy(string $column, string $direction = 'ASC'): self {
+        $this->query->orderBy[] = "{$column} {$direction}";
+        return $this;
+    }
+    
+    public function limit(int $limit): self {
+        $this->query->limit = $limit;
+        return $this;
+    }
+    
+    public function offset(int $offset): self {
+        $this->query->offset = $offset;
+        return $this;
+    }
+    
+    public function build(): Query {
+        $resultado = $this->query;
+        $this->reset();
+        return $resultado;
+    }
+}
+
+// Uso: Construir consultas complejas de forma legible
+$builder = new QueryBuilder();
+
+// Consulta simple
+$query1 = $builder
+    ->select('id', 'nombre', 'email')
+    ->from('usuarios')
+    ->where('activo = 1')
+    ->orderBy('nombre', 'ASC')
+    ->limit(10)
+    ->build();
+
+echo "Consulta 1:\\n" . $query1->toSQL() . "\\n\\n";
+
+// Consulta con JOIN
+$query2 = $builder
+    ->select('u.nombre', 'u.email', 'p.titulo', 'p.fecha')
+    ->from('usuarios u')
+    ->join('posts p', 'p.usuario_id = u.id')
+    ->where('u.activo = 1')
+    ->where('p.publicado = 1')
+    ->orderBy('p.fecha', 'DESC')
+    ->limit(20)
+    ->build();
+
+echo "Consulta 2:\\n" . $query2->toSQL() . "\\n\\n";
+
+// Consulta con paginación
+$query3 = $builder
+    ->select('*')
+    ->from('productos')
+    ->where('precio > 100')
+    ->where('stock > 0')
+    ->orderBy('precio', 'ASC')
+    ->limit(15)
+    ->offset(30)
+    ->build();
+
+echo "Consulta 3:\\n" . $query3->toSQL() . "\\n";
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Constructor de Emails</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Builder para construir emails complejos
+
+class Email {
+    private string $from = '';
+    private array $to = [];
+    private array $cc = [];
+    private array $bcc = [];
+    private string $subject = '';
+    private string $body = '';
+    private string $htmlBody = '';
+    private array $attachments = [];
+    private int $priority = 3; // 1=alta, 3=normal, 5=baja
+    
+    public function enviar(): bool {
+        echo "📧 Enviando email:\\n";
+        echo "De: {$this->from}\\n";
+        echo "Para: " . implode(', ', $this->to) . "\\n";
+        
+        if (!empty($this->cc)) {
+            echo "CC: " . implode(', ', $this->cc) . "\\n";
+        }
+        
+        echo "Asunto: {$this->subject}\\n";
+        echo "Cuerpo: {$this->body}\\n";
+        
+        if (!empty($this->attachments)) {
+            echo "Adjuntos: " . implode(', ', $this->attachments) . "\\n";
+        }
+        
+        echo "Prioridad: {$this->priority}\\n";
+        echo "✅ Email enviado\\n";
+        
+        return true;
+    }
+}
+
+class EmailBuilder {
+    private Email $email;
+    
+    public function __construct() {
+        $this->reset();
+    }
+    
+    public function reset(): self {
+        $this->email = new Email();
+        return $this;
+    }
+    
+    public function from(string $email): self {
+        $this->email->from = $email;
+        return $this;
+    }
+    
+    public function to(string ...$emails): self {
+        $this->email->to = array_merge($this->email->to, $emails);
+        return $this;
+    }
+    
+    public function cc(string ...$emails): self {
+        $this->email->cc = array_merge($this->email->cc, $emails);
+        return $this;
+    }
+    
+    public function bcc(string ...$emails): self {
+        $this->email->bcc = array_merge($this->email->bcc, $emails);
+        return $this;
+    }
+    
+    public function subject(string $subject): self {
+        $this->email->subject = $subject;
+        return $this;
+    }
+    
+    public function body(string $body): self {
+        $this->email->body = $body;
+        return $this;
+    }
+    
+    public function htmlBody(string $html): self {
+        $this->email->htmlBody = $html;
+        return $this;
+    }
+    
+    public function attach(string ...$files): self {
+        $this->email->attachments = array_merge($this->email->attachments, $files);
+        return $this;
+    }
+    
+    public function prioridadAlta(): self {
+        $this->email->priority = 1;
+        return $this;
+    }
+    
+    public function prioridadNormal(): self {
+        $this->email->priority = 3;
+        return $this;
+    }
+    
+    public function prioridadBaja(): self {
+        $this->email->priority = 5;
+        return $this;
+    }
+    
+    public function build(): Email {
+        $resultado = $this->email;
+        $this->reset();
+        return $resultado;
+    }
+}
+
+// Uso: Construir emails complejos
+$builder = new EmailBuilder();
+
+// Email simple
+echo "=== Email simple ===\\n";
+$emailSimple = $builder
+    ->from('sender@example.com')
+    ->to('user@example.com')
+    ->subject('Bienvenido')
+    ->body('Gracias por registrarte')
+    ->build();
+
+$emailSimple->enviar();
+
+// Email complejo
+echo "\\n=== Email complejo ===\\n";
+$emailComplejo = $builder
+    ->from('admin@example.com')
+    ->to('user1@example.com', 'user2@example.com')
+    ->cc('manager@example.com')
+    ->subject('Reporte mensual')
+    ->body('Adjunto encontrarás el reporte del mes')
+    ->attach('reporte.pdf', 'graficos.xlsx')
+    ->prioridadAlta()
+    ->build();
+
+$emailComplejo->enviar();
+?&gt;</code></pre></div>
+
+        <h3>Ejemplo Real: Constructor de Documentos HTML</h3>
+        <div class="code-block"><pre><code>&lt;?php
+// Builder para construir documentos HTML
+
+class HTMLDocument {
+    private string $title = '';
+    private array $meta = [];
+    private array $styles = [];
+    private array $scripts = [];
+    private string $body = '';
+    
+    public function render(): string {
+        $html = "&lt;!DOCTYPE html&gt;\\n&lt;html&gt;\\n&lt;head&gt;\\n";
+        $html .= "  &lt;title&gt;{$this->title}&lt;/title&gt;\\n";
+        
+        foreach ($this->meta as $meta) {
+            $html .= "  {$meta}\\n";
+        }
+        
+        foreach ($this->styles as $style) {
+            $html .= "  {$style}\\n";
+        }
+        
+        $html .= "&lt;/head&gt;\\n&lt;body&gt;\\n";
+        $html .= $this->body;
+        $html .= "\\n";
+        
+        foreach ($this->scripts as $script) {
+            $html .= "  {$script}\\n";
+        }
+        
+        $html .= "&lt;/body&gt;\\n&lt;/html&gt;";
+        
+        return $html;
+    }
+}
+
+class HTMLBuilder {
+    private HTMLDocument $document;
+    
+    public function __construct() {
+        $this->reset();
+    }
+    
+    public function reset(): self {
+        $this->document = new HTMLDocument();
+        return $this;
+    }
+    
+    public function setTitle(string $title): self {
+        $this->document->title = $title;
+        return $this;
+    }
+    
+    public function addMeta(string $name, string $content): self {
+        $this->document->meta[] = "&lt;meta name=\\"{$name}\\" content=\\"{$content}\\"&gt;";
+        return $this;
+    }
+    
+    public function addStylesheet(string $href): self {
+        $this->document->styles[] = "&lt;link rel=\\"stylesheet\\" href=\\"{$href}\\"&gt;";
+        return $this;
+    }
+    
+    public function addStyle(string $css): self {
+        $this->document->styles[] = "&lt;style&gt;{$css}&lt;/style&gt;";
+        return $this;
+    }
+    
+    public function addScript(string $src): self {
+        $this->document->scripts[] = "&lt;script src=\\"{$src}\\"&gt;&lt;/script&gt;";
+        return $this;
+    }
+    
+    public function addInlineScript(string $js): self {
+        $this->document->scripts[] = "&lt;script&gt;{$js}&lt;/script&gt;";
+        return $this;
+    }
+    
+    public function setBody(string $html): self {
+        $this->document->body = $html;
+        return $this;
+    }
+    
+    public function appendToBody(string $html): self {
+        $this->document->body .= $html;
+        return $this;
+    }
+    
+    public function build(): HTMLDocument {
+        $resultado = $this->document;
+        $this->reset();
+        return $resultado;
+    }
+}
+
+// Uso
+$builder = new HTMLBuilder();
+
+$documento = $builder
+    ->setTitle('Mi Página Web')
+    ->addMeta('charset', 'UTF-8')
+    ->addMeta('viewport', 'width=device-width, initial-scale=1.0')
+    ->addStylesheet('styles.css')
+    ->addStyle('body { font-family: Arial; }')
+    ->setBody('&lt;h1&gt;Hola Mundo&lt;/h1&gt;')
+    ->appendToBody('&lt;p&gt;Bienvenido a mi sitio&lt;/p&gt;')
+    ->addScript('app.js')
+    ->addInlineScript('console.log("Página cargada");')
+    ->build();
+
+echo $documento->render();
+?&gt;</code></pre></div>
+
+        <div class="success-box">
+            <strong>✅ Ventajas del Builder:</strong><br>
+            • <strong>Legibilidad</strong>: Código muy claro y descriptivo<br>
+            • <strong>Flexibilidad</strong>: Solo especificas lo que necesitas<br>
+            • <strong>Inmutabilidad</strong>: Objeto final puede ser inmutable<br>
+            • <strong>Validación</strong>: Puedes validar en el método build()<br>
+            • <strong>Reutilización</strong>: El builder se puede reutilizar<br>
+            • <strong>Paso a paso</strong>: Construcción gradual del objeto
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Desventajas del Builder:</strong><br>
+            • <strong>Más código</strong>: Requiere crear clase builder adicional<br>
+            • <strong>Complejidad</strong>: Puede ser excesivo para objetos simples<br>
+            • <strong>Duplicación</strong>: Builder duplica propiedades del objeto<br>
+            • <strong>Overhead</strong>: Objeto adicional en memoria
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Cuándo Usar Builder:</strong><br>
+            • <strong>Muchos parámetros</strong>: Constructor con 4+ parámetros<br>
+            • <strong>Parámetros opcionales</strong>: Muchas propiedades opcionales<br>
+            • <strong>Construcción compleja</strong>: Proceso de construcción con varios pasos<br>
+            • <strong>Inmutabilidad</strong>: Quieres objetos inmutables<br>
+            • <strong>Validación</strong>: Necesitas validar antes de crear el objeto<br>
+            • <strong>Legibilidad</strong>: Quieres código más expresivo<br>
+            <br>
+            <strong>⚠️ Cuándo NO Usar:</strong><br>
+            • Objetos simples con pocos parámetros<br>
+            • Constructor simple es suficiente<br>
+            • No hay parámetros opcionales<br>
+            • Añade complejidad innecesaria
+        </div>
+    `,
     'patron-prototype': `<h1>Patrón Prototype</h1><p>Contenido en desarrollo...</p>`,
     'inyeccion-dependencias': `<h1>Inyección de Dependencias (DI) y Contenedores DI</h1><p>Contenido en desarrollo...</p>`,
     'service-locator': `<h1>Service Locator</h1><p>Contenido en desarrollo...</p>`,
