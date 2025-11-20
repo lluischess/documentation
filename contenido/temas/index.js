@@ -9,11 +9,11 @@ const temasPrestaShop = {
     'hooks-eventos-prestashop': hooksYEventos,
     'modelo-datos-prestashop': modeloDatosPrestaShop,
     'configuracion-multitienda-multiidioma': configuracionMultitiendaIdioma,
-    'cache-prestashop-smarty-apcu': `<h1>Caché de PrestaShop (Smarty, APCu, Memcached)</h1><p>Contenido en desarrollo...</p>`,
+    'cache-prestashop-smarty-apcu': cachePrestaShopSmartyApcu,
 
     // Desarrollo de Módulos Avanzados
-    'creacion-controladores-front-back': `<h1>Creación de Controladores Front Office y Back Office</h1><p>Contenido en desarrollo...</p>`,
-    'uso-orm-prestashop': `<h1>Uso del ORM de PrestaShop (ORM Core)</h1><p>Contenido en desarrollo...</p>`,
+    'creacion-controladores-front-back': creacionControladoresFrontBack,
+    'uso-orm-prestashop': usoOrmPrestaShop,
     'configuracion-modulos-back-office': `<h1>Configuración de Módulos y Pestañas en el Back Office</h1><p>Contenido en desarrollo...</p>`,
     'gestion-activos-css-js': `<h1>Gestión de Activos (CSS/JS) y Compilación</h1><p>Contenido en desarrollo...</p>`,
     'internacionalizacion-traducciones-modulos': `<h1>Internacionalización y Traducciones en Módulos</h1><p>Contenido en desarrollo...</p>`,
