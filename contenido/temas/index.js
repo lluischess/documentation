@@ -21,10 +21,10 @@ const temasPrestaShop = {
     'buenas-practicas-estandares-modulos': buenasPracticasEstandaresModulos,
 
     // Desarrollo de Temas Personalizados
-    'estructura-tema-classic-starter': `<h1>Estructura de un Tema (Classic, Starter Theme)</h1><p>Contenido en desarrollo...</p>`,
-    'sobreescritura-plantillas-smarty-twig': `<h1>Sobreescritura de Plantillas Smarty/Twig (PrestaShop 1.7+)</h1><p>Contenido en desarrollo...</p>`,
-    'integracion-modulos-tema': `<h1>Integración de Módulos en el Tema</h1><p>Contenido en desarrollo...</p>`,
-    'personalizacion-css-sass-javascript': `<h1>Personalización Avanzada de CSS (Sass/Less) y JavaScript</h1><p>Contenido en desarrollo...</p>`,
+    'estructura-tema-classic-starter': estructuraTemaClassicStarter,
+    'sobreescritura-plantillas-smarty-twig': sobreescrituraPlantillasSmartyTwig,
+    'integracion-modulos-tema': integracionModulosTema,
+    'personalizacion-css-sass-javascript': personalizacionCssSassJavascript,
     'optimizacion-rendimiento-tema': `<h1>Optimización de Rendimiento del Tema</h1><p>Contenido en desarrollo...</p>`,
     'responsive-design-adaptacion-movil': `<h1>Responsive Design y Adaptación Móvil</h1><p>Contenido en desarrollo...</p>`,
     'creacion-paginas-layouts-personalizados': `<h1>Creación de Páginas y Layouts Personalizados</h1><p>Contenido en desarrollo...</p>`,

@@ -129,7 +129,7 @@ theme_settings:
         <p>Para modificar una parte de la plantilla sin reescribir todo el archivo, usamos <code>{extends}</code> y <code>{block}</code>.</p>
 
         <p><strong>Archivo Padre (layouts/layout-both-columns.tpl):</strong></p>
-        <pre><code class="language-smarty">&lt;!doctype html&gt;
+        <pre><code class="language-html">&lt;!doctype html&gt;
 &lt;html lang="{$language.iso_code}"&gt;
   &lt;head&gt;
     {block name='head'}
@@ -148,7 +148,7 @@ theme_settings:
 &lt;/html&gt;</code></pre>
 
         <p><strong>Archivo Hijo (page.tpl):</strong></p>
-        <pre><code class="language-smarty">{extends file='layouts/layout-both-columns.tpl'}
+        <pre><code class="language-html">{extends file='layouts/layout-both-columns.tpl'}
 
 {block name='content'}
   &lt;section id="main"&gt;
