@@ -2,1028 +2,1365 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fullstack experto en prestashop, php y symfony: arquitecturas, patrones, docker, apis, testing, ci/cd y
-        buenas prácticas - Documentación</title>
-    <link rel="stylesheet" href="styles.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fullstack experto en prestashop, php y symfony: arquitecturas, patrones, docker, apis, testing, ci/cd y
+                buenas prácticas - Documentación</title>
+        <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <div class="overlay" id="overlay"></div>
-    <header class="header">
-        <div class="header-content">
-            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <h1 class="header-title">Fullstack experto en prestashop, php y symfony: arquitecturas, patrones, docker,
-                apis, testing, ci/cd y buenas prácticas</h1>
+        <div class="overlay" id="overlay"></div>
+        <header class="header">
+                <div class="header-content">
+                        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                        </button>
+                        <h1 class="header-title">Fullstack experto en prestashop, php y symfony: arquitecturas,
+                                patrones, docker,
+                                apis, testing, ci/cd y buenas prácticas</h1>
+                </div>
+        </header>
+
+        <div class="container">
+                <aside class="sidebar" id="sidebar">
+                        <nav class="nav">
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Fundamentos de PHP Avanzado</h2>
+
+                                        <div class="nav-category">
+                                                <button class="nav-category-title active" data-category="sintaxis">
+                                                        <span class="chevron">›</span>
+                                                        Sintaxis y Tipos de Datos
+                                                </button>
+                                                <ul class="nav-items active">
+                                                        <li><a href="#declaracion-variables"
+                                                                        class="nav-link active">Declaración de Variables
+                                                                        y
+                                                                        Constantes</a></li>
+                                                        <li><a href="#tipos-escalares" class="nav-link">Tipos Escalares
+                                                                        y Compuestos</a></li>
+                                                        <li><a href="#coercion-tipos" class="nav-link">Coerción de Tipos
+                                                                        y Comparaciones
+                                                                        Estrictas</a></li>
+                                                        <li><a href="#operadores" class="nav-link">Operadores
+                                                                        Aritméticos, Lógicos y de
+                                                                        Comparación</a></li>
+                                                        <li><a href="#estructuras-control" class="nav-link">Estructuras
+                                                                        de Control (If/Else, Switch,
+                                                                        Bucles)</a></li>
+                                                        <li><a href="#funciones-anonimas" class="nav-link">Funciones
+                                                                        Anónimas, Arrow Functions y
+                                                                        Closures</a></li>
+                                                        <li><a href="#namespaces" class="nav-link">Namespaces y
+                                                                        Autoloading (PSR-4)</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="errores">
+                                                        <span class="chevron">›</span>
+                                                        Gestión de Errores y Excepciones
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#manejo-errores-tradicional"
+                                                                        class="nav-link">Manejo de Errores Tradicional
+                                                                        (trigger_error)</a></li>
+                                                        <li><a href="#clases-excepciones" class="nav-link">Clases de
+                                                                        Excepciones Estándar</a></li>
+                                                        <li><a href="#excepciones-personalizadas"
+                                                                        class="nav-link">Creación de Excepciones
+                                                                        Personalizadas</a></li>
+                                                        <li><a href="#bloques-try-catch" class="nav-link">Bloques
+                                                                        try-catch-finally</a></li>
+                                                        <li><a href="#errores-fatales" class="nav-link">Manejo de
+                                                                        Errores Fatales y Shutdown
+                                                                        Functions</a></li>
+                                                        <li><a href="#logging-errores" class="nav-link">Logging de
+                                                                        Errores y Stack Traces</a></li>
+                                                        <li><a href="#xdebug" class="nav-link">Depuración con Xdebug</a>
+                                                        </li>
+                                                </ul>
+                                        </div>
+
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="oop">
+                                                        <span class="chevron">›</span>
+                                                        Programación Orientada a Objetos (OOP)
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#clases-objetos" class="nav-link">Clases, Objetos,
+                                                                        Propiedades y Métodos</a>
+                                                        </li>
+                                                        <li><a href="#constructores" class="nav-link">Constructores,
+                                                                        Destructores y Autoloading</a>
+                                                        </li>
+                                                        <li><a href="#herencia" class="nav-link">Herencia, Abstracción e
+                                                                        Interfaces</a></li>
+                                                        <li><a href="#traits" class="nav-link">Traits y Clases
+                                                                        Anónimas</a></li>
+                                                        <li><a href="#encapsulamiento" class="nav-link">Encapsulamiento
+                                                                        (público, protegido,
+                                                                        privado)</a></li>
+                                                        <li><a href="#polimorfismo" class="nav-link">Polimorfismo y Type
+                                                                        Hinting</a></li>
+                                                        <li><a href="#clases-finales" class="nav-link">Clases Finales y
+                                                                        Métodos Finales</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Jerarquía: Patrones de Diseño -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Patrones de Diseño y Principios de Ingeniería de Software
+                                        </h2>
+
+                                        <!-- Características Modernas de PHP -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="caracteristicas-modernas">
+                                                        <span class="chevron">›</span>
+                                                        Características Modernas de PHP
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#match-expression" class="nav-link">Match
+                                                                        Expression (PHP 8+)</a></li>
+                                                        <li><a href="#operador-nullsafe" class="nav-link">Operador
+                                                                        Nullsafe (PHP 8+)</a></li>
+                                                        <li><a href="#named-arguments" class="nav-link">Named Arguments
+                                                                        (PHP 8+)</a></li>
+                                                        <li><a href="#declaraciones-tipos"
+                                                                        class="nav-link">Declaraciones de Tipos
+                                                                        Escalares y de
+                                                                        Retorno</a></li>
+                                                        <li><a href="#propiedades-promocionadas"
+                                                                        class="nav-link">Propiedades Promocionadas en
+                                                                        Constructores (PHP 8+)</a></li>
+                                                        <li><a href="#atributos" class="nav-link">Atributos (PHP 8+) y
+                                                                        su uso</a></li>
+                                                        <li><a href="#enumeraciones" class="nav-link">Enumeraciones
+                                                                        (Enums) (PHP 8.1+)</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Principios SOLID -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="solid">
+                                                        <span class="chevron">›</span>
+                                                        Principios SOLID
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#principio-srp" class="nav-link">Principio de
+                                                                        Responsabilidad Única (SRP)</a>
+                                                        </li>
+                                                        <li><a href="#principio-ocp" class="nav-link">Principio
+                                                                        Abierto/Cerrado (OCP)</a></li>
+                                                        <li><a href="#principio-lsp" class="nav-link">Principio de
+                                                                        Sustitución de Liskov (LSP)</a>
+                                                        </li>
+                                                        <li><a href="#principio-isp" class="nav-link">Principio de
+                                                                        Segregación de Interfaces
+                                                                        (ISP)</a></li>
+                                                        <li><a href="#principio-dip" class="nav-link">Principio de
+                                                                        Inversión de Dependencias
+                                                                        (DIP)</a></li>
+                                                        <li><a href="#aplicacion-solid" class="nav-link">Aplicación de
+                                                                        SOLID en PHP</a></li>
+                                                        <li><a href="#refactoring-solid" class="nav-link">Refactoring
+                                                                        Basado en SOLID</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Patrones Creacionales -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="creacionales">
+                                                        <span class="chevron">›</span>
+                                                        Patrones de Diseño Creacionales
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#patron-singleton" class="nav-link">Patrón
+                                                                        Singleton</a></li>
+                                                        <li><a href="#patron-factory" class="nav-link">Patrón Factory
+                                                                        Method</a></li>
+                                                        <li><a href="#patron-abstract-factory" class="nav-link">Patrón
+                                                                        Abstract Factory</a></li>
+                                                        <li><a href="#patron-builder" class="nav-link">Patrón
+                                                                        Builder</a></li>
+                                                        <li><a href="#patron-prototype" class="nav-link">Patrón
+                                                                        Prototype</a></li>
+                                                        <li><a href="#inyeccion-dependencias" class="nav-link">Inyección
+                                                                        de Dependencias (DI) y
+                                                                        Contenedores DI</a></li>
+                                                        <li><a href="#service-locator" class="nav-link">Service
+                                                                        Locator</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Patrones Estructurales -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="estructurales">
+                                                        <span class="chevron">›</span>
+                                                        Patrones de Diseño Estructurales
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#patron-adapter" class="nav-link">Patrón
+                                                                        Adapter</a></li>
+                                                        <li><a href="#patron-decorator" class="nav-link">Patrón
+                                                                        Decorator</a></li>
+                                                        <li><a href="#patron-facade" class="nav-link">Patrón Facade</a>
+                                                        </li>
+                                                        <li><a href="#patron-bridge" class="nav-link">Patrón Bridge</a>
+                                                        </li>
+                                                        <li><a href="#patron-composite" class="nav-link">Patrón
+                                                                        Composite</a></li>
+                                                        <li><a href="#patron-proxy" class="nav-link">Patrón Proxy</a>
+                                                        </li>
+                                                        <li><a href="#patron-flyweight" class="nav-link">Patrón
+                                                                        Flyweight</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: Dominio de Symfony Framework -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Dominio de Symfony Framework</h2>
+
+                                        <!-- Patrones de Diseño de Comportamiento -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="comportamiento">
+                                                        <span class="chevron">›</span>
+                                                        Patrones de Diseño de Comportamiento
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#introduccion-patrones-symfony" class="nav-link">📚
+                                                                        Introducción: Patrones en
+                                                                        Symfony</a></li>
+                                                        <li><a href="#patron-strategy" class="nav-link">Patrón
+                                                                        Strategy</a></li>
+                                                        <li><a href="#patron-observer" class="nav-link">Patrón
+                                                                        Observer</a></li>
+                                                        <li><a href="#patron-command" class="nav-link">Patrón
+                                                                        Command</a></li>
+                                                        <li><a href="#patron-iterator" class="nav-link">Patrón
+                                                                        Iterator</a></li>
+                                                        <li><a href="#patron-state" class="nav-link">Patrón State</a>
+                                                        </li>
+                                                        <li><a href="#patron-template-method" class="nav-link">Patrón
+                                                                        Template Method</a></li>
+                                                        <li><a href="#patron-chain-responsibility"
+                                                                        class="nav-link">Patrón Chain of
+                                                                        Responsibility</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Fundamentos y Componentes de Symfony -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="fundamentos-symfony">
+                                                        <span class="chevron">›</span>
+                                                        Fundamentos y Componentes de Symfony
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#arquitectura-kernel-bundles"
+                                                                        class="nav-link">Arquitectura del Kernel y
+                                                                        Bundles</a></li>
+                                                        <li><a href="#rutas-controladores-http" class="nav-link">Rutas,
+                                                                        Controladores y Respuestas
+                                                                        HTTP</a></li>
+                                                        <li><a href="#plantillas-twig-extensiones"
+                                                                        class="nav-link">Plantillas Twig y sus
+                                                                        Extensiones</a></li>
+                                                        <li><a href="#inyeccion-dependencias-contenedor"
+                                                                        class="nav-link">Inyección de Dependencias
+                                                                        y Contenedor de Servicios</a></li>
+                                                        <li><a href="#ciclo-vida-peticion-http" class="nav-link">Ciclo
+                                                                        de Vida de una Petición
+                                                                        HTTP</a></li>
+                                                        <li><a href="#consola-symfony-bin-console"
+                                                                        class="nav-link">Consola de Symfony
+                                                                        (bin/console)</a></li>
+                                                        <li><a href="#configuracion-variables-dotenv"
+                                                                        class="nav-link">Configuración y Variables de
+                                                                        Entorno (DotEnv)</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Doctrine ORM -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="doctrine-orm">
+                                                        <span class="chevron">›</span>
+                                                        Doctrine ORM
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#mapeo-entidades-repositorios"
+                                                                        class="nav-link">Mapeo de Entidades y
+                                                                        Repositorios</a></li>
+                                                        <li><a href="#migraciones-doctrine-migrations"
+                                                                        class="nav-link">Migraciones de Base de Datos
+                                                                        con Doctrine Migrations</a></li>
+                                                        <li><a href="#dql-doctrine-query-language" class="nav-link">DQL
+                                                                        (Doctrine Query
+                                                                        Language)</a></li>
+                                                        <li><a href="#relaciones-entidades" class="nav-link">Relaciones
+                                                                        entre Entidades (OneToOne,
+                                                                        ManyToOne, OneToMany, ManyToMany)</a></li>
+                                                        <li><a href="#eventos-doctrine-lifecycle"
+                                                                        class="nav-link">Eventos de Doctrine (Lifecycle
+                                                                        Callbacks)</a></li>
+                                                        <li><a href="#fixtures-datos-doctrinefixtures"
+                                                                        class="nav-link">Fixtures de Datos con
+                                                                        DoctrineFixturesBundle</a></li>
+                                                        <li><a href="#caching-consultas-resultados"
+                                                                        class="nav-link">Caching de Consultas y
+                                                                        Resultados</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Formas y Validaciones -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="formas-validaciones">
+                                                        <span class="chevron">›</span>
+                                                        Formas y Validaciones
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#creacion-formularios-form"
+                                                                        class="nav-link">Creación de Formularios con el
+                                                                        Componente Form</a></li>
+                                                        <li><a href="#tipos-campos-opciones" class="nav-link">Tipos de
+                                                                        Campos y Opciones
+                                                                        Avanzados</a></li>
+                                                        <li><a href="#manejo-subida-archivos" class="nav-link">Manejo de
+                                                                        Subida de Archivos en
+                                                                        Formularios</a></li>
+                                                        <li><a href="#grupos-validacion-contextos"
+                                                                        class="nav-link">Grupos de Validación y
+                                                                        Contextos</a></li>
+                                                        <li><a href="#validadores-personalizados"
+                                                                        class="nav-link">Validadores Personalizados</a>
+                                                        </li>
+                                                        <li><a href="#integracion-formularios-twig"
+                                                                        class="nav-link">Integración de Formularios con
+                                                                        Twig</a></li>
+                                                        <li><a href="#manejo-errores-mensajes-validacion"
+                                                                        class="nav-link">Manejo de Errores y
+                                                                        Mensajes de Validación</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Seguridad y Autenticación -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="seguridad-autenticacion">
+                                                        <span class="chevron">›</span>
+                                                        Seguridad y Autenticación
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#firewall-seguridad-acceso"
+                                                                        class="nav-link">Firewall de Seguridad y
+                                                                        Acceso</a>
+                                                        </li>
+                                                        <li><a href="#autenticacion-sesiones-tokens-jwt"
+                                                                        class="nav-link">Autenticación Basada en
+                                                                        Sesiones, Tokens y JWT</a></li>
+                                                        <li><a href="#proveedores-usuarios" class="nav-link">Proveedores
+                                                                        de Usuarios</a></li>
+                                                        <li><a href="#volantes-seguridad-voters"
+                                                                        class="nav-link">Volantes de Seguridad
+                                                                        (Voters)</a>
+                                                        </li>
+                                                        <li><a href="#encriptacion-contrasenas-password-hasher"
+                                                                        class="nav-link">Encriptación de
+                                                                        Contraseñas (Password Hasher)</a></li>
+                                                        <li><a href="#proteccion-csrf-headers"
+                                                                        class="nav-link">Protección CSRF y Headers de
+                                                                        Seguridad</a></li>
+                                                        <li><a href="#autorizacion-roles-usuario"
+                                                                        class="nav-link">Autorización y Roles de
+                                                                        Usuario</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Desarrollo con PrestaShop -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Desarrollo con PrestaShop</h2>
+
+                                        <!-- Symfony Messenger y Colas de Mensajes -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="symfony-messenger">
+                                                        <span class="chevron">›</span>
+                                                        Symfony Messenger y Colas de Mensajes
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#conceptos-message-bus-handlers"
+                                                                        class="nav-link">Conceptos de Message Bus,
+                                                                        Messages y Handlers</a></li>
+                                                        <li><a href="#sincronizacion-asincronia-mensajes"
+                                                                        class="nav-link">Sincronización y
+                                                                        Asincronía de Mensajes</a></li>
+                                                        <li><a href="#integracion-colas-redis-rabbitmq"
+                                                                        class="nav-link">Integración con Colas de
+                                                                        Mensajes (Redis, RabbitMQ, SQS)</a></li>
+                                                        <li><a href="#workers-supervision" class="nav-link">Workers y
+                                                                        Supervisión</a></li>
+                                                        <li><a href="#serializacion-mensajes"
+                                                                        class="nav-link">Serialización de Mensajes</a>
+                                                        </li>
+                                                        <li><a href="#middleware-messenger" class="nav-link">Middleware
+                                                                        de Messenger</a></li>
+                                                        <li><a href="#fallos-reintentos-mensajes"
+                                                                        class="nav-link">Fallos y Reintentos de
+                                                                        Mensajes</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Arquitectura y Conceptos de PrestaShop -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="arquitectura-prestashop">
+                                                        <span class="chevron">›</span>
+                                                        Arquitectura y Conceptos de PrestaShop
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#ciclo-vida-peticiones-prestashop"
+                                                                        class="nav-link">Ciclo de Vida de Peticiones
+                                                                        en PrestaShop</a></li>
+                                                        <li><a href="#estructura-modulos-temas"
+                                                                        class="nav-link">Estructura de Módulos y
+                                                                        Temas</a>
+                                                        </li>
+                                                        <li><a href="#overrides-clases-controladores"
+                                                                        class="nav-link">Overrides de Clases,
+                                                                        Controladores y Modelos</a></li>
+                                                        <li><a href="#hooks-eventos-prestashop" class="nav-link">Hooks y
+                                                                        Eventos en PrestaShop</a>
+                                                        </li>
+                                                        <li><a href="#modelo-datos-prestashop" class="nav-link">Modelo
+                                                                        de Datos de PrestaShop y
+                                                                        Clases Core</a></li>
+                                                        <li><a href="#configuracion-multitienda-multiidioma"
+                                                                        class="nav-link">Configuración
+                                                                        Multitienda y Multi-idioma</a></li>
+                                                        <li><a href="#cache-prestashop-smarty-apcu"
+                                                                        class="nav-link">Caché de PrestaShop (Smarty,
+                                                                        APCu, Memcached)</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Desarrollo de Módulos Avanzados -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="modulos-avanzados">
+                                                        <span class="chevron">›</span>
+                                                        Desarrollo de Módulos Avanzados
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#creacion-controladores-front-back"
+                                                                        class="nav-link">Creación de Controladores
+                                                                        Front Office y Back Office</a></li>
+                                                        <li><a href="#uso-orm-prestashop" class="nav-link">Uso del ORM
+                                                                        de PrestaShop (ORM Core)</a>
+                                                        </li>
+                                                        <li><a href="#configuracion-modulos-back-office"
+                                                                        class="nav-link">Configuración de Módulos y
+                                                                        Pestañas en el Back Office</a></li>
+                                                        <li><a href="#gestion-activos-css-js" class="nav-link">Gestión
+                                                                        de Activos (CSS/JS) y
+                                                                        Compilación</a></li>
+                                                        <li><a href="#internacionalizacion-traducciones-modulos"
+                                                                        class="nav-link">Internacionalización y
+                                                                        Traducciones en Módulos</a></li>
+                                                        <li><a href="#integracion-web-services-prestashop"
+                                                                        class="nav-link">Integración con Web
+                                                                        Services de PrestaShop</a></li>
+                                                        <li><a href="#buenas-practicas-estandares-modulos"
+                                                                        class="nav-link">Buenas Prácticas y
+                                                                        Estándares de Codificación para Módulos</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Desarrollo de Temas Personalizados -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="temas-personalizados">
+                                                        <span class="chevron">›</span>
+                                                        Desarrollo de Temas Personalizados
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#estructura-tema-classic-starter"
+                                                                        class="nav-link">Estructura de un Tema
+                                                                        (Classic, Starter Theme)</a></li>
+                                                        <li><a href="#sobreescritura-plantillas-smarty-twig"
+                                                                        class="nav-link">Sobreescritura de
+                                                                        Plantillas Smarty/Twig (PrestaShop 1.7+)</a>
+                                                        </li>
+                                                        <li><a href="#integracion-modulos-tema"
+                                                                        class="nav-link">Integración de Módulos en el
+                                                                        Tema</a></li>
+                                                        <li><a href="#personalizacion-css-sass-javascript"
+                                                                        class="nav-link">Personalización Avanzada
+                                                                        de CSS (Sass/Less) y JavaScript</a></li>
+                                                        <li><a href="#optimizacion-rendimiento-tema"
+                                                                        class="nav-link">Optimización de Rendimiento
+                                                                        del Tema</a></li>
+                                                        <li><a href="#responsive-design-adaptacion-movil"
+                                                                        class="nav-link">Responsive Design y
+                                                                        Adaptación Móvil</a></li>
+                                                        <li><a href="#creacion-paginas-layouts-personalizados"
+                                                                        class="nav-link">Creación de Páginas
+                                                                        y Layouts Personalizados</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: Bases de Datos y SQL Avanzado -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Bases de Datos y SQL Avanzado</h2>
+
+                                        <!-- Diseño de Bases de Datos Relacionales -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="diseno-bases-datos">
+                                                        <span class="chevron">›</span>
+                                                        Diseño de Bases de Datos Relacionales
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#diseno-bases-datos-relacionales"
+                                                                        class="nav-link">Diseño de Bases de Datos
+                                                                        Relacionales</a></li>
+                                                        <li><a href="#modelado-erd" class="nav-link">Modelado
+                                                                        Entidad-Relación (ERD)</a></li>
+                                                        <li><a href="#normalizacion-bases-datos"
+                                                                        class="nav-link">Normalización de Bases de Datos
+                                                                        (1NF, 2NF, 3NF, BCNF)</a></li>
+                                                        <li><a href="#tipos-relaciones" class="nav-link">Tipos de
+                                                                        Relaciones (Uno-a-Uno,
+                                                                        Uno-a-Muchos, Muchos-a-Muchos)</a></li>
+                                                        <li><a href="#indices-claves" class="nav-link">Índices y Claves
+                                                                        (Primarias, Foráneas,
+                                                                        Únicas)</a></li>
+                                                        <li><a href="#patrones-diseno-esquemas"
+                                                                        class="nav-link">Patrones de Diseño de Esquemas
+                                                                        (EAV, Adjacency List)</a></li>
+                                                        <li><a href="#integridad-referencial"
+                                                                        class="nav-link">Integridad Referencial y
+                                                                        Restricciones</a></li>
+                                                        <li><a href="#desnormalizacion-estrategica"
+                                                                        class="nav-link">Desnormalización
+                                                                        Estratégica</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- SQL Avanzado -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="sql-avanzado">
+                                                        <span class="chevron">›</span>
+                                                        SQL Avanzado
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#sql-avanzado" class="nav-link">SQL Avanzado</a>
+                                                        </li>
+                                                        <li><a href="#subconsultas" class="nav-link">Subconsultas
+                                                                        Correlacionadas y No
+                                                                        Correlacionadas</a></li>
+                                                        <li><a href="#ctes" class="nav-link">CTEs (Common Table
+                                                                        Expressions) y Recursive CTEs</a>
+                                                        </li>
+                                                        <li><a href="#window-functions" class="nav-link">Funciones de
+                                                                        Ventana (Window Functions)</a>
+                                                        </li>
+                                                        <li><a href="#funciones-agregadas" class="nav-link">Funciones
+                                                                        Agregadas Avanzadas y Group By
+                                                                        con HAVING</a></li>
+                                                        <li><a href="#joins-complejos" class="nav-link">Joins Complejos
+                                                                        (CROSS JOIN, SELF JOIN, FULL
+                                                                        OUTER JOIN)</a></li>
+                                                        <li><a href="#transacciones-acid" class="nav-link">Transacciones
+                                                                        SQL y Propiedades ACID</a>
+                                                        </li>
+                                                        <li><a href="#vistas" class="nav-link">Vistas Materializadas y
+                                                                        Virtuales</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Mantenimiento y Optimización de PrestaShop -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="mantenimiento-prestashop">
+                                                        <span class="chevron">›</span>
+                                                        Mantenimiento y Optimización de PrestaShop
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#mantenimiento-optimizacion-prestashop"
+                                                                        class="nav-link">Mantenimiento y
+                                                                        Optimización de PrestaShop</a></li>
+                                                        <li><a href="#gestion-cache" class="nav-link">Gestión y Limpieza
+                                                                        de la Caché</a></li>
+                                                        <li><a href="#optimizacion-bd" class="nav-link">Optimización de
+                                                                        Base de Datos y
+                                                                        Consultas</a></li>
+                                                        <li><a href="#monitorizacion-rendimiento"
+                                                                        class="nav-link">Monitorización de Rendimiento y
+                                                                        Herramientas</a></li>
+                                                        <li><a href="#actualizaciones-migraciones"
+                                                                        class="nav-link">Actualizaciones y Migraciones
+                                                                        de
+                                                                        Versión (Major/Minor)</a></li>
+                                                        <li><a href="#solucion-problemas" class="nav-link">Solución de
+                                                                        Problemas Comunes y
+                                                                        Depuración</a></li>
+                                                        <li><a href="#gestion-logs" class="nav-link">Gestión de Logs y
+                                                                        Errores</a></li>
+                                                        <li><a href="#cron-jobs" class="nav-link">Configuración de CRON
+                                                                        Jobs para Tareas
+                                                                        Programadas</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: API RESTful y Microservicios -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">API RESTful y Microservicios</h2>
+
+                                        <!-- Optimización y Administración de Bases de Datos -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="optimizacion-bd">
+                                                        <span class="chevron">›</span>
+                                                        Optimización y Administración de Bases de Datos
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#optimizacion-consultas"
+                                                                        class="nav-link">Optimización de Consultas
+                                                                        (EXPLAIN
+                                                                        PLAN)</a></li>
+                                                        <li><a href="#tuning-servidores" class="nav-link">Tuning de
+                                                                        Servidores de Bases de Datos</a>
+                                                        </li>
+                                                        <li><a href="#backup-restauracion" class="nav-link">Backup y
+                                                                        Restauración Estratégica</a>
+                                                        </li>
+                                                        <li><a href="#particionamiento-tablas"
+                                                                        class="nav-link">Particionamiento de Tablas</a>
+                                                        </li>
+                                                        <li><a href="#replicacion-alta-disponibilidad"
+                                                                        class="nav-link">Replicación y Alta
+                                                                        Disponibilidad</a></li>
+                                                        <li><a href="#seguridad-bd" class="nav-link">Seguridad de Bases
+                                                                        de Datos y Permisos</a></li>
+                                                        <li><a href="#monitoreo-rendimiento-bd"
+                                                                        class="nav-link">Monitoreo de Rendimiento de
+                                                                        BD</a>
+                                                        </li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Diseño de APIs RESTful -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="diseno-apis">
+                                                        <span class="chevron">›</span>
+                                                        Diseño de APIs RESTful
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#principios-rest" class="nav-link">Principios REST
+                                                                        (Stateless, Cacheable,
+                                                                        Uniform Interface)</a></li>
+                                                        <li><a href="#verbos-http" class="nav-link">Verbos HTTP (GET,
+                                                                        POST, PUT, PATCH, DELETE) y su
+                                                                        Semántica</a></li>
+                                                        <li><a href="#codigos-estado-http" class="nav-link">Códigos de
+                                                                        Estado HTTP y su
+                                                                        Significado</a></li>
+                                                        <li><a href="#versionado-apis" class="nav-link">Versionado de
+                                                                        APIs (URI, Header, Query
+                                                                        Parameter)</a></li>
+                                                        <li><a href="#paginacion-filtrado" class="nav-link">Paginación,
+                                                                        Filtrado, Ordenamiento y
+                                                                        Búsqueda</a></li>
+                                                        <li><a href="#hateoas" class="nav-link">HATEOAS (Hypermedia as
+                                                                        the Engine of Application
+                                                                        State)</a></li>
+                                                        <li><a href="#documentacion-apis" class="nav-link">Documentación
+                                                                        de APIs (OpenAPI/Swagger,
+                                                                        Postman)</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Implementación de APIs con Symfony -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="implementacion-apis">
+                                                        <span class="chevron">›</span>
+                                                        Implementación de APIs con Symfony
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#controladores-api" class="nav-link">Creación de
+                                                                        Controladores de API</a></li>
+                                                        <li><a href="#serializacion"
+                                                                        class="nav-link">Serialización/Deserialización
+                                                                        (Symfony
+                                                                        Serializer Component)</a></li>
+                                                        <li><a href="#manejo-errores-apis" class="nav-link">Manejo de
+                                                                        Errores y Excepciones en
+                                                                        APIs</a></li>
+                                                        <li><a href="#autenticacion-apis" class="nav-link">Autenticación
+                                                                        y Autorización para APIs
+                                                                        (JWT, OAuth2, API Keys)</a></li>
+                                                        <li><a href="#rate-limiting" class="nav-link">Rate Limiting y
+                                                                        Throttling</a></li>
+                                                        <li><a href="#cache-apis" class="nav-link">Caché de APIs con
+                                                                        Varnish o Symfony Cache
+                                                                        Component</a></li>
+                                                        <li><a href="#consumo-apis-externas" class="nav-link">Consumo de
+                                                                        APIs Externas (Symfony
+                                                                        HttpClient)</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: Contenedores y Docker -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Contenedores y Docker</h2>
+
+                                        <!-- Fundamentos de Contenedores -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="fundamentos-contenedores">
+                                                        <span class="chevron">›</span>
+                                                        Fundamentos de Contenedores
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#conceptos-contenedores" class="nav-link">Conceptos
+                                                                        Básicos de Contenedores</a>
+                                                        </li>
+                                                        <li><a href="#docker-arquitectura" class="nav-link">Arquitectura
+                                                                        de Docker</a></li>
+                                                        <li><a href="#imagenes-contenedores" class="nav-link">Imágenes y
+                                                                        Contenedores</a></li>
+                                                        <li><a href="#almacenamiento-contenedores"
+                                                                        class="nav-link">Almacenamiento en
+                                                                        Contenedores</a></li>
+                                                        <li><a href="#redes-docker" class="nav-link">Redes en Docker</a>
+                                                        </li>
+                                                        <li><a href="#docker-hub-registries" class="nav-link">Docker Hub
+                                                                        y Registries Privados</a>
+                                                        </li>
+                                                        <li><a href="#buenas-practicas-docker" class="nav-link">Buenas
+                                                                        Prácticas con Docker</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Docker Compose y Orquestación -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="docker-compose">
+                                                        <span class="chevron">›</span>
+                                                        Docker Compose y Orquestación
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#introduccion-docker-compose"
+                                                                        class="nav-link">Introducción a Docker
+                                                                        Compose</a></li>
+                                                        <li><a href="#archivos-docker-compose" class="nav-link">Archivos
+                                                                        docker-compose.yml</a></li>
+                                                        <li><a href="#variables-entorno" class="nav-link">Variables de
+                                                                        Entorno y Secrets</a></li>
+                                                        <li><a href="#redes-volumenes-compose" class="nav-link">Redes y
+                                                                        Volúmenes en Compose</a>
+                                                        </li>
+                                                        <li><a href="#orquestacion-contenedores"
+                                                                        class="nav-link">Orquestación de Múltiples
+                                                                        Contenedores</a></li>
+                                                        <li><a href="#perfiles-docker-compose" class="nav-link">Perfiles
+                                                                        en Docker Compose</a></li>
+                                                        <li><a href="#depuracion-docker-compose"
+                                                                        class="nav-link">Depuración y Resolución de
+                                                                        Problemas</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Docker en Entornos de Producción -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="docker-produccion">
+                                                        <span class="chevron">›</span>
+                                                        Docker en Entornos de Producción
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#seguridad-docker" class="nav-link">Seguridad en
+                                                                        Docker</a></li>
+                                                        <li><a href="#monitoreo-contenedores" class="nav-link">Monitoreo
+                                                                        de Contenedores</a></li>
+                                                        <li><a href="#logging-docker" class="nav-link">Logging en
+                                                                        Docker</a></li>
+                                                        <li><a href="#escalado-contenedores" class="nav-link">Escalado
+                                                                        de Contenedores</a></li>
+                                                        <li><a href="#docker-swarm" class="nav-link">Docker Swarm para
+                                                                        Orquestación</a></li>
+                                                        <li><a href="#kubernetes-basico" class="nav-link">Introducción a
+                                                                        Kubernetes</a></li>
+                                                        <li><a href="#ci-cd-docker" class="nav-link">Integración
+                                                                        Continua/Despliegue Continuo con
+                                                                        Docker</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: Gestión y Orquestación de Contenedores -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Gestión y Orquestación de Contenedores para Prestashop
+                                        </h2>
+
+                                        <!-- Estrategias de Despliegue -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="estrategias-despliegue">
+                                                        <span class="chevron">›</span>
+                                                        Estrategias de Despliegue
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#estrategias-despliegue-docker"
+                                                                        class="nav-link">Estrategias de Despliegue con
+                                                                        Docker</a></li>
+                                                        <li><a href="#integracion-docker-ci-cd"
+                                                                        class="nav-link">Integración de Docker con
+                                                                        Pipelines
+                                                                        CI/CD</a></li>
+                                                        <li><a href="#seguridad-contenedores" class="nav-link">Seguridad
+                                                                        de Contenedores y Mejores
+                                                                        Prácticas</a></li>
+                                                        <li><a href="#monitorizacion-contenedores"
+                                                                        class="nav-link">Monitorización de Contenedores
+                                                                        (Prometheus, Grafana)</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Almacenamiento y Optimización -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="almacenamiento-optimizacion">
+                                                        <span class="chevron">›</span>
+                                                        Almacenamiento y Optimización
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#almacenamiento-persistente"
+                                                                        class="nav-link">Almacenamiento Persistente y
+                                                                        Montajes en Producción</a></li>
+                                                        <li><a href="#optimizacion-imagenes"
+                                                                        class="nav-link">Optimización de Imágenes
+                                                                        (Multi-stage
+                                                                        builds, capas)</a></li>
+                                                        <li><a href="#introduccion-orquestadores"
+                                                                        class="nav-link">Introducción a Orquestadores
+                                                                        (Docker Swarm, Kubernetes)</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: Integración Continua y Despliegue Continuo (CI/CD) -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Integración Continua y Despliegue Continuo (CI/CD)</h2>
+
+                                        <!-- Análisis de Calidad de Código Estática -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="analisis-calidad-codigo-estatica">
+                                                        <span class="chevron">›</span>
+                                                        Análisis de Calidad de Código Estática
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#phpstan-analisis-estatico-tipos"
+                                                                        class="nav-link">PHPStan para Análisis
+                                                                        Estático de Tipos</a></li>
+                                                        <li><a href="#php-codesniffer-psr12"
+                                                                        class="nav-link">PHP_CodeSniffer para Estándares
+                                                                        de
+                                                                        Codificación (PSR-12)</a></li>
+                                                        <li><a href="#phpmd-detector-codigo-maloliente"
+                                                                        class="nav-link">PHPMD (PHP Mess Detector)
+                                                                        para Detección de Código Maloliente</a></li>
+                                                        <li><a href="#analisis-complejidad-ciclomatica"
+                                                                        class="nav-link">Herramientas de Análisis de
+                                                                        Complejidad Ciclomática</a></li>
+                                                        <li><a href="#code-reviews-pair-programming"
+                                                                        class="nav-link">Code Reviews y Pair
+                                                                        Programming</a></li>
+                                                        <li><a href="#metricas-calidad-codigo" class="nav-link">Métricas
+                                                                        de Calidad de Código</a>
+                                                        </li>
+                                                        <li><a href="#refactoring-continuo" class="nav-link">Refactoring
+                                                                        Continuo Basado en
+                                                                        Análisis</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Conceptos de CI/CD -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="conceptos-ci-cd">
+                                                        <span class="chevron">›</span>
+                                                        Conceptos de CI/CD
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#principios-integracion-continua"
+                                                                        class="nav-link">Principios de Integración
+                                                                        Continua</a></li>
+                                                        <li><a href="#principios-despliegue-entrega-continua"
+                                                                        class="nav-link">Principios de
+                                                                        Despliegue Continuo y Entrega Continua</a></li>
+                                                        <li><a href="#herramientas-ci-cd" class="nav-link">Herramientas
+                                                                        de CI/CD (GitHub Actions,
+                                                                        GitLab CI, Jenkins, CircleCI)</a></li>
+                                                        <li><a href="#automatizacion-builds-tests"
+                                                                        class="nav-link">Automatización de Builds y
+                                                                        Tests</a></li>
+                                                        <li><a href="#gestion-artefactos-construccion"
+                                                                        class="nav-link">Gestión de Artefactos de
+                                                                        Construcción</a></li>
+                                                        <li><a href="#estrategias-ramificacion"
+                                                                        class="nav-link">Estrategias de Ramificación
+                                                                        (Gitflow, Trunk-Based Development, Feature
+                                                                        Branching)</a></li>
+                                                        <li><a href="#versionado-semantico" class="nav-link">Versionado
+                                                                        Semántico</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Configuración de Pipelines CI -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="configuracion-pipelines-ci">
+                                                        <span class="chevron">›</span>
+                                                        Configuración de Pipelines CI
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#configuracion-github-actions-gitlab-ci"
+                                                                        class="nav-link">Configuración de
+                                                                        GitHub Actions/GitLab CI para Proyectos
+                                                                        PHP/Symfony</a></li>
+                                                        <li><a href="#pruebas-unitarias-integracion-ci"
+                                                                        class="nav-link">Ejecución de Pruebas
+                                                                        Unitarias y de Integración en CI</a></li>
+                                                        <li><a href="#analisis-estatico-ci" class="nav-link">Análisis
+                                                                        Estático de Código y
+                                                                        Verificación de Estándares en CI</a></li>
+                                                        <li><a href="#construccion-imagenes-docker-ci"
+                                                                        class="nav-link">Construcción de Imágenes
+                                                                        Docker en CI</a></li>
+                                                        <li><a href="#reportes-cobertura-codigo"
+                                                                        class="nav-link">Generación de Reportes de
+                                                                        Cobertura de Código</a></li>
+                                                        <li><a href="#notificaciones-ci" class="nav-link">Notificaciones
+                                                                        de CI (Slack, Email)</a>
+                                                        </li>
+                                                        <li><a href="#seguridad-pipelines-ci" class="nav-link">Seguridad
+                                                                        en Pipelines CI y Gestión
+                                                                        de Credenciales</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: Arquitecturas de Software y Escalabilidad -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Arquitecturas de Software y Escalabilidad</h2>
+
+                                        <!-- Configuración de Pipelines CD -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="configuracion-pipelines-cd">
+                                                        <span class="chevron">›</span>
+                                                        Configuración de Pipelines CD
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#despliegue-automatico-staging-produccion"
+                                                                        class="nav-link">Despliegue
+                                                                        Automático a Entornos de Staging y
+                                                                        Producción</a></li>
+                                                        <li><a href="#estrategias-despliegue-blue-green"
+                                                                        class="nav-link">Estrategias de Despliegue
+                                                                        (Blue/Green, Canary, Rolling Updates)</a></li>
+                                                        <li><a href="#gestion-rollbacks-downtime-cero"
+                                                                        class="nav-link">Gestión de Rollbacks y
+                                                                        Downtime Cero</a></li>
+                                                        <li><a href="#variables-entorno-seguras"
+                                                                        class="nav-link">Configuración de Variables de
+                                                                        Entorno Seguras</a></li>
+                                                        <li><a href="#monitorizacion-post-despliegue"
+                                                                        class="nav-link">Monitorización
+                                                                        Post-Despliegue y Alertas</a></li>
+                                                        <li><a href="#integracion-infraestructura-cd"
+                                                                        class="nav-link">Integración con
+                                                                        Infraestructura (SSH, Kubernetes, Cloud
+                                                                        Providers)</a></li>
+                                                        <li><a href="#gestion-secrets-cd" class="nav-link">Gestión de
+                                                                        Secrets en CD</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Arquitecturas Comunes de Software -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="arquitecturas-comunes-software">
+                                                        <span class="chevron">›</span>
+                                                        Arquitecturas Comunes de Software
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#arquitectura-monolitica"
+                                                                        class="nav-link">Arquitectura Monolítica y sus
+                                                                        Ventajas/Desventajas</a></li>
+                                                        <li><a href="#arquitectura-por-capas"
+                                                                        class="nav-link">Arquitectura por Capas (Layered
+                                                                        Architecture)</a></li>
+                                                        <li><a href="#arquitectura-hexagonal"
+                                                                        class="nav-link">Arquitectura Hexagonal (Ports
+                                                                        and
+                                                                        Adapters)</a></li>
+                                                        <li><a href="#cqrs-arquitecturas" class="nav-link">CQRS (Command
+                                                                        Query Responsibility
+                                                                        Segregation)</a></li>
+                                                        <li><a href="#event-driven-architecture"
+                                                                        class="nav-link">Event-Driven Architecture
+                                                                        (EDA)</a></li>
+                                                        <li><a href="#domain-driven-design"
+                                                                        class="nav-link">Domain-Driven Design (DDD)
+                                                                        (conceptos
+                                                                        clave)</a></li>
+                                                        <li><a href="#arquitectura-soa" class="nav-link">Arquitectura
+                                                                        Orientada a Servicios
+                                                                        (SOA)</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Diseño para la Escalabilidad -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="diseno-escalabilidad">
+                                                        <span class="chevron">›</span>
+                                                        Diseño para la Escalabilidad
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#escalabilidad-horizontal-vertical"
+                                                                        class="nav-link">Escalabilidad Horizontal
+                                                                        vs. Vertical</a></li>
+                                                        <li><a href="#balanceadores-carga-proxy-inverso"
+                                                                        class="nav-link">Balanceadores de Carga y
+                                                                        Proxy Inverso</a></li>
+                                                        <li><a href="#bases-datos-escalables" class="nav-link">Bases de
+                                                                        Datos Escalables
+                                                                        (Replicación, Sharding, NoSQL)</a></li>
+                                                        <li><a href="#caching-distribuido" class="nav-link">Caching
+                                                                        Distribuido (Redis,
+                                                                        Memcached)</a></li>
+                                                        <li><a href="#colas-mensajes-escalabilidad"
+                                                                        class="nav-link">Colas de Mensajes (RabbitMQ,
+                                                                        Kafka, SQS) para Procesamiento Asíncrono</a>
+                                                        </li>
+                                                        <li><a href="#microservicios-api-gateways"
+                                                                        class="nav-link">Microservicios y API Gateways
+                                                                        para Gestión de Tráfico</a></li>
+                                                        <li><a href="#cdn-contenido-estatico" class="nav-link">CDN
+                                                                        (Content Delivery Network) para
+                                                                        Contenido Estático</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: Buenas Prácticas y Rendimiento -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Buenas Prácticas y Rendimiento</h2>
+
+                                        <!-- Infraestructura y Cloud -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="infraestructura-cloud">
+                                                        <span class="chevron">›</span>
+                                                        Infraestructura y Cloud
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#conceptos-iaas-paas-saas"
+                                                                        class="nav-link">Conceptos de IaaS, PaaS,
+                                                                        SaaS</a>
+                                                        </li>
+                                                        <li><a href="#proveedores-cloud" class="nav-link">Proveedores
+                                                                        Cloud (AWS, Azure, Google
+                                                                        Cloud Platform)</a></li>
+                                                        <li><a href="#virtualizacion-vs-contenedores"
+                                                                        class="nav-link">Virtualización vs.
+                                                                        Contenedores</a></li>
+                                                        <li><a href="#infraestructura-como-codigo"
+                                                                        class="nav-link">Infraestructura como Código
+                                                                        (Terraform, Ansible, CloudFormation)</a></li>
+                                                        <li><a href="#serverless-computing" class="nav-link">Serverless
+                                                                        Computing (AWS Lambda, Azure
+                                                                        Functions)</a></li>
+                                                        <li><a href="#monitorizacion-observabilidad-cloud"
+                                                                        class="nav-link">Monitorización y
+                                                                        Observabilidad (Prometheus, Grafana, ELK Stack,
+                                                                        Jaeger)</a></li>
+                                                        <li><a href="#gestion-logs-centralizada"
+                                                                        class="nav-link">Gestión de Logs Centralizada y
+                                                                        Métricas</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Principios de Código Limpio (Clean Code) -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="principios-codigo-limpio">
+                                                        <span class="chevron">›</span>
+                                                        Principios de Código Limpio (Clean Code)
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#nombres-significativos-legibles"
+                                                                        class="nav-link">Nombres Significativos y
+                                                                        Legibles</a></li>
+                                                        <li><a href="#funciones-clases-pequenas"
+                                                                        class="nav-link">Funciones y Clases Pequeñas y
+                                                                        con
+                                                                        una Única Responsabilidad</a></li>
+                                                        <li><a href="#comentarios-utiles" class="nav-link">Comentarios
+                                                                        Útiles y Evitar Comentarios
+                                                                        Redundantes</a></li>
+                                                        <li><a href="#manejo-errores-excepciones-limpio"
+                                                                        class="nav-link">Manejo de Errores y
+                                                                        Excepciones Limpio</a></li>
+                                                        <li><a href="#refactoring-continuo-deuda-tecnica"
+                                                                        class="nav-link">Refactoring Continuo y
+                                                                        Deuda Técnica</a></li>
+                                                        <li><a href="#principio-dry" class="nav-link">Principio DRY
+                                                                        (Don't Repeat Yourself)</a></li>
+                                                        <li><a href="#coherencia-estilo-codigo"
+                                                                        class="nav-link">Coherencia en el Estilo de
+                                                                        Código</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Optimización de Rendimiento en PHP -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="optimizacion-rendimiento-php">
+                                                        <span class="chevron">›</span>
+                                                        Optimización de Rendimiento en PHP
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#uso-eficiente-estructuras-datos"
+                                                                        class="nav-link">Uso Eficiente de Estructuras
+                                                                        de Datos y Algoritmos</a></li>
+                                                        <li><a href="#optimizacion-consultas-bd"
+                                                                        class="nav-link">Optimización de Consultas a
+                                                                        Base
+                                                                        de Datos</a></li>
+                                                        <li><a href="#caching-codigo-datos" class="nav-link">Caching de
+                                                                        Código (OPcache) y Caching
+                                                                        de Datos</a></li>
+                                                        <li><a href="#profiling-aplicaciones" class="nav-link">Profiling
+                                                                        de Aplicaciones (Blackfire,
+                                                                        Xdebug Profiler)</a></li>
+                                                        <li><a href="#gestion-memoria-fugas" class="nav-link">Gestión de
+                                                                        Memoria y Evitar Fugas</a>
+                                                        </li>
+                                                        <li><a href="#lazy-eager-loading" class="nav-link">Lazy Loading
+                                                                        y Eager Loading</a></li>
+                                                        <li><a href="#minimizacion-peticiones-http-assets"
+                                                                        class="nav-link">Minimización de
+                                                                        Peticiones HTTP y Reducción de Tamaño de
+                                                                        Assets</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+
+                                <!-- Nueva Sección: Herramientas de Desarrollo y Flujo de Trabajo -->
+                                <div class="nav-section">
+                                        <h2 class="nav-title">Herramientas de Desarrollo y Flujo de Trabajo</h2>
+
+                                        <!-- Seguridad en Aplicaciones Web -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="seguridad-aplicaciones-web">
+                                                        <span class="chevron">›</span>
+                                                        Seguridad en Aplicaciones Web
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#owasp-top-10-mitigacion" class="nav-link">OWASP
+                                                                        Top 10 y su Mitigación</a>
+                                                        </li>
+                                                        <li><a href="#prevencion-sql-injection"
+                                                                        class="nav-link">Prevención de SQL Injection
+                                                                        (Prepared Statements)</a></li>
+                                                        <li><a href="#prevencion-xss" class="nav-link">Prevención de XSS
+                                                                        (Cross-Site Scripting)</a>
+                                                        </li>
+                                                        <li><a href="#prevencion-csrf" class="nav-link">Prevención de
+                                                                        CSRF (Cross-Site Request
+                                                                        Forgery)</a></li>
+                                                        <li><a href="#autenticacion-autorizacion-segura"
+                                                                        class="nav-link">Autenticación y
+                                                                        Autorización Segura</a></li>
+                                                        <li><a href="#gestion-sesiones-seguras" class="nav-link">Gestión
+                                                                        de Sesiones Seguras</a>
+                                                        </li>
+                                                        <li><a href="#validacion-entradas-usuario"
+                                                                        class="nav-link">Validación de Entradas de
+                                                                        Usuario (Input Validation)</a></li>
+                                                        <li><a href="#manejo-seguro-secretos" class="nav-link">Manejo
+                                                                        Seguro de Secretos y
+                                                                        Credenciales</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Control de Versiones con Git -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="control-versiones-git">
+                                                        <span class="chevron">›</span>
+                                                        Control de Versiones con Git
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#comandos-basicos-git" class="nav-link">Comandos
+                                                                        Básicos de Git (add, commit,
+                                                                        push, pull, clone)</a></li>
+                                                        <li><a href="#ramificacion-merge-rebase"
+                                                                        class="nav-link">Ramificación (Branching),
+                                                                        Fusión
+                                                                        (Merging) y Rebase</a></li>
+                                                        <li><a href="#resolucion-conflictos-fusion"
+                                                                        class="nav-link">Resolución de Conflictos de
+                                                                        Fusión</a></li>
+                                                        <li><a href="#stash-cherry-pick" class="nav-link">Stash y
+                                                                        Cherry-pick</a></li>
+                                                        <li><a href="#workflows-git" class="nav-link">Workflows de Git
+                                                                        (Gitflow, GitHub Flow, GitLab
+                                                                        Flow)</a></li>
+                                                        <li><a href="#herramientas-graficas-git"
+                                                                        class="nav-link">Herramientas de Interfaz
+                                                                        Gráfica
+                                                                        para Git (Sourcetree, GitKraken, VS Code Git
+                                                                        Integration)</a></li>
+                                                        <li><a href="#gitignore-gitattributes"
+                                                                        class="nav-link">.gitignore y .gitattributes</a>
+                                                        </li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Entornos de Desarrollo -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title" data-category="entornos-desarrollo">
+                                                        <span class="chevron">›</span>
+                                                        Entornos de Desarrollo
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#ides-configuraciones" class="nav-link">IDEs
+                                                                        (PhpStorm, VS Code) y sus
+                                                                        configuraciones</a></li>
+                                                        <li><a href="#depuracion-xdebug" class="nav-link">Depuración
+                                                                        Avanzada con Xdebug</a></li>
+                                                        <li><a href="#linters-formatters" class="nav-link">Linters y
+                                                                        Formatters (PHP-CS-Fixer,
+                                                                        Prettier)</a></li>
+                                                        <li><a href="#entornos-desarrollo-locales"
+                                                                        class="nav-link">Entornos de Desarrollo Locales
+                                                                        (Valet, Laragon, Lando)</a></li>
+                                                        <li><a href="#terminales-avanzados" class="nav-link">Terminales
+                                                                        Avanzados (iTerm2, Zsh con
+                                                                        Oh My Zsh)</a></li>
+                                                        <li><a href="#atajos-teclado-ide" class="nav-link">Atajos de
+                                                                        Teclado y Personalización del
+                                                                        IDE</a></li>
+                                                        <li><a href="#contenedores-desarrollo"
+                                                                        class="nav-link">Contenedores de Desarrollo
+                                                                        (DevContainers)</a></li>
+                                                </ul>
+                                        </div>
+
+                                        <!-- Gestión de Proyectos y Colaboración -->
+                                        <div class="nav-category">
+                                                <button class="nav-category-title"
+                                                        data-category="gestion-proyectos-colaboracion">
+                                                        <span class="chevron">›</span>
+                                                        Gestión de Proyectos y Colaboración
+                                                </button>
+                                                <ul class="nav-items">
+                                                        <li><a href="#metodologias-agiles" class="nav-link">Metodologías
+                                                                        Ágiles (Scrum, Kanban)</a>
+                                                        </li>
+                                                        <li><a href="#herramientas-gestion-proyectos"
+                                                                        class="nav-link">Herramientas de Gestión de
+                                                                        Proyectos (Jira, Trello, Asana, Azure
+                                                                        DevOps)</a></li>
+                                                        <li><a href="#code-reviews-pull-requests" class="nav-link">Code
+                                                                        Reviews y Pull Requests</a>
+                                                        </li>
+                                                        <li><a href="#comunicacion-efectiva-equipos"
+                                                                        class="nav-link">Comunicación Efectiva en
+                                                                        Equipos de Desarrollo</a></li>
+                                                        <li><a href="#documentacion-codigo-proyectos"
+                                                                        class="nav-link">Documentación de Código y
+                                                                        Proyectos (Markdown, Wiki)</a></li>
+                                                        <li><a href="#gestion-dependencias-composer"
+                                                                        class="nav-link">Gestión de Dependencias
+                                                                        (Composer)</a></li>
+                                                        <li><a href="#herramientas-automatizacion"
+                                                                        class="nav-link">Herramientas de Automatización
+                                                                        (Makefiles, npm scripts)</a></li>
+                                                </ul>
+                                        </div>
+                                </div>
+                        </nav>
+
+                </aside>
+
+                <main class="main-content" id="mainContent">
+                        <div id="content"></div>
+                </main>
         </div>
-    </header>
 
-    <div class="container">
-        <aside class="sidebar" id="sidebar">
-            <nav class="nav">
-                <div class="nav-section">
-                    <h2 class="nav-title">Fundamentos de PHP Avanzado</h2>
+        <!-- Highlight.js y estilos -->
+        <link rel="stylesheet"
+                href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
 
-                    <div class="nav-category">
-                        <button class="nav-category-title active" data-category="sintaxis">
-                            <span class="chevron">›</span>
-                            Sintaxis y Tipos de Datos
-                        </button>
-                        <ul class="nav-items active">
-                            <li><a href="#declaracion-variables" class="nav-link active">Declaración de Variables y
-                                    Constantes</a></li>
-                            <li><a href="#tipos-escalares" class="nav-link">Tipos Escalares y Compuestos</a></li>
-                            <li><a href="#coercion-tipos" class="nav-link">Coerción de Tipos y Comparaciones
-                                    Estrictas</a></li>
-                            <li><a href="#operadores" class="nav-link">Operadores Aritméticos, Lógicos y de
-                                    Comparación</a></li>
-                            <li><a href="#estructuras-control" class="nav-link">Estructuras de Control (If/Else, Switch,
-                                    Bucles)</a></li>
-                            <li><a href="#funciones-anonimas" class="nav-link">Funciones Anónimas, Arrow Functions y
-                                    Closures</a></li>
-                            <li><a href="#namespaces" class="nav-link">Namespaces y Autoloading (PSR-4)</a></li>
-                        </ul>
-                    </div>
+        <script src="contenido/sintaxis-tipos-datos.js"></script>
+        <script src="contenido/gestion-errores.js"></script>
+        <script src="contenido/oop.js"></script>
+        <script src="contenido/patrones-diseno.js"></script>
 
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="errores">
-                            <span class="chevron">›</span>
-                            Gestión de Errores y Excepciones
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#manejo-errores-tradicional" class="nav-link">Manejo de Errores Tradicional
-                                    (trigger_error)</a></li>
-                            <li><a href="#clases-excepciones" class="nav-link">Clases de Excepciones Estándar</a></li>
-                            <li><a href="#excepciones-personalizadas" class="nav-link">Creación de Excepciones
-                                    Personalizadas</a></li>
-                            <li><a href="#bloques-try-catch" class="nav-link">Bloques try-catch-finally</a></li>
-                            <li><a href="#errores-fatales" class="nav-link">Manejo de Errores Fatales y Shutdown
-                                    Functions</a></li>
-                            <li><a href="#logging-errores" class="nav-link">Logging de Errores y Stack Traces</a></li>
-                            <li><a href="#xdebug" class="nav-link">Depuración con Xdebug</a></li>
-                        </ul>
-                    </div>
+        <!-- Temas externos -->
+        <script src="contenido/temas/arquitectura-prestashop/ciclo-vida-peticiones.js"></script>
+        <script src="contenido/temas/arquitectura-prestashop/estructuraModulosTemas.js"></script>
+        <script src="contenido/temas/arquitectura-prestashop/overrides.js"></script>
+        <script src="contenido/temas/arquitectura-prestashop/hooks-y-eventos.js"></script>
+        <script src="contenido/temas/arquitectura-prestashop/modelo-datos.js"></script>
+        <script src="contenido/temas/arquitectura-prestashop/multitienda-idioma.js"></script>
+        <script src="contenido/temas/arquitectura-prestashop/cache-prestashop-smarty-apcu.js"></script>
+        <script src="contenido/temas/modules-prestashop/creacion-controladores.js"></script>
+        <script src="contenido/temas/modules-prestashop/uso-orm-prestashop.js"></script>
+        <script src="contenido/temas/modules-prestashop/configuracion-modulos-back-office.js"></script>
+        <script src="contenido/temas/modules-prestashop/gestion-activos-css-js.js"></script>
+        <script src="contenido/temas/modules-prestashop/internacionalizacion-traducciones-modulos.js"></script>
+        <script src="contenido/temas/modules-prestashop/integracion-web-services-prestashop.js"></script>
+        <script src="contenido/temas/modules-prestashop/buenas-practicas-estandares-modulos.js"></script>
 
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="oop">
-                            <span class="chevron">›</span>
-                            Programación Orientada a Objetos (OOP)
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#clases-objetos" class="nav-link">Clases, Objetos, Propiedades y Métodos</a>
-                            </li>
-                            <li><a href="#constructores" class="nav-link">Constructores, Destructores y Autoloading</a>
-                            </li>
-                            <li><a href="#herencia" class="nav-link">Herencia, Abstracción e Interfaces</a></li>
-                            <li><a href="#traits" class="nav-link">Traits y Clases Anónimas</a></li>
-                            <li><a href="#encapsulamiento" class="nav-link">Encapsulamiento (público, protegido,
-                                    privado)</a></li>
-                            <li><a href="#polimorfismo" class="nav-link">Polimorfismo y Type Hinting</a></li>
-                            <li><a href="#clases-finales" class="nav-link">Clases Finales y Métodos Finales</a></li>
-                        </ul>
-                    </div>
-                </div>
+        <!-- Desarrollo de Temas Personalizados -->
+        <script src="contenido/temas/temas-personalizados/estructura-tema-classic-starter.js"></script>
+        <script src="contenido/temas/temas-personalizados/sobreescritura-plantillas-smarty-twig.js"></script>
+        <script src="contenido/temas/temas-personalizados/integracion-modulos-tema.js"></script>
+        <script src="contenido/temas/temas-personalizados/personalizacion-css-sass-javascript.js"></script>
+        <script src="contenido/temas/temas-personalizados/optimizacion-rendimiento-tema.js"></script>
+        <script src="contenido/temas/temas-personalizados/responsive-design-adaptacion-movil.js"></script>
+        <script src="contenido/temas/temas-personalizados/creacion-paginas-layouts-personalizados.js"></script>
 
-                <!-- Nueva Jerarquía: Patrones de Diseño -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Patrones de Diseño y Principios de Ingeniería de Software</h2>
+        <!-- Bases de Datos y SQL Avanzado -->
+        <script src="contenido/temas/bases-datos-sql-avanzado/mantenimiento-optimizacion.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/diseno-bases-datos.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/sql-avanzado.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/modelado-entidad-relacion.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/normalizacion-bases-datos.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/tipos-relaciones.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/indices-claves.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/patrones-diseno-esquemas.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/integridad-referencial.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/desnormalizacion-estrategica.js"></script>
 
-                    <!-- Características Modernas de PHP -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="caracteristicas-modernas">
-                            <span class="chevron">›</span>
-                            Características Modernas de PHP
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#match-expression" class="nav-link">Match Expression (PHP 8+)</a></li>
-                            <li><a href="#operador-nullsafe" class="nav-link">Operador Nullsafe (PHP 8+)</a></li>
-                            <li><a href="#named-arguments" class="nav-link">Named Arguments (PHP 8+)</a></li>
-                            <li><a href="#declaraciones-tipos" class="nav-link">Declaraciones de Tipos Escalares y de
-                                    Retorno</a></li>
-                            <li><a href="#propiedades-promocionadas" class="nav-link">Propiedades Promocionadas en
-                                    Constructores (PHP 8+)</a></li>
-                            <li><a href="#atributos" class="nav-link">Atributos (PHP 8+) y su uso</a></li>
-                            <li><a href="#enumeraciones" class="nav-link">Enumeraciones (Enums) (PHP 8.1+)</a></li>
-                        </ul>
-                    </div>
+        <script src="contenido/temas/index.js"></script>
 
-                    <!-- Principios SOLID -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="solid">
-                            <span class="chevron">›</span>
-                            Principios SOLID
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#principio-srp" class="nav-link">Principio de Responsabilidad Única (SRP)</a>
-                            </li>
-                            <li><a href="#principio-ocp" class="nav-link">Principio Abierto/Cerrado (OCP)</a></li>
-                            <li><a href="#principio-lsp" class="nav-link">Principio de Sustitución de Liskov (LSP)</a>
-                            </li>
-                            <li><a href="#principio-isp" class="nav-link">Principio de Segregación de Interfaces
-                                    (ISP)</a></li>
-                            <li><a href="#principio-dip" class="nav-link">Principio de Inversión de Dependencias
-                                    (DIP)</a></li>
-                            <li><a href="#aplicacion-solid" class="nav-link">Aplicación de SOLID en PHP</a></li>
-                            <li><a href="#refactoring-solid" class="nav-link">Refactoring Basado en SOLID</a></li>
-                        </ul>
-                    </div>
+        <!-- Loader principal -->
+        <script src="contenido/loader.js"></script>
 
-                    <!-- Patrones Creacionales -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="creacionales">
-                            <span class="chevron">›</span>
-                            Patrones de Diseño Creacionales
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#patron-singleton" class="nav-link">Patrón Singleton</a></li>
-                            <li><a href="#patron-factory" class="nav-link">Patrón Factory Method</a></li>
-                            <li><a href="#patron-abstract-factory" class="nav-link">Patrón Abstract Factory</a></li>
-                            <li><a href="#patron-builder" class="nav-link">Patrón Builder</a></li>
-                            <li><a href="#patron-prototype" class="nav-link">Patrón Prototype</a></li>
-                            <li><a href="#inyeccion-dependencias" class="nav-link">Inyección de Dependencias (DI) y
-                                    Contenedores DI</a></li>
-                            <li><a href="#service-locator" class="nav-link">Service Locator</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Patrones Estructurales -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="estructurales">
-                            <span class="chevron">›</span>
-                            Patrones de Diseño Estructurales
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#patron-adapter" class="nav-link">Patrón Adapter</a></li>
-                            <li><a href="#patron-decorator" class="nav-link">Patrón Decorator</a></li>
-                            <li><a href="#patron-facade" class="nav-link">Patrón Facade</a></li>
-                            <li><a href="#patron-bridge" class="nav-link">Patrón Bridge</a></li>
-                            <li><a href="#patron-composite" class="nav-link">Patrón Composite</a></li>
-                            <li><a href="#patron-proxy" class="nav-link">Patrón Proxy</a></li>
-                            <li><a href="#patron-flyweight" class="nav-link">Patrón Flyweight</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: Dominio de Symfony Framework -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Dominio de Symfony Framework</h2>
-
-                    <!-- Patrones de Diseño de Comportamiento -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="comportamiento">
-                            <span class="chevron">›</span>
-                            Patrones de Diseño de Comportamiento
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#introduccion-patrones-symfony" class="nav-link">📚 Introducción: Patrones en
-                                    Symfony</a></li>
-                            <li><a href="#patron-strategy" class="nav-link">Patrón Strategy</a></li>
-                            <li><a href="#patron-observer" class="nav-link">Patrón Observer</a></li>
-                            <li><a href="#patron-command" class="nav-link">Patrón Command</a></li>
-                            <li><a href="#patron-iterator" class="nav-link">Patrón Iterator</a></li>
-                            <li><a href="#patron-state" class="nav-link">Patrón State</a></li>
-                            <li><a href="#patron-template-method" class="nav-link">Patrón Template Method</a></li>
-                            <li><a href="#patron-chain-responsibility" class="nav-link">Patrón Chain of
-                                    Responsibility</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Fundamentos y Componentes de Symfony -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="fundamentos-symfony">
-                            <span class="chevron">›</span>
-                            Fundamentos y Componentes de Symfony
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#arquitectura-kernel-bundles" class="nav-link">Arquitectura del Kernel y
-                                    Bundles</a></li>
-                            <li><a href="#rutas-controladores-http" class="nav-link">Rutas, Controladores y Respuestas
-                                    HTTP</a></li>
-                            <li><a href="#plantillas-twig-extensiones" class="nav-link">Plantillas Twig y sus
-                                    Extensiones</a></li>
-                            <li><a href="#inyeccion-dependencias-contenedor" class="nav-link">Inyección de Dependencias
-                                    y Contenedor de Servicios</a></li>
-                            <li><a href="#ciclo-vida-peticion-http" class="nav-link">Ciclo de Vida de una Petición
-                                    HTTP</a></li>
-                            <li><a href="#consola-symfony-bin-console" class="nav-link">Consola de Symfony
-                                    (bin/console)</a></li>
-                            <li><a href="#configuracion-variables-dotenv" class="nav-link">Configuración y Variables de
-                                    Entorno (DotEnv)</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Doctrine ORM -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="doctrine-orm">
-                            <span class="chevron">›</span>
-                            Doctrine ORM
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#mapeo-entidades-repositorios" class="nav-link">Mapeo de Entidades y
-                                    Repositorios</a></li>
-                            <li><a href="#migraciones-doctrine-migrations" class="nav-link">Migraciones de Base de Datos
-                                    con Doctrine Migrations</a></li>
-                            <li><a href="#dql-doctrine-query-language" class="nav-link">DQL (Doctrine Query
-                                    Language)</a></li>
-                            <li><a href="#relaciones-entidades" class="nav-link">Relaciones entre Entidades (OneToOne,
-                                    ManyToOne, OneToMany, ManyToMany)</a></li>
-                            <li><a href="#eventos-doctrine-lifecycle" class="nav-link">Eventos de Doctrine (Lifecycle
-                                    Callbacks)</a></li>
-                            <li><a href="#fixtures-datos-doctrinefixtures" class="nav-link">Fixtures de Datos con
-                                    DoctrineFixturesBundle</a></li>
-                            <li><a href="#caching-consultas-resultados" class="nav-link">Caching de Consultas y
-                                    Resultados</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Formas y Validaciones -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="formas-validaciones">
-                            <span class="chevron">›</span>
-                            Formas y Validaciones
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#creacion-formularios-form" class="nav-link">Creación de Formularios con el
-                                    Componente Form</a></li>
-                            <li><a href="#tipos-campos-opciones" class="nav-link">Tipos de Campos y Opciones
-                                    Avanzados</a></li>
-                            <li><a href="#manejo-subida-archivos" class="nav-link">Manejo de Subida de Archivos en
-                                    Formularios</a></li>
-                            <li><a href="#grupos-validacion-contextos" class="nav-link">Grupos de Validación y
-                                    Contextos</a></li>
-                            <li><a href="#validadores-personalizados" class="nav-link">Validadores Personalizados</a>
-                            </li>
-                            <li><a href="#integracion-formularios-twig" class="nav-link">Integración de Formularios con
-                                    Twig</a></li>
-                            <li><a href="#manejo-errores-mensajes-validacion" class="nav-link">Manejo de Errores y
-                                    Mensajes de Validación</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Seguridad y Autenticación -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="seguridad-autenticacion">
-                            <span class="chevron">›</span>
-                            Seguridad y Autenticación
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#firewall-seguridad-acceso" class="nav-link">Firewall de Seguridad y Acceso</a>
-                            </li>
-                            <li><a href="#autenticacion-sesiones-tokens-jwt" class="nav-link">Autenticación Basada en
-                                    Sesiones, Tokens y JWT</a></li>
-                            <li><a href="#proveedores-usuarios" class="nav-link">Proveedores de Usuarios</a></li>
-                            <li><a href="#volantes-seguridad-voters" class="nav-link">Volantes de Seguridad (Voters)</a>
-                            </li>
-                            <li><a href="#encriptacion-contrasenas-password-hasher" class="nav-link">Encriptación de
-                                    Contraseñas (Password Hasher)</a></li>
-                            <li><a href="#proteccion-csrf-headers" class="nav-link">Protección CSRF y Headers de
-                                    Seguridad</a></li>
-                            <li><a href="#autorizacion-roles-usuario" class="nav-link">Autorización y Roles de
-                                    Usuario</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Desarrollo con PrestaShop -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Desarrollo con PrestaShop</h2>
-
-                    <!-- Symfony Messenger y Colas de Mensajes -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="symfony-messenger">
-                            <span class="chevron">›</span>
-                            Symfony Messenger y Colas de Mensajes
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#conceptos-message-bus-handlers" class="nav-link">Conceptos de Message Bus,
-                                    Messages y Handlers</a></li>
-                            <li><a href="#sincronizacion-asincronia-mensajes" class="nav-link">Sincronización y
-                                    Asincronía de Mensajes</a></li>
-                            <li><a href="#integracion-colas-redis-rabbitmq" class="nav-link">Integración con Colas de
-                                    Mensajes (Redis, RabbitMQ, SQS)</a></li>
-                            <li><a href="#workers-supervision" class="nav-link">Workers y Supervisión</a></li>
-                            <li><a href="#serializacion-mensajes" class="nav-link">Serialización de Mensajes</a></li>
-                            <li><a href="#middleware-messenger" class="nav-link">Middleware de Messenger</a></li>
-                            <li><a href="#fallos-reintentos-mensajes" class="nav-link">Fallos y Reintentos de
-                                    Mensajes</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Arquitectura y Conceptos de PrestaShop -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="arquitectura-prestashop">
-                            <span class="chevron">›</span>
-                            Arquitectura y Conceptos de PrestaShop
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#ciclo-vida-peticiones-prestashop" class="nav-link">Ciclo de Vida de Peticiones
-                                    en PrestaShop</a></li>
-                            <li><a href="#estructura-modulos-temas" class="nav-link">Estructura de Módulos y Temas</a>
-                            </li>
-                            <li><a href="#overrides-clases-controladores" class="nav-link">Overrides de Clases,
-                                    Controladores y Modelos</a></li>
-                            <li><a href="#hooks-eventos-prestashop" class="nav-link">Hooks y Eventos en PrestaShop</a>
-                            </li>
-                            <li><a href="#modelo-datos-prestashop" class="nav-link">Modelo de Datos de PrestaShop y
-                                    Clases Core</a></li>
-                            <li><a href="#configuracion-multitienda-multiidioma" class="nav-link">Configuración
-                                    Multitienda y Multi-idioma</a></li>
-                            <li><a href="#cache-prestashop-smarty-apcu" class="nav-link">Caché de PrestaShop (Smarty,
-                                    APCu, Memcached)</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Desarrollo de Módulos Avanzados -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="modulos-avanzados">
-                            <span class="chevron">›</span>
-                            Desarrollo de Módulos Avanzados
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#creacion-controladores-front-back" class="nav-link">Creación de Controladores
-                                    Front Office y Back Office</a></li>
-                            <li><a href="#uso-orm-prestashop" class="nav-link">Uso del ORM de PrestaShop (ORM Core)</a>
-                            </li>
-                            <li><a href="#configuracion-modulos-back-office" class="nav-link">Configuración de Módulos y
-                                    Pestañas en el Back Office</a></li>
-                            <li><a href="#gestion-activos-css-js" class="nav-link">Gestión de Activos (CSS/JS) y
-                                    Compilación</a></li>
-                            <li><a href="#internacionalizacion-traducciones-modulos"
-                                    class="nav-link">Internacionalización y Traducciones en Módulos</a></li>
-                            <li><a href="#integracion-web-services-prestashop" class="nav-link">Integración con Web
-                                    Services de PrestaShop</a></li>
-                            <li><a href="#buenas-practicas-estandares-modulos" class="nav-link">Buenas Prácticas y
-                                    Estándares de Codificación para Módulos</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Desarrollo de Temas Personalizados -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="temas-personalizados">
-                            <span class="chevron">›</span>
-                            Desarrollo de Temas Personalizados
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#estructura-tema-classic-starter" class="nav-link">Estructura de un Tema
-                                    (Classic, Starter Theme)</a></li>
-                            <li><a href="#sobreescritura-plantillas-smarty-twig" class="nav-link">Sobreescritura de
-                                    Plantillas Smarty/Twig (PrestaShop 1.7+)</a></li>
-                            <li><a href="#integracion-modulos-tema" class="nav-link">Integración de Módulos en el
-                                    Tema</a></li>
-                            <li><a href="#personalizacion-css-sass-javascript" class="nav-link">Personalización Avanzada
-                                    de CSS (Sass/Less) y JavaScript</a></li>
-                            <li><a href="#optimizacion-rendimiento-tema" class="nav-link">Optimización de Rendimiento
-                                    del Tema</a></li>
-                            <li><a href="#responsive-design-adaptacion-movil" class="nav-link">Responsive Design y
-                                    Adaptación Móvil</a></li>
-                            <li><a href="#creacion-paginas-layouts-personalizados" class="nav-link">Creación de Páginas
-                                    y Layouts Personalizados</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: Bases de Datos y SQL Avanzado -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Bases de Datos y SQL Avanzado</h2>
-
-                    <!-- Diseño de Bases de Datos Relacionales -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="diseno-bases-datos">
-                            <span class="chevron">›</span>
-                            Diseño de Bases de Datos Relacionales
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#diseno-bases-datos-relacionales" class="nav-link">Diseño de Bases de Datos
-                                    Relacionales</a></li>
-                            <li><a href="#modelado-erd" class="nav-link">Modelado Entidad-Relación (ERD)</a></li>
-                            <li><a href="#normalizacion-bases-datos" class="nav-link">Normalización de Bases de Datos
-                                    (1NF, 2NF, 3NF, BCNF)</a></li>
-                            <li><a href="#tipos-relaciones" class="nav-link">Tipos de Relaciones (Uno-a-Uno,
-                                    Uno-a-Muchos, Muchos-a-Muchos)</a></li>
-                            <li><a href="#indices-claves" class="nav-link">Índices y Claves (Primarias, Foráneas,
-                                    Únicas)</a></li>
-                            <li><a href="#patrones-diseno-esquemas" class="nav-link">Patrones de Diseño de Esquemas
-                                    (EAV, Adjacency List)</a></li>
-                            <li><a href="#integridad-referencial" class="nav-link">Integridad Referencial y
-                                    Restricciones</a></li>
-                            <li><a href="#desnormalizacion-estrategica" class="nav-link">Desnormalización
-                                    Estratégica</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- SQL Avanzado -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="sql-avanzado">
-                            <span class="chevron">›</span>
-                            SQL Avanzado
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#sql-avanzado" class="nav-link">SQL Avanzado</a></li>
-                            <li><a href="#subconsultas" class="nav-link">Subconsultas Correlacionadas y No
-                                    Correlacionadas</a></li>
-                            <li><a href="#ctes" class="nav-link">CTEs (Common Table Expressions) y Recursive CTEs</a>
-                            </li>
-                            <li><a href="#window-functions" class="nav-link">Funciones de Ventana (Window Functions)</a>
-                            </li>
-                            <li><a href="#funciones-agregadas" class="nav-link">Funciones Agregadas Avanzadas y Group By
-                                    con HAVING</a></li>
-                            <li><a href="#joins-complejos" class="nav-link">Joins Complejos (CROSS JOIN, SELF JOIN, FULL
-                                    OUTER JOIN)</a></li>
-                            <li><a href="#transacciones-acid" class="nav-link">Transacciones SQL y Propiedades ACID</a>
-                            </li>
-                            <li><a href="#vistas" class="nav-link">Vistas Materializadas y Virtuales</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Mantenimiento y Optimización de PrestaShop -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="mantenimiento-prestashop">
-                            <span class="chevron">›</span>
-                            Mantenimiento y Optimización de PrestaShop
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#mantenimiento-optimizacion-prestashop" class="nav-link">Mantenimiento y
-                                    Optimización de PrestaShop</a></li>
-                            <li><a href="#gestion-cache" class="nav-link">Gestión y Limpieza de la Caché</a></li>
-                            <li><a href="#optimizacion-bd" class="nav-link">Optimización de Base de Datos y
-                                    Consultas</a></li>
-                            <li><a href="#monitorizacion-rendimiento" class="nav-link">Monitorización de Rendimiento y
-                                    Herramientas</a></li>
-                            <li><a href="#actualizaciones-migraciones" class="nav-link">Actualizaciones y Migraciones de
-                                    Versión (Major/Minor)</a></li>
-                            <li><a href="#solucion-problemas" class="nav-link">Solución de Problemas Comunes y
-                                    Depuración</a></li>
-                            <li><a href="#gestion-logs" class="nav-link">Gestión de Logs y Errores</a></li>
-                            <li><a href="#cron-jobs" class="nav-link">Configuración de CRON Jobs para Tareas
-                                    Programadas</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: API RESTful y Microservicios -->
-                <div class="nav-section">
-                    <h2 class="nav-title">API RESTful y Microservicios</h2>
-
-                    <!-- Optimización y Administración de Bases de Datos -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="optimizacion-bd">
-                            <span class="chevron">›</span>
-                            Optimización y Administración de Bases de Datos
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#optimizacion-consultas" class="nav-link">Optimización de Consultas (EXPLAIN
-                                    PLAN)</a></li>
-                            <li><a href="#tuning-servidores" class="nav-link">Tuning de Servidores de Bases de Datos</a>
-                            </li>
-                            <li><a href="#backup-restauracion" class="nav-link">Backup y Restauración Estratégica</a>
-                            </li>
-                            <li><a href="#particionamiento-tablas" class="nav-link">Particionamiento de Tablas</a></li>
-                            <li><a href="#replicacion-alta-disponibilidad" class="nav-link">Replicación y Alta
-                                    Disponibilidad</a></li>
-                            <li><a href="#seguridad-bd" class="nav-link">Seguridad de Bases de Datos y Permisos</a></li>
-                            <li><a href="#monitoreo-rendimiento-bd" class="nav-link">Monitoreo de Rendimiento de BD</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Diseño de APIs RESTful -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="diseno-apis">
-                            <span class="chevron">›</span>
-                            Diseño de APIs RESTful
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#principios-rest" class="nav-link">Principios REST (Stateless, Cacheable,
-                                    Uniform Interface)</a></li>
-                            <li><a href="#verbos-http" class="nav-link">Verbos HTTP (GET, POST, PUT, PATCH, DELETE) y su
-                                    Semántica</a></li>
-                            <li><a href="#codigos-estado-http" class="nav-link">Códigos de Estado HTTP y su
-                                    Significado</a></li>
-                            <li><a href="#versionado-apis" class="nav-link">Versionado de APIs (URI, Header, Query
-                                    Parameter)</a></li>
-                            <li><a href="#paginacion-filtrado" class="nav-link">Paginación, Filtrado, Ordenamiento y
-                                    Búsqueda</a></li>
-                            <li><a href="#hateoas" class="nav-link">HATEOAS (Hypermedia as the Engine of Application
-                                    State)</a></li>
-                            <li><a href="#documentacion-apis" class="nav-link">Documentación de APIs (OpenAPI/Swagger,
-                                    Postman)</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Implementación de APIs con Symfony -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="implementacion-apis">
-                            <span class="chevron">›</span>
-                            Implementación de APIs con Symfony
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#controladores-api" class="nav-link">Creación de Controladores de API</a></li>
-                            <li><a href="#serializacion" class="nav-link">Serialización/Deserialización (Symfony
-                                    Serializer Component)</a></li>
-                            <li><a href="#manejo-errores-apis" class="nav-link">Manejo de Errores y Excepciones en
-                                    APIs</a></li>
-                            <li><a href="#autenticacion-apis" class="nav-link">Autenticación y Autorización para APIs
-                                    (JWT, OAuth2, API Keys)</a></li>
-                            <li><a href="#rate-limiting" class="nav-link">Rate Limiting y Throttling</a></li>
-                            <li><a href="#cache-apis" class="nav-link">Caché de APIs con Varnish o Symfony Cache
-                                    Component</a></li>
-                            <li><a href="#consumo-apis-externas" class="nav-link">Consumo de APIs Externas (Symfony
-                                    HttpClient)</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: Contenedores y Docker -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Contenedores y Docker</h2>
-
-                    <!-- Fundamentos de Contenedores -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="fundamentos-contenedores">
-                            <span class="chevron">›</span>
-                            Fundamentos de Contenedores
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#conceptos-contenedores" class="nav-link">Conceptos Básicos de Contenedores</a>
-                            </li>
-                            <li><a href="#docker-arquitectura" class="nav-link">Arquitectura de Docker</a></li>
-                            <li><a href="#imagenes-contenedores" class="nav-link">Imágenes y Contenedores</a></li>
-                            <li><a href="#almacenamiento-contenedores" class="nav-link">Almacenamiento en
-                                    Contenedores</a></li>
-                            <li><a href="#redes-docker" class="nav-link">Redes en Docker</a></li>
-                            <li><a href="#docker-hub-registries" class="nav-link">Docker Hub y Registries Privados</a>
-                            </li>
-                            <li><a href="#buenas-practicas-docker" class="nav-link">Buenas Prácticas con Docker</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Docker Compose y Orquestación -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="docker-compose">
-                            <span class="chevron">›</span>
-                            Docker Compose y Orquestación
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#introduccion-docker-compose" class="nav-link">Introducción a Docker
-                                    Compose</a></li>
-                            <li><a href="#archivos-docker-compose" class="nav-link">Archivos docker-compose.yml</a></li>
-                            <li><a href="#variables-entorno" class="nav-link">Variables de Entorno y Secrets</a></li>
-                            <li><a href="#redes-volumenes-compose" class="nav-link">Redes y Volúmenes en Compose</a>
-                            </li>
-                            <li><a href="#orquestacion-contenedores" class="nav-link">Orquestación de Múltiples
-                                    Contenedores</a></li>
-                            <li><a href="#perfiles-docker-compose" class="nav-link">Perfiles en Docker Compose</a></li>
-                            <li><a href="#depuracion-docker-compose" class="nav-link">Depuración y Resolución de
-                                    Problemas</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Docker en Entornos de Producción -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="docker-produccion">
-                            <span class="chevron">›</span>
-                            Docker en Entornos de Producción
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#seguridad-docker" class="nav-link">Seguridad en Docker</a></li>
-                            <li><a href="#monitoreo-contenedores" class="nav-link">Monitoreo de Contenedores</a></li>
-                            <li><a href="#logging-docker" class="nav-link">Logging en Docker</a></li>
-                            <li><a href="#escalado-contenedores" class="nav-link">Escalado de Contenedores</a></li>
-                            <li><a href="#docker-swarm" class="nav-link">Docker Swarm para Orquestación</a></li>
-                            <li><a href="#kubernetes-basico" class="nav-link">Introducción a Kubernetes</a></li>
-                            <li><a href="#ci-cd-docker" class="nav-link">Integración Continua/Despliegue Continuo con
-                                    Docker</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: Gestión y Orquestación de Contenedores -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Gestión y Orquestación de Contenedores para Prestashop</h2>
-
-                    <!-- Estrategias de Despliegue -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="estrategias-despliegue">
-                            <span class="chevron">›</span>
-                            Estrategias de Despliegue
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#estrategias-despliegue-docker" class="nav-link">Estrategias de Despliegue con
-                                    Docker</a></li>
-                            <li><a href="#integracion-docker-ci-cd" class="nav-link">Integración de Docker con Pipelines
-                                    CI/CD</a></li>
-                            <li><a href="#seguridad-contenedores" class="nav-link">Seguridad de Contenedores y Mejores
-                                    Prácticas</a></li>
-                            <li><a href="#monitorizacion-contenedores" class="nav-link">Monitorización de Contenedores
-                                    (Prometheus, Grafana)</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Almacenamiento y Optimización -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="almacenamiento-optimizacion">
-                            <span class="chevron">›</span>
-                            Almacenamiento y Optimización
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#almacenamiento-persistente" class="nav-link">Almacenamiento Persistente y
-                                    Montajes en Producción</a></li>
-                            <li><a href="#optimizacion-imagenes" class="nav-link">Optimización de Imágenes (Multi-stage
-                                    builds, capas)</a></li>
-                            <li><a href="#introduccion-orquestadores" class="nav-link">Introducción a Orquestadores
-                                    (Docker Swarm, Kubernetes)</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: Integración Continua y Despliegue Continuo (CI/CD) -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Integración Continua y Despliegue Continuo (CI/CD)</h2>
-
-                    <!-- Análisis de Calidad de Código Estática -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="analisis-calidad-codigo-estatica">
-                            <span class="chevron">›</span>
-                            Análisis de Calidad de Código Estática
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#phpstan-analisis-estatico-tipos" class="nav-link">PHPStan para Análisis
-                                    Estático de Tipos</a></li>
-                            <li><a href="#php-codesniffer-psr12" class="nav-link">PHP_CodeSniffer para Estándares de
-                                    Codificación (PSR-12)</a></li>
-                            <li><a href="#phpmd-detector-codigo-maloliente" class="nav-link">PHPMD (PHP Mess Detector)
-                                    para Detección de Código Maloliente</a></li>
-                            <li><a href="#analisis-complejidad-ciclomatica" class="nav-link">Herramientas de Análisis de
-                                    Complejidad Ciclomática</a></li>
-                            <li><a href="#code-reviews-pair-programming" class="nav-link">Code Reviews y Pair
-                                    Programming</a></li>
-                            <li><a href="#metricas-calidad-codigo" class="nav-link">Métricas de Calidad de Código</a>
-                            </li>
-                            <li><a href="#refactoring-continuo" class="nav-link">Refactoring Continuo Basado en
-                                    Análisis</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Conceptos de CI/CD -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="conceptos-ci-cd">
-                            <span class="chevron">›</span>
-                            Conceptos de CI/CD
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#principios-integracion-continua" class="nav-link">Principios de Integración
-                                    Continua</a></li>
-                            <li><a href="#principios-despliegue-entrega-continua" class="nav-link">Principios de
-                                    Despliegue Continuo y Entrega Continua</a></li>
-                            <li><a href="#herramientas-ci-cd" class="nav-link">Herramientas de CI/CD (GitHub Actions,
-                                    GitLab CI, Jenkins, CircleCI)</a></li>
-                            <li><a href="#automatizacion-builds-tests" class="nav-link">Automatización de Builds y
-                                    Tests</a></li>
-                            <li><a href="#gestion-artefactos-construccion" class="nav-link">Gestión de Artefactos de
-                                    Construcción</a></li>
-                            <li><a href="#estrategias-ramificacion" class="nav-link">Estrategias de Ramificación
-                                    (Gitflow, Trunk-Based Development, Feature Branching)</a></li>
-                            <li><a href="#versionado-semantico" class="nav-link">Versionado Semántico</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Configuración de Pipelines CI -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="configuracion-pipelines-ci">
-                            <span class="chevron">›</span>
-                            Configuración de Pipelines CI
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#configuracion-github-actions-gitlab-ci" class="nav-link">Configuración de
-                                    GitHub Actions/GitLab CI para Proyectos PHP/Symfony</a></li>
-                            <li><a href="#pruebas-unitarias-integracion-ci" class="nav-link">Ejecución de Pruebas
-                                    Unitarias y de Integración en CI</a></li>
-                            <li><a href="#analisis-estatico-ci" class="nav-link">Análisis Estático de Código y
-                                    Verificación de Estándares en CI</a></li>
-                            <li><a href="#construccion-imagenes-docker-ci" class="nav-link">Construcción de Imágenes
-                                    Docker en CI</a></li>
-                            <li><a href="#reportes-cobertura-codigo" class="nav-link">Generación de Reportes de
-                                    Cobertura de Código</a></li>
-                            <li><a href="#notificaciones-ci" class="nav-link">Notificaciones de CI (Slack, Email)</a>
-                            </li>
-                            <li><a href="#seguridad-pipelines-ci" class="nav-link">Seguridad en Pipelines CI y Gestión
-                                    de Credenciales</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: Arquitecturas de Software y Escalabilidad -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Arquitecturas de Software y Escalabilidad</h2>
-
-                    <!-- Configuración de Pipelines CD -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="configuracion-pipelines-cd">
-                            <span class="chevron">›</span>
-                            Configuración de Pipelines CD
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#despliegue-automatico-staging-produccion" class="nav-link">Despliegue
-                                    Automático a Entornos de Staging y Producción</a></li>
-                            <li><a href="#estrategias-despliegue-blue-green" class="nav-link">Estrategias de Despliegue
-                                    (Blue/Green, Canary, Rolling Updates)</a></li>
-                            <li><a href="#gestion-rollbacks-downtime-cero" class="nav-link">Gestión de Rollbacks y
-                                    Downtime Cero</a></li>
-                            <li><a href="#variables-entorno-seguras" class="nav-link">Configuración de Variables de
-                                    Entorno Seguras</a></li>
-                            <li><a href="#monitorizacion-post-despliegue" class="nav-link">Monitorización
-                                    Post-Despliegue y Alertas</a></li>
-                            <li><a href="#integracion-infraestructura-cd" class="nav-link">Integración con
-                                    Infraestructura (SSH, Kubernetes, Cloud Providers)</a></li>
-                            <li><a href="#gestion-secrets-cd" class="nav-link">Gestión de Secrets en CD</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Arquitecturas Comunes de Software -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="arquitecturas-comunes-software">
-                            <span class="chevron">›</span>
-                            Arquitecturas Comunes de Software
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#arquitectura-monolitica" class="nav-link">Arquitectura Monolítica y sus
-                                    Ventajas/Desventajas</a></li>
-                            <li><a href="#arquitectura-por-capas" class="nav-link">Arquitectura por Capas (Layered
-                                    Architecture)</a></li>
-                            <li><a href="#arquitectura-hexagonal" class="nav-link">Arquitectura Hexagonal (Ports and
-                                    Adapters)</a></li>
-                            <li><a href="#cqrs-arquitecturas" class="nav-link">CQRS (Command Query Responsibility
-                                    Segregation)</a></li>
-                            <li><a href="#event-driven-architecture" class="nav-link">Event-Driven Architecture
-                                    (EDA)</a></li>
-                            <li><a href="#domain-driven-design" class="nav-link">Domain-Driven Design (DDD) (conceptos
-                                    clave)</a></li>
-                            <li><a href="#arquitectura-soa" class="nav-link">Arquitectura Orientada a Servicios
-                                    (SOA)</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Diseño para la Escalabilidad -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="diseno-escalabilidad">
-                            <span class="chevron">›</span>
-                            Diseño para la Escalabilidad
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#escalabilidad-horizontal-vertical" class="nav-link">Escalabilidad Horizontal
-                                    vs. Vertical</a></li>
-                            <li><a href="#balanceadores-carga-proxy-inverso" class="nav-link">Balanceadores de Carga y
-                                    Proxy Inverso</a></li>
-                            <li><a href="#bases-datos-escalables" class="nav-link">Bases de Datos Escalables
-                                    (Replicación, Sharding, NoSQL)</a></li>
-                            <li><a href="#caching-distribuido" class="nav-link">Caching Distribuido (Redis,
-                                    Memcached)</a></li>
-                            <li><a href="#colas-mensajes-escalabilidad" class="nav-link">Colas de Mensajes (RabbitMQ,
-                                    Kafka, SQS) para Procesamiento Asíncrono</a></li>
-                            <li><a href="#microservicios-api-gateways" class="nav-link">Microservicios y API Gateways
-                                    para Gestión de Tráfico</a></li>
-                            <li><a href="#cdn-contenido-estatico" class="nav-link">CDN (Content Delivery Network) para
-                                    Contenido Estático</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: Buenas Prácticas y Rendimiento -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Buenas Prácticas y Rendimiento</h2>
-
-                    <!-- Infraestructura y Cloud -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="infraestructura-cloud">
-                            <span class="chevron">›</span>
-                            Infraestructura y Cloud
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#conceptos-iaas-paas-saas" class="nav-link">Conceptos de IaaS, PaaS, SaaS</a>
-                            </li>
-                            <li><a href="#proveedores-cloud" class="nav-link">Proveedores Cloud (AWS, Azure, Google
-                                    Cloud Platform)</a></li>
-                            <li><a href="#virtualizacion-vs-contenedores" class="nav-link">Virtualización vs.
-                                    Contenedores</a></li>
-                            <li><a href="#infraestructura-como-codigo" class="nav-link">Infraestructura como Código
-                                    (Terraform, Ansible, CloudFormation)</a></li>
-                            <li><a href="#serverless-computing" class="nav-link">Serverless Computing (AWS Lambda, Azure
-                                    Functions)</a></li>
-                            <li><a href="#monitorizacion-observabilidad-cloud" class="nav-link">Monitorización y
-                                    Observabilidad (Prometheus, Grafana, ELK Stack, Jaeger)</a></li>
-                            <li><a href="#gestion-logs-centralizada" class="nav-link">Gestión de Logs Centralizada y
-                                    Métricas</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Principios de Código Limpio (Clean Code) -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="principios-codigo-limpio">
-                            <span class="chevron">›</span>
-                            Principios de Código Limpio (Clean Code)
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#nombres-significativos-legibles" class="nav-link">Nombres Significativos y
-                                    Legibles</a></li>
-                            <li><a href="#funciones-clases-pequenas" class="nav-link">Funciones y Clases Pequeñas y con
-                                    una Única Responsabilidad</a></li>
-                            <li><a href="#comentarios-utiles" class="nav-link">Comentarios Útiles y Evitar Comentarios
-                                    Redundantes</a></li>
-                            <li><a href="#manejo-errores-excepciones-limpio" class="nav-link">Manejo de Errores y
-                                    Excepciones Limpio</a></li>
-                            <li><a href="#refactoring-continuo-deuda-tecnica" class="nav-link">Refactoring Continuo y
-                                    Deuda Técnica</a></li>
-                            <li><a href="#principio-dry" class="nav-link">Principio DRY (Don't Repeat Yourself)</a></li>
-                            <li><a href="#coherencia-estilo-codigo" class="nav-link">Coherencia en el Estilo de
-                                    Código</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Optimización de Rendimiento en PHP -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="optimizacion-rendimiento-php">
-                            <span class="chevron">›</span>
-                            Optimización de Rendimiento en PHP
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#uso-eficiente-estructuras-datos" class="nav-link">Uso Eficiente de Estructuras
-                                    de Datos y Algoritmos</a></li>
-                            <li><a href="#optimizacion-consultas-bd" class="nav-link">Optimización de Consultas a Base
-                                    de Datos</a></li>
-                            <li><a href="#caching-codigo-datos" class="nav-link">Caching de Código (OPcache) y Caching
-                                    de Datos</a></li>
-                            <li><a href="#profiling-aplicaciones" class="nav-link">Profiling de Aplicaciones (Blackfire,
-                                    Xdebug Profiler)</a></li>
-                            <li><a href="#gestion-memoria-fugas" class="nav-link">Gestión de Memoria y Evitar Fugas</a>
-                            </li>
-                            <li><a href="#lazy-eager-loading" class="nav-link">Lazy Loading y Eager Loading</a></li>
-                            <li><a href="#minimizacion-peticiones-http-assets" class="nav-link">Minimización de
-                                    Peticiones HTTP y Reducción de Tamaño de Assets</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Nueva Sección: Herramientas de Desarrollo y Flujo de Trabajo -->
-                <div class="nav-section">
-                    <h2 class="nav-title">Herramientas de Desarrollo y Flujo de Trabajo</h2>
-
-                    <!-- Seguridad en Aplicaciones Web -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="seguridad-aplicaciones-web">
-                            <span class="chevron">›</span>
-                            Seguridad en Aplicaciones Web
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#owasp-top-10-mitigacion" class="nav-link">OWASP Top 10 y su Mitigación</a>
-                            </li>
-                            <li><a href="#prevencion-sql-injection" class="nav-link">Prevención de SQL Injection
-                                    (Prepared Statements)</a></li>
-                            <li><a href="#prevencion-xss" class="nav-link">Prevención de XSS (Cross-Site Scripting)</a>
-                            </li>
-                            <li><a href="#prevencion-csrf" class="nav-link">Prevención de CSRF (Cross-Site Request
-                                    Forgery)</a></li>
-                            <li><a href="#autenticacion-autorizacion-segura" class="nav-link">Autenticación y
-                                    Autorización Segura</a></li>
-                            <li><a href="#gestion-sesiones-seguras" class="nav-link">Gestión de Sesiones Seguras</a>
-                            </li>
-                            <li><a href="#validacion-entradas-usuario" class="nav-link">Validación de Entradas de
-                                    Usuario (Input Validation)</a></li>
-                            <li><a href="#manejo-seguro-secretos" class="nav-link">Manejo Seguro de Secretos y
-                                    Credenciales</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Control de Versiones con Git -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="control-versiones-git">
-                            <span class="chevron">›</span>
-                            Control de Versiones con Git
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#comandos-basicos-git" class="nav-link">Comandos Básicos de Git (add, commit,
-                                    push, pull, clone)</a></li>
-                            <li><a href="#ramificacion-merge-rebase" class="nav-link">Ramificación (Branching), Fusión
-                                    (Merging) y Rebase</a></li>
-                            <li><a href="#resolucion-conflictos-fusion" class="nav-link">Resolución de Conflictos de
-                                    Fusión</a></li>
-                            <li><a href="#stash-cherry-pick" class="nav-link">Stash y Cherry-pick</a></li>
-                            <li><a href="#workflows-git" class="nav-link">Workflows de Git (Gitflow, GitHub Flow, GitLab
-                                    Flow)</a></li>
-                            <li><a href="#herramientas-graficas-git" class="nav-link">Herramientas de Interfaz Gráfica
-                                    para Git (Sourcetree, GitKraken, VS Code Git Integration)</a></li>
-                            <li><a href="#gitignore-gitattributes" class="nav-link">.gitignore y .gitattributes</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Entornos de Desarrollo -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="entornos-desarrollo">
-                            <span class="chevron">›</span>
-                            Entornos de Desarrollo
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#ides-configuraciones" class="nav-link">IDEs (PhpStorm, VS Code) y sus
-                                    configuraciones</a></li>
-                            <li><a href="#depuracion-xdebug" class="nav-link">Depuración Avanzada con Xdebug</a></li>
-                            <li><a href="#linters-formatters" class="nav-link">Linters y Formatters (PHP-CS-Fixer,
-                                    Prettier)</a></li>
-                            <li><a href="#entornos-desarrollo-locales" class="nav-link">Entornos de Desarrollo Locales
-                                    (Valet, Laragon, Lando)</a></li>
-                            <li><a href="#terminales-avanzados" class="nav-link">Terminales Avanzados (iTerm2, Zsh con
-                                    Oh My Zsh)</a></li>
-                            <li><a href="#atajos-teclado-ide" class="nav-link">Atajos de Teclado y Personalización del
-                                    IDE</a></li>
-                            <li><a href="#contenedores-desarrollo" class="nav-link">Contenedores de Desarrollo
-                                    (DevContainers)</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Gestión de Proyectos y Colaboración -->
-                    <div class="nav-category">
-                        <button class="nav-category-title" data-category="gestion-proyectos-colaboracion">
-                            <span class="chevron">›</span>
-                            Gestión de Proyectos y Colaboración
-                        </button>
-                        <ul class="nav-items">
-                            <li><a href="#metodologias-agiles" class="nav-link">Metodologías Ágiles (Scrum, Kanban)</a>
-                            </li>
-                            <li><a href="#herramientas-gestion-proyectos" class="nav-link">Herramientas de Gestión de
-                                    Proyectos (Jira, Trello, Asana, Azure DevOps)</a></li>
-                            <li><a href="#code-reviews-pull-requests" class="nav-link">Code Reviews y Pull Requests</a>
-                            </li>
-                            <li><a href="#comunicacion-efectiva-equipos" class="nav-link">Comunicación Efectiva en
-                                    Equipos de Desarrollo</a></li>
-                            <li><a href="#documentacion-codigo-proyectos" class="nav-link">Documentación de Código y
-                                    Proyectos (Markdown, Wiki)</a></li>
-                            <li><a href="#gestion-dependencias-composer" class="nav-link">Gestión de Dependencias
-                                    (Composer)</a></li>
-                            <li><a href="#herramientas-automatizacion" class="nav-link">Herramientas de Automatización
-                                    (Makefiles, npm scripts)</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-        </aside>
-
-        <main class="main-content" id="mainContent">
-            <div id="content"></div>
-        </main>
-    </div>
-
-    <!-- Highlight.js y estilos -->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
-
-    <script src="contenido/sintaxis-tipos-datos.js"></script>
-    <script src="contenido/gestion-errores.js"></script>
-    <script src="contenido/oop.js"></script>
-    <script src="contenido/patrones-diseno.js"></script>
-
-    <!-- Temas externos -->
-    <script src="contenido/temas/arquitectura-prestashop/ciclo-vida-peticiones.js"></script>
-    <script src="contenido/temas/arquitectura-prestashop/estructuraModulosTemas.js"></script>
-    <script src="contenido/temas/arquitectura-prestashop/overrides.js"></script>
-    <script src="contenido/temas/arquitectura-prestashop/hooks-y-eventos.js"></script>
-    <script src="contenido/temas/arquitectura-prestashop/modelo-datos.js"></script>
-    <script src="contenido/temas/arquitectura-prestashop/multitienda-idioma.js"></script>
-    <script src="contenido/temas/arquitectura-prestashop/cache-prestashop-smarty-apcu.js"></script>
-    <script src="contenido/temas/modules-prestashop/creacion-controladores.js"></script>
-    <script src="contenido/temas/modules-prestashop/uso-orm-prestashop.js"></script>
-    <script src="contenido/temas/modules-prestashop/configuracion-modulos-back-office.js"></script>
-    <script src="contenido/temas/modules-prestashop/gestion-activos-css-js.js"></script>
-    <script src="contenido/temas/modules-prestashop/internacionalizacion-traducciones-modulos.js"></script>
-    <script src="contenido/temas/modules-prestashop/integracion-web-services-prestashop.js"></script>
-    <script src="contenido/temas/modules-prestashop/buenas-practicas-estandares-modulos.js"></script>
-
-    <!-- Desarrollo de Temas Personalizados -->
-    <script src="contenido/temas/temas-personalizados/estructura-tema-classic-starter.js"></script>
-    <script src="contenido/temas/temas-personalizados/sobreescritura-plantillas-smarty-twig.js"></script>
-    <script src="contenido/temas/temas-personalizados/integracion-modulos-tema.js"></script>
-    <script src="contenido/temas/temas-personalizados/personalizacion-css-sass-javascript.js"></script>
-    <script src="contenido/temas/temas-personalizados/optimizacion-rendimiento-tema.js"></script>
-    <script src="contenido/temas/temas-personalizados/responsive-design-adaptacion-movil.js"></script>
-    <script src="contenido/temas/temas-personalizados/creacion-paginas-layouts-personalizados.js"></script>
-
-    <!-- Bases de Datos y SQL Avanzado -->
-    <script src="contenido/temas/bases-datos-sql-avanzado/mantenimiento-optimizacion.js"></script>
-    <script src="contenido/temas/bases-datos-sql-avanzado/diseno-bases-datos.js"></script>
-    <script src="contenido/temas/bases-datos-sql-avanzado/sql-avanzado.js"></script>
-
-    <script src="contenido/temas/index.js"></script>
-
-    <!-- Loader principal -->
-    <script src="contenido/loader.js"></script>
-
-    <!-- Script principal -->
-    <script src="script.js"></script>
+        <!-- Script principal -->
+        <script src="script.js"></script>
 </body>
 
 </html>

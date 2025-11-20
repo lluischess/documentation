@@ -1,0 +1,75 @@
+==========================================================
+INSTRUCCIONES PARA AÑADIR NUEVOS TEMAS DE BASES DE DATOS
+==========================================================
+
+Se han creado 4 nuevos archivos de documentación en:
+  c:\Angular\documentation\contenido\temas\bases-datos-sql-avanzado\
+
+ARCHIVOS CREADOS:
+  1. indices-claves.js
+  2. patrones-diseno-esquemas.js
+  3. integridad-referencial.js
+  4. desnormalizacion-estrategica.js
+
+PASO A PASO PARA INTEGRARLOS EN index.html:
+--------------------------------------------
+
+1. Abre el archivo: c:\Angular\documentation\index.html
+
+2. Busca la línea aproximada 1050 (busca "<!-- Scripts de Bases de Datos -->")
+
+3. Después de las líneas de los temas anteriores de base de datos:
+   <script src="contenido/temas/bases-datos-sql-avanzado/modelado-entidad-relacion.js"></script>
+   <script src="contenido/temas/bases-datos-sql-avanzado/normalizacion-bases-datos.js"></script>
+   <script src="contenido/temas/bases-datos-sql-avanzado/tipos-relaciones.js"></script>
+
+4. AÑADE las siguientes 4 líneas EXACTAMENTE COMO ESTÁN:
+
+        <script src="contenido/temas/bases-datos-sql-avanzado/indices-claves.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/patrones-diseno-esquemas.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/integridad-referencial.js"></script>
+        <script src="contenido/temas/bases-datos-sql-avanzado/desnormalizacion-estrategica.js"></script>
+
+5. IMPORTANTE: Estas líneas deben estar ANTES de:
+   <script src="contenido/temas/index.js"></script>
+   <script src="contenido/loader.js"></script>
+
+6. Guarda el archivo.
+
+EJEMPLO VISUAL DE CÓMO DEBERÍA QUEDAR:
+---------------------------------------
+
+ANTES:
+    <script src="contenido/temas/bases-datos-sql-avanzado/modelado-entidad-relacion.js"></script>
+    <script src="contenido/temas/bases-datos-sql-avanzado/normalizacion-bases-datos.js"></script>
+    <script src="contenido/temas/bases-datos-sql-avanzado/tipos-relaciones.js"></script>
+    
+    <!-- Índice central -->
+    <script src="contenido/temas/index.js"></script>
+    <script src="contenido/loader.js"></script>
+
+DESPUÉS:
+    <script src="contenido/temas/bases-datos-sql-avanzado/modelado-entidad-relacion.js"></script>
+    <script src="contenido/temas/bases-datos-sql-avanzado/normalizacion-bases-datos.js"></script>
+    <script src="contenido/temas/bases-datos-sql-avanzado/tipos-relaciones.js"></script>
+    <script src="contenido/temas/bases-datos-sql-avanzado/indices-claves.js"></script>
+    <script src="contenido/temas/bases-datos-sql-avanzado/patrones-diseno-esquemas.js"></script>
+    <script src="contenido/temas/bases-datos-sql-avanzado/integridad-referencial.js"></script>
+    <script src="contenido/temas/bases-datos-sql-avanzado/desnormalizacion-estrategica.js"></script>
+    
+    <!-- Índice central -->
+    <script src="contenido/temas/index.js"></script>
+    <script src="contenido/loader.js"></script>
+
+VERIFICACIÓN:
+-------------
+Una vez añadidas las líneas:
+1. Abre index.html en tu navegador
+2. Navega a "Bases de Datos y SQL Avanzado" > "Diseño de Bases de Datos Relacionales"
+3. Deberías ver los 4 nuevos temas en el menú:
+   - Índices y Claves (Primarias, Foráneas, Únicas)
+   - Patrones de Diseño de Esquemas (EAV, Adjacency List)
+   - Integridad Referencial y Restricciones
+   - Desnormalización Estratégica
+
+¡LISTO! Los nuevos temas estarán completamente integrados.

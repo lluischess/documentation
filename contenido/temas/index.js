@@ -32,5 +32,12 @@ const temasPrestaShop = {
     // Bases de Datos y SQL Avanzado
     'mantenimiento-optimizacion-prestashop': mantenimientoOptimizacionPrestaShop,
     'diseno-bases-datos-relacionales': disenoBasesDatosRelacionales,
-    'sql-avanzado': sqlAvanzado
+    'sql-avanzado': sqlAvanzado,
+    'modelado-entidad-relacion': modeladoEntidadRelacion,
+    'normalizacion-bases-datos': normalizacionBasesDatos,
+    'tipos-relaciones': tiposRelaciones,
+    'indices-claves': indicesClaves,
+    'patrones-diseno-esquemas': patronesDisenoEsquemas,
+    'integridad-referencial': integridadReferencial,
+    'desnormalizacion-estrategica': desnormalizacionEstrategica,
 };
