@@ -27,5 +27,10 @@ const temasPrestaShop = {
     'personalizacion-css-sass-javascript': `<h1>Personalización Avanzada de CSS (Sass/Less) y JavaScript</h1><p>Contenido en desarrollo...</p>`,
     'optimizacion-rendimiento-tema': `<h1>Optimización de Rendimiento del Tema</h1><p>Contenido en desarrollo...</p>`,
     'responsive-design-adaptacion-movil': `<h1>Responsive Design y Adaptación Móvil</h1><p>Contenido en desarrollo...</p>`,
-    'creacion-paginas-layouts-personalizados': `<h1>Creación de Páginas y Layouts Personalizados</h1><p>Contenido en desarrollo...</p>`
+    'creacion-paginas-layouts-personalizados': `<h1>Creación de Páginas y Layouts Personalizados</h1><p>Contenido en desarrollo...</p>`,
+
+    // Bases de Datos y SQL Avanzado
+    'mantenimiento-optimizacion-prestashop': mantenimientoOptimizacionPrestaShop,
+    'diseno-bases-datos-relacionales': disenoBasesDatosRelacionales,
+    'sql-avanzado': sqlAvanzado
 };
