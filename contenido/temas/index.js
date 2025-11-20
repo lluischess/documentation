@@ -25,9 +25,9 @@ const temasPrestaShop = {
     'sobreescritura-plantillas-smarty-twig': sobreescrituraPlantillasSmartyTwig,
     'integracion-modulos-tema': integracionModulosTema,
     'personalizacion-css-sass-javascript': personalizacionCssSassJavascript,
-    'optimizacion-rendimiento-tema': `<h1>Optimización de Rendimiento del Tema</h1><p>Contenido en desarrollo...</p>`,
-    'responsive-design-adaptacion-movil': `<h1>Responsive Design y Adaptación Móvil</h1><p>Contenido en desarrollo...</p>`,
-    'creacion-paginas-layouts-personalizados': `<h1>Creación de Páginas y Layouts Personalizados</h1><p>Contenido en desarrollo...</p>`,
+    'optimizacion-rendimiento-tema': optimizacionRendimientoTema,
+    'responsive-design-adaptacion-movil': responsiveDesignAdaptacionMovil,
+    'creacion-paginas-layouts-personalizados': creacionPaginasLayoutsPersonalizados,
 
     // Bases de Datos y SQL Avanzado
     'mantenimiento-optimizacion-prestashop': mantenimientoOptimizacionPrestaShop,

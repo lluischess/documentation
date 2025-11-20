@@ -1,214 +1,709 @@
-# Documentación PHP Avanzado
+# 📚 Documentación PrestaShop 8.9+ y PHP 8.1+
 
-Documentación personal de PHP avanzado con diseño dark mode inspirado en Angular.dev
-
-## 📁 Estructura del Proyecto
-
-```
-documentation/
-├── index.html          # Estructura principal
-├── styles.css          # Estilos dark mode
-├── script.js           # Lógica de navegación
-├── contenido/          # Contenido modular
-│   ├── sintaxis-tipos-datos.js
-│   ├── gestion-errores.js
-│   ├── oop.js
-│   ├── patrones-diseno.js
-│   └── loader.js       # Carga todos los módulos
-└── README.md           # Este archivo
-```
-
-## 🎨 Características
-
-- ✅ **Dark Mode** - Diseño oscuro inspirado en Angular.dev
-- ✅ **3 Niveles de Navegación** - Sidebar jerárquico organizado
-- ✅ **Responsive** - Optimizado para móvil, tablet y desktop
-- ✅ **Sin Frameworks** - Solo HTML, CSS y JavaScript vanilla
-- ✅ **Navegación Suave** - Transiciones y animaciones fluidas
-- ✅ **Syntax Highlighting** - Bloques de código estilizados
-
-## 📱 Responsive Breakpoints
-
-- **Desktop**: > 1024px (sidebar fijo)
-- **Tablet**: 768px - 1024px (sidebar colapsable)
-- **Mobile**: < 768px (sidebar overlay con menú hamburguesa)
-
-## 📚 Contenido Incluido
-
-### 🎯 Jerarquía 1: Fundamentos de PHP Avanzado
-
-#### Sintaxis y Tipos de Datos
-- Declaración de Variables y Constantes (✅ Completo con ejemplos elaborados)
-- Tipos Escalares y Compuestos (✅ Completo con ejemplos elaborados)
-- Coerción de Tipos y Comparaciones Estrictas
-- Operadores Aritméticos, Lógicos y de Comparación
-- Estructuras de Control (If/Else, Switch, Bucles)
-- Funciones Anónimas, Arrow Functions y Closures
-- Namespaces y Autoloading (PSR-4)
-
-#### Gestión de Errores y Excepciones
-- Manejo de Errores Tradicional (✅ Completo con ejemplos elaborados)
-- Clases de Excepciones Estándar (✅ Completo con jerarquía completa)
-- Creación de Excepciones Personalizadas
-- Bloques try-catch-finally
-- Manejo de Errores Fatales y Shutdown Functions
-- Logging de Errores y Stack Traces
-- Depuración con Xdebug
-
-#### Programación Orientada a Objetos (OOP)
-- Clases, Objetos, Propiedades y Métodos (✅ Completo con ejemplos elaborados)
-- Constructores, Destructores y Autoloading (✅ Completo PHP 8+)
-- Herencia, Abstracción e Interfaces
-- Traits y Clases Anónimas
-- Encapsulamiento (público, protegido, privado)
-- Polimorfismo y Type Hinting
-- Clases Finales y Métodos Finales
-
-### 🏗️ Jerarquía 2: Patrones de Diseño y Principios de Ingeniería
-
-#### Características Modernas de PHP
-- Match Expression (PHP 8+) (✅ Completo con ejemplos)
-- Operador Nullsafe (PHP 8+) (✅ Completo con ejemplos)
-- Named Arguments (PHP 8+) (✅ Completo con ejemplos)
-- Declaraciones de Tipos Escalares y de Retorno (⏳ Pendiente)
-- Propiedades Promocionadas en Constructores (✅ Ver sección Constructores)
-- Atributos (PHP 8+) y su uso (⏳ Pendiente)
-- Enumeraciones (Enums) (PHP 8.1+) (⏳ Pendiente)
-
-#### Principios SOLID
-- Principio de Responsabilidad Única (SRP) (✅ Completo con ejemplos)
-- Principio Abierto/Cerrado (OCP) (⏳ Pendiente)
-- Principio de Sustitución de Liskov (LSP) (⏳ Pendiente)
-- Principio de Segregación de Interfaces (ISP) (⏳ Pendiente)
-- Principio de Inversión de Dependencias (DIP) (⏳ Pendiente)
-- Aplicación de SOLID en PHP (⏳ Pendiente)
-- Refactoring Basado en SOLID (⏳ Pendiente)
-
-#### Patrones de Diseño Creacionales
-- Patrón Singleton (⏳ Pendiente)
-- Patrón Factory Method (⏳ Pendiente)
-- Patrón Abstract Factory (⏳ Pendiente)
-- Patrón Builder (⏳ Pendiente)
-- Patrón Prototype (⏳ Pendiente)
-- Inyección de Dependencias (DI) y Contenedores DI (⏳ Pendiente)
-- Service Locator (⏳ Pendiente)
-
-#### Patrones de Diseño Estructurales
-- Patrón Adapter (⏳ Pendiente)
-- Patrón Decorator (⏳ Pendiente)
-- Patrón Facade (⏳ Pendiente)
-- Patrón Bridge (⏳ Pendiente)
-- Patrón Composite (⏳ Pendiente)
-- Patrón Proxy (⏳ Pendiente)
-- Patrón Flyweight (⏳ Pendiente)
-
-## 🚀 Cómo Usar
-
-1. Abre `index.html` en tu navegador
-2. Navega por el sidebar para explorar los temas
-3. En móvil, usa el menú hamburguesa para abrir/cerrar el sidebar
-4. El contenido se carga dinámicamente sin recargar la página
-
-## 💻 Estructura de Navegación
-
-```javascript
-// Cada sección se carga desde content.js
-{
-  'seccion-id': `
-    <h1>Título</h1>
-    <p>Contenido...</p>
-    <div class="code-block">...</div>
-  `
-}
-```
-
-## 🎨 Personalización de Estilos
-
-Las variables CSS están definidas en `:root` en `styles.css`:
-
-```css
-:root {
-    --bg-primary: #0d1117;
-    --bg-secondary: #161b22;
-    --text-primary: #e6edf3;
-    --accent-primary: #3b82f6;
-    /* ... más variables */
-}
-```
-
-## 📝 Añadir Nuevo Contenido
-
-### Contenido Modular
-
-El contenido está organizado en archivos modulares en la carpeta `contenido/`:
-
-1. **Editar contenido existente**: Abre el archivo correspondiente:
-   - `sintaxis-tipos-datos.js` - Variables, tipos, operadores
-   - `gestion-errores.js` - Errores y excepciones
-   - `oop.js` - POO y clases
-   - `patrones-diseno.js` - Patrones y principios SOLID
-
-2. **Añadir nueva sección**:
-   ```javascript
-   // En el archivo correspondiente (ej: patrones-diseno.js)
-   const patronesDiseno = {
-       'mi-nueva-seccion': `
-           <h1>Mi Nueva Sección</h1>
-           <p>Contenido elaborado con ejemplos...</p>
-           <div class="code-block"><pre><code>
-           // Código aquí
-           </code></pre></div>
-       `
-   };
-   ```
-
-3. **Añadir el link en HTML**:
-   ```html
-   <li><a href="#mi-nueva-seccion" class="nav-link">Mi Nueva Sección</a></li>
-   ```
-
-### Ventajas de la Estructura Modular
-
-- ✅ **Fácil de editar**: Cada archivo contiene un tema específico
-- ✅ **Mantenible**: Cambios aislados por módulo
-- ✅ **Escalable**: Añadir nuevas jerarquías sin modificar todo
-- ✅ **Organizado**: Estructura clara por categorías
-
-## 🔍 Componentes de Estilo
-
-### Bloques de Código
-```html
-<div class="code-block">
-    <pre><code>Tu código aquí</code></pre>
-</div>
-```
-
-### Info Boxes
-```html
-<div class="info-box">
-    <strong>💡 Título:</strong> Contenido
-</div>
-
-<div class="warning-box">
-    <strong>⚠️ Advertencia:</strong> Contenido
-</div>
-
-<div class="success-box">
-    <strong>✅ Éxito:</strong> Contenido
-</div>
-```
-
-## 🌐 Navegador Compatible
-
-- Chrome/Edge (recomendado)
-- Firefox
-- Safari
-- Opera
-
-## 📄 Licencia
-
-Proyecto personal para aprendizaje.
+Documentación completa y exhaustiva sobre desarrollo avanzado en PrestaShop 8.9+ y PHP 8.1+. Este proyecto es una aplicación web estática que funciona sin backend, cargando todo el contenido dinámicamente mediante JavaScript.
 
 ---
 
-Creado con ❤️ para aprender PHP avanzado
+## 🚀 Inicio Rápido
+
+1. **Clonar el repositorio**
+   ```bash
+   git clone <url-del-repo>
+   cd documentation
+   ```
+
+2. **Abrir la documentación**
+   - Simplemente abre `index.html` en tu navegador
+   - O sirve con un servidor local:
+     ```bash
+     # Opción 1: Python
+     python -m http.server 8000
+     
+     # Opción 2: Node.js http-server
+     npx http-server -p 8000
+     
+     # Opción 3: PHP
+     php -S localhost:8000
+     ```
+
+3. **Acceder**
+   - Abre tu navegador en `http://localhost:8000`
+   - Navega por las categorías del sidebar
+
+---
+
+## 📂 Estructura del Proyecto
+
+```
+documentation/
+├── index.html                      # Página principal (estructura y navegación)
+├── styles.css                      # Estilos globales de la documentación
+├── script.js                       # Script principal de la aplicación
+├── README.md                       # Este archivo
+│
+├── contenido/                      # Todo el contenido de la documentación
+│   ├── sintaxis-tipos-datos.js    # Temas base de PHP
+│   ├── gestion-errores.js
+│   ├── oop.js
+│   ├── patrones-diseno.js
+│   ├── loader.js                   # ⚙️ Cargador dinámico de contenido
+│   │
+│   └── temas/                      # Temas organizados por categorías
+│       ├── index.js                # 📍 ÍNDICE CENTRAL - Mapea IDs a contenidos
+│       │
+│       ├── arquitectura-prestashop/
+│       │   ├── ciclo-vida-peticiones.js
+│       │   ├── estructuraModulosTemas.js
+│       │   ├── overrides.js
+│       │   ├── hooks-y-eventos.js
+│       │   ├── modelo-datos.js
+│       │   ├── multitienda-idioma.js
+│       │   └── cache-prestashop-smarty-apcu.js
+│       │
+│       ├── modules-prestashop/
+│       │   ├── creacion-controladores.js
+│       │   ├── uso-orm-prestashop.js
+│       │   ├── configuracion-modulos-back-office.js
+│       │   ├── gestion-activos-css-js.js
+│       │   ├── internacionalizacion-traducciones-modulos.js
+│       │   ├── integracion-web-services-prestashop.js
+│       │   └── buenas-practicas-estandares-modulos.js
+│       │
+│       ├── temas-personalizados/
+│       │   ├── estructura-tema-classic-starter.js
+│       │   ├── sobreescritura-plantillas-smarty-twig.js
+│       │   ├── integracion-modulos-tema.js
+│       │   ├── personalizacion-css-sass-javascript.js
+│       │   ├── optimizacion-rendimiento-tema.js
+│       │   ├── responsive-design-adaptacion-movil.js
+│       │   └── creacion-paginas-layouts-personalizados.js
+│       │
+│       └── bases-datos-sql-avanzado/
+│           ├── mantenimiento-optimizacion.js
+│           ├── diseno-bases-datos.js
+│           └── sql-avanzado.js
+```
+
+---
+
+## ⚙️ Cómo Funciona
+
+### 1. **Carga Inicial (`index.html`)**
+
+El archivo `index.html` es la estructura base que contiene:
+
+#### 📍 Navegación Sidebar
+```html
+<nav class="sidebar">
+  <div class="nav-section">
+    <h2 class="nav-title">Desarrollo con PrestaShop</h2>
+    
+    <div class="nav-category">
+      <button class="nav-category-title" data-category="temas-personalizados">
+        <span class="chevron">›</span>
+        Desarrollo de Temas Personalizados
+      </button>
+      
+      <ul class="nav-items">
+        <li>
+          <a href="#estructura-tema-classic-starter" class="nav-link">
+            Estructura de un Tema (Classic vs Starter)
+          </a>
+        </li>
+        <li>
+          <a href="#sobreescritura-plantillas-smarty-twig" class="nav-link">
+            Sobreescritura de Plantillas Smarty/Twig
+          </a>
+        </li>
+        <!-- Más enlaces... -->
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+
+**Elementos clave:**
+- **`data-category`**: Identificador de categoría para colapsar/expandir
+- **`href="#ID"`**: Ancla que identifica cada tema de documentación
+- **`.nav-link`**: Clase para los enlaces clicables
+
+#### 📄 Área de Contenido
+```html
+<main class="main-content" id="mainContent">
+  <div id="content">
+    <!-- El contenido se carga dinámicamente aquí -->
+  </div>
+</main>
+```
+
+#### 📜 Carga de Scripts
+```html
+<!-- Highlight.js para syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<!-- Temas de contenido (orden importa) -->
+<script src="contenido/temas/arquitectura-prestashop/ciclo-vida-peticiones.js"></script>
+<script src="contenido/temas/arquitectura-prestashop/estructuraModulosTemas.js"></script>
+<!-- ... TODOS los archivos de temas ... -->
+
+<!-- IMPORTANTE: Este debe cargarse DESPUÉS de todos los temas -->
+<script src="contenido/temas/index.js"></script>
+
+<!-- Loader y script principal -->
+<script src="contenido/loader.js"></script>
+<script src="script.js"></script>
+```
+
+**⚠️ Orden de carga crítico:**
+1. Primero: Todos los archivos individuales de temas (definen constantes)
+2. Segundo: `contenido/temas/index.js` (mapea constantes a IDs)
+3. Tercero: `contenido/loader.js` (carga contenido dinámicamente)
+4. Cuarto: `script.js` (inicializa la aplicación)
+
+---
+
+### 2. **Archivos de Contenido (`.js`)**
+
+Cada archivo de tema es un módulo JavaScript que exporta una constante con HTML:
+
+```javascript
+// Ejemplo: contenido/temas/temas-personalizados/optimizacion-rendimiento-tema.js
+
+// @ts-nocheck
+const optimizacionRendimientoTema = `
+    <div class="content-section">
+        <h1 id="optimizacion-rendimiento-tema">Optimización de Rendimiento del Tema</h1>
+        <p>El rendimiento del Front Office es crucial...</p>
+
+        <h2 class="section-title">1. Métricas Clave de Rendimiento</h2>
+        
+        <pre><code class="language-javascript">
+// Ejemplo de código
+console.log('Hola mundo');
+        </code></pre>
+        
+        <!-- Más contenido HTML... -->
+    </div>
+`;
+```
+
+**📋 Características:**
+- **Constante con nombre descriptivo**: `optimizacionRendimientoTema`
+- **Template literal** (backticks \` \`) para multi-línea
+- **HTML completo** con estructura semántica
+- **IDs únicos** en `<h1>` para navegación
+- **Clases CSS** para estilización consistente
+- **Bloques `<pre><code>`** con `class="language-XXX"` para syntax highlighting
+
+**🎨 Clases CSS Comunes:**
+- `.content-section` - Contenedor principal
+- `.section-title` - Títulos de sección
+- `.table`, `.table-bordered`, `.table-striped` - Tablas
+- `.alert`, `.alert-info`, `.alert-warning` - Alertas
+- `.card`, `.card-header`, `.card-body` - Cards
+- `.badge`, `.bg-success`, `.bg-warning` - Badges
+
+---
+
+### 3. **Índice Central (`contenido/temas/index.js`)**
+
+Este archivo **mapea los IDs de navegación** a las **constantes de contenido**:
+
+```javascript
+// contenido/temas/index.js
+
+const temasPrestaShop = {
+    // Arquitectura y Conceptos de PrestaShop
+    'ciclo-vida-peticiones-prestashop': cicloVidaPeticiones,
+    'estructura-modulos-temas': estructuraModulosTemas,
+    'overrides-clases-controladores': overridesClasesControladores,
+    
+    // Desarrollo de Módulos Avanzados
+    'creacion-controladores-front-back': creacionControladoresFrontBack,
+    'uso-orm-prestashop': usoOrmPrestaShop,
+    
+    // Desarrollo de Temas Personalizados
+    'estructura-tema-classic-starter': estructuraTemaClassicStarter,
+    'sobreescritura-plantillas-smarty-twig': sobreescrituraPlantillasSmartyTwig,
+    'integracion-modulos-tema': integracionModulosTema,
+    'personalizacion-css-sass-javascript': personalizacionCssSassJavascript,
+    'optimizacion-rendimiento-tema': optimizacionRendimientoTema,
+    'responsive-design-adaptacion-movil': responsiveDesignAdaptacionMovil,
+    'creacion-paginas-layouts-personalizados': creacionPaginasLayoutsPersonalizados,
+    
+    // Bases de Datos y SQL Avanzado
+    'mantenimiento-optimizacion-prestashop': mantenimientoOptimizacionPrestaShop,
+    'diseno-bases-datos-relacionales': disenoBasesDatosRelacionales,
+    'sql-avanzado': sqlAvanzado
+};
+```
+
+**🔑 Relación ID → Contenido:**
+- `'optimizacion-rendimiento-tema'` - ID utilizado en `href="#optimizacion-rendimiento-tema"`
+- `optimizacionRendimientoTema` - Constante definida en el archivo `.js`
+
+---
+
+### 4. **Cargador Dinámico (`contenido/loader.js`)**
+
+Este script escucha clics en los enlaces de navegación y carga el contenido correspondiente:
+
+```javascript
+// Pseudocódigo simplificado
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Escuchar clics en enlaces de navegación
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            
+            // Obtener ID del tema desde href="#tema-id"
+            const temaId = link.getAttribute('href').substring(1);
+            
+            // Buscar contenido en el índice
+            const contenido = temasPrestaShop[temaId];
+            
+            if (contenido) {
+                // Inyectar HTML en el contenedor
+                document.getElementById('content').innerHTML = contenido;
+                
+                // Aplicar syntax highlighting a bloques de código
+                document.querySelectorAll('pre code').forEach(block => {
+                    hljs.highlightElement(block);
+                });
+                
+                // Actualizar URL sin recargar
+                window.history.pushState(null, '', `#${temaId}`);
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+        });
+    });
+    
+    // Cargar contenido inicial si hay hash en URL
+    if (window.location.hash) {
+        const initialId = window.location.hash.substring(1);
+        loadContent(initialId);
+    }
+});
+```
+
+---
+
+### 5. **Script Principal (`script.js`)**
+
+Maneja la interactividad de la UI:
+
+```javascript
+// Colapsar/expandir categorías del sidebar
+document.querySelectorAll('.nav-category-title').forEach(button => {
+    button.addEventListener('click', () => {
+        const category = button.closest('.nav-category');
+        category.classList.toggle('expanded');
+        
+        // Rotar chevron
+        const chevron = button.querySelector('.chevron');
+        chevron.classList.toggle('rotated');
+    });
+});
+
+// Destacar enlace activo
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        // Remover clase active de todos
+        document.querySelectorAll('.nav-link').forEach(l => 
+            l.classList.remove('active')
+        );
+        
+        // Añadir clase active al clickeado
+        link.classList.add('active');
+    });
+});
+```
+
+---
+
+## 🎨 Sistema de Estilos
+
+### CSS Global (`styles.css`)
+
+```css
+/* Layout principal */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 300px;
+    background: #2c3e50;
+    color: white;
+    overflow-y: auto;
+    position: fixed;
+    height: 100vh;
+}
+
+.main-content {
+    margin-left: 300px;
+    flex: 1;
+    padding: 2rem;
+    background: #f5f5f5;
+}
+
+/* Navegación */
+.nav-category {
+    margin-bottom: 1rem;
+}
+
+.nav-category-title {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    border: none;
+    color: white;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-items {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.nav-category.expanded .nav-items {
+    max-height: 2000px;
+}
+
+.nav-link {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: #34495e;
+    color: #3498db;
+}
+
+/* Contenido */
+.content-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Syntax highlighting */
+pre {
+    background: #282c34;
+    border-radius: 8px;
+    padding: 1.5rem;
+    overflow-x: auto;
+}
+
+code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9em;
+}
+```
+
+---
+
+## ➕ Añadir Nuevo Tema de Documentación
+
+### Paso 1: Crear el Archivo de Contenido
+
+```javascript
+// contenido/temas/CATEGORIA/mi-nuevo-tema.js
+
+// @ts-nocheck
+const miNuevoTema = `
+    <div class="content-section">
+        <h1 id="mi-nuevo-tema">Mi Nuevo Tema</h1>
+        <p>Descripción del tema...</p>
+
+        <h2 class="section-title">1. Primera Sección</h2>
+        <p>Contenido...</p>
+
+        <pre><code class="language-php">
+<?php
+// Ejemplo de código
+echo "Hola mundo";
+        </code></pre>
+        
+        <h2 class="section-title">2. Segunda Sección</h2>
+        <!-- Más contenido... -->
+    </div>
+`;
+```
+
+**📝 Notas:**
+- El ID del `<h1>` debe ser único y descriptivo: `id="mi-nuevo-tema"`
+- Usa clases existentes para consistencia visual
+- Añade `@ts-nocheck` para evitar warnings de TypeScript
+
+### Paso 2: Añadir al Índice
+
+```javascript
+// contenido/temas/index.js
+
+const temasPrestaShop = {
+    // ... temas existentes ...
+    
+    // Nuevo tema
+    'mi-nuevo-tema': miNuevoTema,
+};
+```
+
+### Paso 3: Añadir Enlace en Navegación
+
+```html
+<!-- index.html -->
+
+<div class="nav-category">
+    <button class="nav-category-title" data-category="mi-categoria">
+        <span class="chevron">›</span>
+        Mi Categoría
+    </button>
+    
+    <ul class="nav-items">
+        <!-- Enlaces existentes... -->
+        
+        <li>
+            <a href="#mi-nuevo-tema" class="nav-link">
+                Mi Nuevo Tema
+            </a>
+        </li>
+    </ul>
+</div>
+```
+
+### Paso 4: Añadir Script en index.html
+
+```html
+<!-- index.html - antes de contenido/temas/index.js -->
+
+<script src="contenido/temas/CATEGORIA/mi-nuevo-tema.js"></script>
+
+<!-- Índice central (después de TODOS los temas) -->
+<script src="contenido/temas/index.js"></script>
+```
+
+**⚠️ IMPORTANTE:** El orden de los scripts es crítico. Siempre añade el nuevo script **antes** de `contenido/temas/index.js`.
+
+---
+
+## 🔍 Syntax Highlighting
+
+La documentación usa **Highlight.js** para colorear bloques de código.
+
+### Lenguajes Soportados
+
+Especifica el lenguaje con `class="language-XXX"`:
+
+```html
+<!-- PHP -->
+<pre><code class="language-php">
+<?php
+echo "Hola";
+</code></pre>
+
+<!-- JavaScript -->
+<pre><code class="language-javascript">
+console.log('Hola');
+</code></pre>
+
+<!-- HTML/Smarty/Twig -->
+<pre><code class="language-html">
+{* Plantilla Smarty *}
+<div>{$variable}</div>
+</code></pre>
+
+<!-- CSS/SCSS -->
+<pre><code class="language-scss">
+.clase {
+  color: red;
+}
+</code></pre>
+
+<!-- SQL -->
+<pre><code class="language-sql">
+SELECT * FROM ps_product;
+</code></pre>
+
+<!-- Bash -->
+<pre><code class="language-bash">
+npm install
+</code></pre>
+
+<!-- JSON -->
+<pre><code class="language-json">
+{
+  "name": "valor"
+}
+</code></pre>
+
+<!-- YAML -->
+<pre><code class="language-yaml">
+meta:
+  name: Mi Tema
+  version: 1.0.0
+</code></pre>
+
+<!-- Texto plano -->
+<pre><code class="language-plaintext">
+Texto sin highlighting
+</code></pre>
+```
+
+**💡 Tip:** Para plantillas Smarty/Twig, usa `language-html` ya que Highlight.js no tiene soporte nativo para estos lenguajes, pero HTML funciona bien.
+
+---
+
+## 🛠️ Mejores Prácticas
+
+### ✅ DO (Hacer)
+
+1. **Usa IDs descriptivos y únicos**
+   ```html
+   <h1 id="optimizacion-rendimiento-tema">...</h1>
+   ```
+
+2. **Mantén consistencia en clases CSS**
+   ```html
+   <div class="content-section">
+   <h2 class="section-title">
+   <div class="alert alert-info">
+   ```
+
+3. **Escapa HTML cuando sea necesario**
+   ```javascript
+   const ejemplo = `<code>&lt;div&gt;HTML escapado&lt;/div&gt;</code>`;
+   ```
+
+4. **Usa tablas para datos tabulares**
+   ```html
+   <table class="table table-bordered">
+   ```
+
+5. **Añade ejemplos de código reales y funcionales**
+
+6. **Documenta con comentarios dentro del código**
+
+### ❌ DON'T (Evitar)
+
+1. **No uses IDs duplicados**
+2. **No mezcles estilos inline** (usa clases CSS)
+3. **No olvides cerrar template literals** (backticks)
+4. **No uses comillas simples** dentro de template literals sin escapar
+5. **No cargues scripts en orden incorrecto**
+
+---
+
+## 📊 Categorías Actuales
+
+### 1. **Arquitectura y Conceptos de PrestaShop** (7 temas)
+- Ciclo de vida de peticiones
+- Estructura de módulos y temas
+- Overrides de clases y controladores
+- Hooks y eventos
+- Modelo de datos
+- Configuración multitienda/multiidioma
+- Sistema de caché
+
+### 2. **Desarrollo de Módulos Avanzados** (7 temas)
+- Creación de controladores
+- Uso del ORM
+- Configuración de módulos
+- Gestión de activos CSS/JS
+- Internacionalización
+- Integración con Web Services
+- Buenas prácticas
+
+### 3. **Desarrollo de Temas Personalizados** (7 temas)
+- Estructura de temas
+- Sobreescritura de plantillas
+- Integración de módulos
+- Personalización CSS/JS
+- Optimización de rendimiento
+- Responsive design
+- Creación de páginas personalizadas
+
+### 4. **Bases de Datos y SQL Avanzado** (3 temas)
+- Mantenimiento y optimización
+- Diseño de bases de datos
+- SQL avanzado
+
+**Total: 24 temas de documentación**
+
+---
+
+## 🚀 Optimizaciones Futuras
+
+### Posibles Mejoras
+
+1. **Búsqueda en Tiempo Real**
+   - Indexar todo el contenido
+   - Filtrado fuzzy search
+   - Resaltado de resultados
+
+2. **Modo Oscuro**
+   - Toggle dark/light theme
+   - Persistir preferencia en localStorage
+
+3. **Tabla de Contenidos por Tema**
+   - TOC flotante en cada artículo
+   - Sticky sidebar con scroll spy
+
+4. **Versiones PDF/ePub**
+   - Exportar documentación completa
+   - Uso offline
+
+5. **Progressive Web App (PWA)**
+   - Service Worker para cache
+   - Instalable en dispositivos
+   - Funcionalidad offline
+
+6. **Comentarios/Feedback**
+   - Sistema de votación
+   - Comentarios por sección
+
+---
+
+## 📄 Licencia
+
+[Especificar licencia del proyecto]
+
+---
+
+## 👨‍💻 Contribuir
+
+Para contribuir con nuevos temas o mejoras:
+
+1. Fork el repositorio
+2. Crea una rama: `git checkout -b feature/nuevo-tema`
+3. Añade tu contenido siguiendo la estructura
+4. Commit: `git commit -m 'Add: Nuevo tema sobre X'`
+5. Push: `git push origin feature/nuevo-tema`
+6. Crea un Pull Request
+
+---
+
+## 📞 Contacto
+
+[Tu información de contacto]
+
+---
+
+**Última actualización:** 2024-11-20
+**Versión:** 1.0.0
+**Temas totales:** 24
