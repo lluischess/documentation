@@ -14,11 +14,11 @@ const temasPrestaShop = {
     // Desarrollo de Módulos Avanzados
     'creacion-controladores-front-back': creacionControladoresFrontBack,
     'uso-orm-prestashop': usoOrmPrestaShop,
-    'configuracion-modulos-back-office': `<h1>Configuración de Módulos y Pestañas en el Back Office</h1><p>Contenido en desarrollo...</p>`,
-    'gestion-activos-css-js': `<h1>Gestión de Activos (CSS/JS) y Compilación</h1><p>Contenido en desarrollo...</p>`,
-    'internacionalizacion-traducciones-modulos': `<h1>Internacionalización y Traducciones en Módulos</h1><p>Contenido en desarrollo...</p>`,
-    'integracion-web-services-prestashop': `<h1>Integración con Web Services de PrestaShop</h1><p>Contenido en desarrollo...</p>`,
-    'buenas-practicas-estandares-modulos': `<h1>Buenas Prácticas y Estándares de Codificación para Módulos</h1><p>Contenido en desarrollo...</p>`,
+    'configuracion-modulos-back-office': configuracionModulosBackOffice,
+    'gestion-activos-css-js': gestionActivosCssJs,
+    'internacionalizacion-traducciones-modulos': internacionalizacionTraduccionesModulos,
+    'integracion-web-services-prestashop': integracionWebServicesPrestaShop,
+    'buenas-practicas-estandares-modulos': buenasPracticasEstandaresModulos,
 
     // Desarrollo de Temas Personalizados
     'estructura-tema-classic-starter': `<h1>Estructura de un Tema (Classic, Starter Theme)</h1><p>Contenido en desarrollo...</p>`,
