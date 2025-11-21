@@ -40,4 +40,13 @@ const temasPrestaShop = {
     'patrones-diseno-esquemas': patronesDisenoEsquemas,
     'integridad-referencial': integridadReferencial,
     'desnormalizacion-estrategica': desnormalizacionEstrategica,
+    
+    // SQL Avanzado - Nuevos temas
+    'subconsultas-correlacionadas': subconsultasCorrelacionadas,
+    'ctes-recursive': ctesRecursive,
+    'funciones-ventana': funcionesVentana,
+    'funciones-agregadas-having': funcionesAgregadasHaving,
+    'joins-complejos': joinsComplejos,
+    'transacciones-acid': transaccionesAcid,
+    'vistas': vistasMatVirtuales,
 };
