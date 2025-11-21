@@ -49,4 +49,13 @@ const temasPrestaShop = {
     'joins-complejos': joinsComplejos,
     'transacciones-acid': transaccionesAcid,
     'vistas': vistasMatVirtuales,
+    
+    // Mantenimiento y Optimización de PrestaShop
+    'gestion-cache': gestionLimpiezaCache,
+    'optimizacion-bd': optimizacionBaseDatos,
+    'monitorizacion-rendimiento': monitorizacionRendimiento,
+    'actualizaciones-migraciones': actualizacionesMigraciones,
+    'solucion-problemas': solucionProblemasDepuracion,
+    'gestion-logs': gestionLogsErrores,
+    'configuracion-cron-jobs': configuracionCronJobs,
 };
