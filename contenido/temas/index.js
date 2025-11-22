@@ -58,4 +58,40 @@ const temasPrestaShop = {
     'solucion-problemas': solucionProblemasDepuracion,
     'gestion-logs': gestionLogsErrores,
     'configuracion-cron-jobs': configuracionCronJobs,
+    
+    // Optimización y Administración de Bases de Datos
+    'optimizacion-consultas': optimizacionConsultasExplain,
+    'tuning-servidores': tuningServidoresBD,
+    'backup-restauracion': backupRestauracionEstrategica,
+    'particionamiento-tablas': particionamientoTablas,
+    'replicacion-disponibilidad': replicacionAltaDisponibilidad,
+    'seguridad-bd': seguridadBDPermisos,
+    'monitoreo-rendimiento-bd': monitoreoRendimientoBD,
+    
+    // Diseño de APIs RESTful
+    'principios-rest': principiosREST,
+    'verbos-http': verbosHTTPSemantica,
+    'codigos-estado-http': codigosEstadoHTTP,
+    'versionado-apis': versionadoAPIs,
+    'paginacion-filtrado': paginacionFiltradoBusqueda,
+    'hateoas': hateoas,
+    'documentacion-apis': documentacionAPIs,
+    
+    // Implementación de APIs con Symfony
+    'controladores-api': creacionControladoresAPI,
+    'serializacion': serializacionDeserializacion,
+    'manejo-errores-apis': manejoErroresExcepciones,
+    'autenticacion-apis': autenticacionAutorizacionAPIs,
+    'rate-limiting': rateLimitingThrottling,
+    'cache-apis': cacheAPIs,
+    'consumo-apis-externas': consumoAPIsExternas,
+    
+    // Contenedores y Docker
+    'conceptos-contenedores': conceptosBasicosContenedores,
+    'docker-arquitectura': arquitecturaDocker,
+    'imagenes-contenedores': imagenesContenedores,
+    'almacenamiento-contenedores': almacenamientoContenedores,
+    'redes-docker': redesDocker,
+    'docker-hub-registries': dockerHubRegistries,
+    'buenas-practicas-docker': buenasPracticasDocker,
 };
