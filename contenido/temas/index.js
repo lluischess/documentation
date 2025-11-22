@@ -94,4 +94,31 @@ const temasPrestaShop = {
     'redes-docker': redesDocker,
     'docker-hub-registries': dockerHubRegistries,
     'buenas-practicas-docker': buenasPracticasDocker,
+    
+    // Docker Compose y Orquestación
+    'introduccion-docker-compose': introduccionDockerCompose,
+    'archivos-docker-compose': archivosDockerCompose,
+    'variables-entorno': variablesEntornoSecrets,
+    'redes-volumenes-compose': redesVolumenesCompose,
+    'orquestacion-contenedores': orquestacionMultiplesContenedores,
+    'perfiles-docker-compose': perfilesDockerCompose,
+    'depuracion-docker-compose': depuracionResolucionProblemas,
+    
+    // Docker en Entornos de Producción
+    'seguridad-docker': seguridadDocker,
+    'monitoreo-contenedores': monitoreoContenedores,
+    'logging-docker': loggingDocker,
+    'escalado-contenedores': escaladoContenedores,
+    'docker-swarm': dockerSwarmOrquestacion,
+    'kubernetes-basico': introduccionKubernetes,
+    'ci-cd-docker': cicdDocker,
+    
+    // Gestión y Orquestación de Contenedores para PrestaShop
+    'estrategias-despliegue-docker': estrategiasDespliegueDocker,
+    'integracion-docker-ci-cd': integracionDockerCICD,
+    'seguridad-contenedores': seguridadContenedoresPrestashop,
+    'monitorizacion-contenedores': monitorizacionContenedoresPrestashop,
+    'almacenamiento-persistente': almacenamientoPersistenteProduccion,
+    'optimizacion-imagenes': optimizacionImagenesDocker,
+    'introduccion-orquestadores': introduccionOrquestadoresPrestashop,
 };
