@@ -121,4 +121,58 @@ const temasPrestaShop = {
     'almacenamiento-persistente': almacenamientoPersistenteProduccion,
     'optimizacion-imagenes': optimizacionImagenesDocker,
     'introduccion-orquestadores': introduccionOrquestadoresPrestashop,
+    
+    // Análisis de Calidad de Código Estática
+    'phpstan-analisis-estatico-tipos': phpstanAnalisisTipos,
+    'php-codesniffer-psr12': phpCodeSnifferPSR12,
+    'phpmd-detector-codigo-maloliente': phpmdCodigoMaloliente,
+    'analisis-complejidad-ciclomatica': analisisComplejidadCiclomatica,
+    'code-reviews-pair-programming': codeReviewsPairProgramming,
+    'metricas-calidad-codigo': metricasCalidadCodigo,
+    'refactoring-continuo': refactoringContinuo,
+    
+    // Conceptos de CI/CD
+    'principios-integracion-continua': principiosIntegracionContinua,
+    'principios-despliegue-entrega-continua': despliegueContinuoEntregaContinua,
+    'herramientas-ci-cd': herramientasCICD,
+    'automatizacion-builds-tests': automatizacionBuildsTests,
+    'gestion-artefactos': gestionArtefactos,
+    'estrategias-ramificacion': estrategiasRamificacion,
+    'versionado-semantico': versionadoSemantico,
+    
+    // Configuración de Pipelines CI
+    'configuracion-github-actions-gitlab-ci': githubActionsGitlabCIPHPSymfony,
+    'pruebas-unitarias-integracion-ci': ejecucionPruebasCI,
+    'analisis-estatico-ci': analisisEstaticoEstandaresCI,
+    'construccion-imagenes-docker-ci': construccionImagenesDockerCI,
+    'reportes-cobertura-codigo': reportesCoberturaCodigo,
+    'notificaciones-ci': notificacionesCI,
+    'seguridad-pipelines-ci': seguridadPipelinesCredenciales,
+    
+    // Configuración de Pipelines CD
+    'despliegue-automatico-staging-produccion': despliegueAutomaticoStagingProduccion,
+    'estrategias-despliegue-blue-green': estrategiasDespliegueAvanzadas,
+    'gestion-rollbacks-downtime-cero': gestionRollbacksDowntimeCero,
+    'variables-entorno-seguras': configuracionVariablesEntornoSeguras,
+    'monitorizacion-post-despliegue': monitorizacionPostDespliegueAlertas,
+    'integracion-infraestructura-cd': integracionInfraestructuraSSHKubernetesCloud,
+    'gestion-secrets-cd': gestionSecretsCD,
+    
+    // Arquitecturas Comunes de Software
+    'arquitectura-monolitica': arquitecturaMonoliticaVentajasDesventajas,
+    'arquitectura-por-capas': arquitecturaPorCapas,
+    'arquitectura-hexagonal': arquitecturaHexagonalPortsAdapters,
+    'cqrs-arquitecturas': cqrsCommandQueryResponsibilitySegregation,
+    'event-driven-architecture': eventDrivenArchitecture,
+    'domain-driven-design': domainDrivenDesignConceptosClave,
+    'arquitectura-soa': arquitecturaOrientadaServiciosSOA,
+    
+    // Diseño para la Escalabilidad
+    'escalabilidad-horizontal-vertical': escalabilidadHorizontalVertical,
+    'balanceadores-carga-proxy-inverso': balanceadoresCargaProxyInverso,
+    'bases-datos-escalables': basesDatosEscalables,
+    'caching-distribuido': cachingDistribuidoRedisMemcached,
+    'colas-mensajes-escalabilidad': colasMensajesRabbitMQKafkaSQS,
+    'microservicios-api-gateways': microserviciosAPIGateways,
+    'cdn-contenido-estatico': cdnContentDeliveryNetwork,
 };
